@@ -18,7 +18,7 @@ execute:
 
 Business intelligence (BI) and analytics professionals occupy a distinct and growing segment of the technology labor market. These professionals sit at the intersection of technical data skills and business stakeholder communication. Unlike data scientists who build predictive models or machine learning engineers who deploy algorithms, BI analysts are responsible for translating operational data into dashboards, KPIs, and reports that drive decision quality and impact commercial outcomes for businesses. This role type is in high demand, **highly varied across industries**, and poorly served by existing career guidance tools.
 
-Students and early-career professionals targeting BI and analytics roles face ambiguity of hiring expectations when i comes to which combination of tools, domain fluency, and communication skills will make them competitive. For example, someone fluent in SQL and Tableau competes for jobs that are different from someone else who is fluent in Power BI and DAX, but both would be hired as a "BI analyst". 
+Students and early-career professionals targeting BI and analytics roles face ambiguity of hiring expectations when it comes to which combination of tools, domain fluency, and communication skills will make them competitive. For example, someone fluent in SQL and Tableau competes for jobs that are different from someone else who is fluent in Power BI and DAX, but both would be hired as a "BI analyst". 
 
 Current career advising tools do not always resolve this distinction. Furthermore, a key requirement of success in this career is strong stakeholder management skills, which evolve based on long-term career pathways. For example, a mid-career BI analyst growing into a senior technical IC will need command of a different set of skills as one growing into a more business-oriented manager.
 
@@ -42,11 +42,9 @@ The case for building this tool is anchored in three ideas:
 
 The U.S. Bureau of Labor Statistics projects 35 percent employment growth for data scientists, which is the broader occupational category that encompasses **Business Intelligence Analysts (SOC 15-2051)**, from 2025 to 2035, with a median annual wage of $120,230, making it one of the fastest-growing and highest-compensating occupational groups in the U.S. economy @bls2024. This growth is driven by rising enterprise demand for real-time reporting, self-service analytics platforms, and KPI governance frameworks that require dedicated BI practitioners, not just ad-hoc report builders. 
 
-The World Economic Forum paces **Business Intelligence Analysts** third on its list of fastest-growing roles globally through 2027, behind only AI/ML Specialists and Sustainability Specialists, with Data Analysts and Scientists projected to add 1.4 million jobsl a 30–35 percent increase @wef2023.
+The World Economic Forum paces **Business Intelligence Analysts** third on its list of fastest-growing roles globally through 2027, behind only AI/ML Specialists and Sustainability Specialists, with Data Analysts and Scientists projected to add 1.4 million jobs, which a 30–35 percent increase @wef2023.
 
 Additionally, the BI tooling landscape has undergone a significant shift. The migration from on-premise reporting tools (Crystal Reports, SSRS) to cloud-native platforms (Tableau Cloud, Microsoft Power BI, Looker, Sigma) has redefined the core skill profile employers expect. Forrester Research notes that "BI technology has become largely commoditized," with enterprises now prioritizing platforms native to cloud hyperscalers over legacy on-premise deployments @forrester2023.
-
-LinkedIn's Workforce Reports document that **BI and analytics roles** have lower remote availability than data engineering or ML engineering positions, reflecting the stakeholder-facing nature of BI work @linkedin2024. **Business intelligence roles**, particularly those involving executive dashboard delivery and KPI governance tend to require proximity to business stakeholders, making geography a stronger constraint for BI job seekers than for technical data roles.
 
 ---
 
@@ -70,4 +68,4 @@ A student who can identify which archetype matches their strengths will compete 
 
 ---
 
-## References
+## References {.unnumbered}
