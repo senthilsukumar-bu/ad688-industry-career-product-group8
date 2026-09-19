@@ -4,7 +4,7 @@
     "engine": "jupyter",
     "markdown": "---\ntitle: Skill Gap Analysis\nbibliography: references.bib\ncsl: csl/apa.csl\nformat: html\nexecute:\n  freeze: auto\n---\n\n",
     "supporting": [
-      "skill_gap_analysis_files/figure-html"
+      "skill_gap_analysis_files"
     ],
     "filters": [],
     "includes": {}
