@@ -5,5 +5,5 @@ csl: csl/apa.csl
 format: html
 jupyter: python3
 execute:
-  freeze: true 
+  freeze: auto 
 ---

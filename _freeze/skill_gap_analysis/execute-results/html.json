@@ -1,10 +1,10 @@
 {
-  "hash": "c19f3803c4247c6c21564e2699b1ee47",
+  "hash": "dca612bec56a065c4f5a634a37dad077",
   "result": {
     "engine": "jupyter",
-    "markdown": "---\ntitle: Skill Gap Analysis\nbibliography: references.bib\ncsl: csl/apa.csl\nformat: html\nexecute:\n  freeze: true\n---\n\n",
+    "markdown": "---\ntitle: Skill Gap Analysis\nbibliography: references.bib\ncsl: csl/apa.csl\nformat: html\nexecute:\n  freeze: auto\n---\n\n",
     "supporting": [
-      "skill_gap_analysis_files"
+      "skill_gap_analysis_files/figure-html"
     ],
     "filters": [],
     "includes": {}
