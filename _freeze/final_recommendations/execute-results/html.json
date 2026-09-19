@@ -1,0 +1,12 @@
+{
+  "hash": "d4a0f91381f08a3adab1d28b91c6e1cb",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: Final Recommendations\nformat: html\nexecute:\n  freeze: true\n---\n\n",
+    "supporting": [
+      "final_recommendations_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}
