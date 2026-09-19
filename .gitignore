@@ -1,2 +1,12 @@
+# Python
 /.quarto/
 **/*.quarto_ipynb
+.venv/*
+
+# Environment variables
+**/*.quarto_ipynb
+.env
+.env
+
+# Dataset (large files - do not push to GitHub)
+outputs/
