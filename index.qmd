@@ -8,9 +8,7 @@ execute:
   freeze: auto 
 ---
 
-# AD688 Group Project 8
-
-## NAICS Code Rationale — Business Intelligence & Analytics
+# NAICS Code Rationale — Business Intelligence & Analytics
 
 | Question | Response |
 |---|---|

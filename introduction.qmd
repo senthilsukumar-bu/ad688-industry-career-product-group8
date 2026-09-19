@@ -10,7 +10,7 @@ format:
     number-sections: true
 jupyter: python3
 execute:
-  freeze: true 
+  freeze: auto 
 ---
 
 
@@ -21,43 +21,31 @@ Business intelligence (BI) and analytics professionals occupy a distinct and gro
 Students and early-career professionals targeting BI and analytics roles face a version of the information asymmetry problem: not just **which industry wants data skills**, but **which industry needs the kind of BI work I want to do** and which combination of tools, domain fluency, and communication skills will make me competitive there. For example, someone fluent in SQL and Tableau competes for jobs that are different from someone else who is fluent in Power BI and DAX, even though both would typically call themselves "BI analysts." Current career advising tools do not resolve this distinction. Furthermore, a key requirement of success in this career is strong stakeholder management skills, which evolve based on long-term career pathways. For example, a mid-career BI analyst growing into a senior technical IC will need command of a different set of skills as one growing into a more business-oriented manager.
 
 This project addresses these gaps by building a data-driven career evaluation prototype scoped to NAICS 541512 (Computer Systems Design Services), a sector where BI and analytics roles are concentrated and quickly evolving, especially in the face of AI. The product is designed to help a BI-focused job seeker answer four actionable questions: 
-1. Which industry is strongest for their target BI pathway
-2. Which tools and skills employers actually require
-3. How salaries, experience level, and remote-work availability vary
-4. Where a user's current profile may fall short of hiring criteria
+ 1. Which industry is strongest for their target BI pathway
+ 2. Which tools and skills employers actually require
+ 3. How salaries, experience level, and remote-work availability vary
+ 4. Where a user's current profile may fall short of hiring criteria
 
 ---
 
 ## Research and Product Rationale
 
 The case for building this tool rests on three ideas:
-1. Strong labor market growth in BI-specific occupations
-2. A documented transition in the BI tool landscape that has created new skill requirements, especially as AI handles more of the technical aspects of these roles, emphasizing skills that AI can't (currently) tackle, such as framing business problems, bringing a deep understanding of a firm's business model to BI solutioning, or Stakeholder management and accountability.
-3. Connecting the gap between how students and professionals self-assess their BI readiness, versus what skills employers are looking for.
-
-The U.S. Bureau of Labor Statistics projects 23 percent employment growth for Business Intelligence Analysts between 2022 and 2032 — more than five times the national average for all occupations @bls2024bi. This growth is driven by rising enterprise demand for real-time reporting, self-service analytics platforms, and KPI governance frameworks that require dedicated BI practitioners, not just ad-hoc report builders. The World Economic Forum similarly identifies Data Analysts and Scientists among the top five fastest-growing roles globally through 2027, with technology and professional services leading as demand sectors @wef2023.
-
-Simultaneously, the BI tooling landscape has undergone a significant evolution. The migration from on-premises reporting tools (Crystal Reports, SSRS) to cloud-native platforms (Tableau Cloud, Microsoft Power BI, Looker, Sigma, Basedash) has redefined the core skils employers expect @lightcast2024. Analytics engineering, which encompasses building modular, version-controlled data models using tools like dbt, has emerged as a new layer between data engineering and BI delivery, creating a new role category that is also still evolving. Within NAICS 541512, this problem is especially acute. Computer systems design firms adopt new BI stack technologies quickly. Career guidance needs to reflect these shifts in the skills landscape. 
+ 1. Strong labor market growth in BI-specific occupations
+ 2. A documented transition in the BI tool landscape that has created new skill requirements, especially as AI handles more of the technical aspects of these roles, emphasizing skills that AI can't (currently) tackle, such as framing business problems, bringing a deep understanding of a firm's business model to BI solutioning, or Stakeholder management and accountability.
+ 3. Connecting the gap between how students and professionals self-assess their BI readiness, versus what skills employers are looking for.
 
 ---
 
 ## Literature Review
 
-### BI Occupation Growth and Labor Market Demand
+The U.S. Bureau of Labor Statistics projects 35 percent employment growth for data scientists, which is the broader occupational category that encompasses Business Intelligence Analysts (SOC 15-2051), from 2025 to 2035, with a median annual wage of $120,230, making it one of the fastest-growing and highest-compensating occupational groups in the U.S. economy @bls2024. This growth is driven by rising enterprise demand for real-time reporting, self-service analytics platforms, and KPI governance frameworks that require dedicated BI practitioners, not just ad-hoc report builders. 
 
-The BLS Occupational Outlook Handbook entry for Business Intelligence Analysts establishes rationale for our project @bls2024bi. It documents 23 percent projected growth from 2022 to 2032 and identifies the professional and technical services sector (i.e., NAICS 5415) as the primary employer of BI talent. Median annual wages for BI analysts exceed $100,000, with the computer systems design subsector among the highest-paying environments. These figures define the opportunity landscape our product is designed to help students navigate.
+The World Economic Forum paces Business Intelligence Analysts third on its list of fastest-growing roles globally through 2027, behind only AI/ML Specialists and Sustainability Specialists, with Data Analysts and Scientists projected to add 1.4 million jobsl a 30–35 percent increase @wef2023.
 
-### Emerging Role Structures and Future Demand
+Simultaneously, the BI tooling landscape has undergone a significant shift. The migration from on-premise reporting tools (Crystal Reports, SSRS) to cloud-native platforms (Tableau Cloud, Microsoft Power BI, Looker, Sigma, Basedash) has redefined the core skill profile employers expect @lightcast2024. Analytics engineering, which is the practice of building modular, version-controlled data models using tools like dbt, has emerged as a new layer between data engineering and BI delivery, creating a new role category that many students have not yet prepared for and is still evolving. Within NAICS 541512, this problem is especially acute. Computer systems design firms adopt new BI stack technologies quickly. Career guidance needs to reflect these shifts in the skills landscape. 
 
-The World Economic Forum's *Future of Jobs Report 2023* situates BI and analytics careers within a broader structural transition where technology and AI adoption is simultaneously automating routine reporting tasks and expanding demand for analysts who can interpret complex, cross-functional data @wef2023. The report's projection that Data Analysts will be among the fastest-growing global roles through 2027, even as automation reduces demand for manual data entry and basic spreadsheet analysis, supports the thesis that *skilled* BI practitioners, rather than being threatened by changes in the tools landscape, are instead rewarded by them.
-
-### Real-Time Tool and Skill Demand in BI Roles
-
-Lightcast's labor market analytics, derived from tens of millions of U.S. job postings, reveal a significant split in employer BI skill requirements @lightcast2024. Demand for SQL remains universal and foundational across all BI role types. However, platform preference has stratified by industry. For example, Microsoft Power BI dominates financial services, healthcare, and enterprise manufacturing; Tableau remains strongest in technology and consulting, and Looker/Sigma are growing in cloud-native startups. Employers in NAICS 541512 additionally show growing demand for analytics engineering skills (dbt, data modeling, Snowflake), a requirement mostly absent from BI postings five years ago. 
-
-### Salary, Remote Work, and Role Variation in BI Markets
-
-LinkedIn's Workforce Reports document that BI and analytics roles have lower remote availability than data engineering or ML engineering positions, reflecting the stakeholder-facing nature of BI work @linkedin2024. Business intelligence roles, particularly those involving executive dashboard delivery and KPI governance, tend to require proximity to business stakeholders, making geography a stronger constraint for BI job seekers than for technical data roles. However, remote BI work is still available and growing.
+LinkedIn's Workforce Reports document that BI and analytics roles have lower remote availability than data engineering or ML engineering positions, reflecting the stakeholder-facing nature of BI work @linkedin2024. Business intelligence roles, particularly those involving executive dashboard delivery and KPI governance tend to require proximity to business stakeholders, making geography a stronger constraint for BI job seekers than for technical data roles. However, remote BI work is available and growing.
 
 ---
 
@@ -66,9 +54,9 @@ LinkedIn's Workforce Reports document that BI and analytics roles have lower rem
 We expect this project to surface three primary findings specific to the BI and analytics career pathway within NAICS 541512.
 
 **First**, BI demand within computer systems design firms is concentrated around three distinct role archetypes, each with a separable skill profile and salary range:
-1. BI developer (tool-focused, platform implementation), analytics engineer (data modeling, dbt, Snowflake)
-2. Analytics translator (stakeholder-facing
-3. KPI strategy, reporting governance) 
+ 1. BI developer (tool-focused, platform implementation), analytics engineer (data modeling, dbt, Snowflake)
+ 2. Analytics translator (stakeholder-facing
+ 3. KPI strategy, reporting governance) 
 
 A student who can identify which archetype matches their strengths will compete in a smaller, better-defined market than one who applies generically to "BI analyst" roles.
 
@@ -77,7 +65,7 @@ A student who can identify which archetype matches their strengths will compete 
 **Third**, SQL proficiency combined with at least one cloud data platform (Snowflake or BigQuery) and one BI visualization tool constitutes the minimum viable skill profile for entry-level BI roles in NAICS 541512. From these foundational skill sets, a typical student should focus on upskilling based on target roles (e.g., communications, product analytics etc.). We would want to explore the top, varied combinations of **SQL + Cloud Platform + BI tool + Role-specific needs* that would make students competitive in the BI job market.
  
 
-The final prototype will allow a student to input their current BI tool stack and domain experience and receive a ranked view of role-industry matches, competitive skill thresholds, salary benchmarks, and a prioritized gap analysis — practical career intelligence a MET advising office or career center could deploy immediately.
+The final prototype should allow a student to input their current BI tool stack and domain experience to receive role-industry matches, skills required, salary benchmarks, and a prioritized gap analysis.
 
 ---
 
