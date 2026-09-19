@@ -15,6 +15,6 @@ execute:
 | **Career Pathway** | Business Intelligence & Analytics |
 | **NAICS Code** | NAICS: **541512** |
 | **Industry Label** | **54 (Sector):** Professional, Scientific, and Technical Services <br> — **5415 (Industry Group):** Computer Systems Design and Related Services <br> — — **541512 (National Industry):** Computer Systems Design Services |
-| **Relevancy** | NAICS code 541512 covers firms that implement technology systems. This is a broad categorization but can cover areas such as developing custom data pipelines, BI tools, and machine learning solutions (listed as *Information management computer systems integration design services* under the NAICS index [^1]). <br><br> This NAICS category is thus the most relevant for students targeting roles in analytics, data science, machine learning, **business intelligence, analytics** or data engineering, or closely related data careers. |
+| **Relevancy** | NAICS code 541512 covers firms that implement technology systems. This is a broad categorization but can cover areas such as developing custom data pipelines, BI tools, and machine learning solutions (listed as *Information management computer systems integration design services* under the NAICS index [1]). <br><br> This NAICS category is thus the most relevant for students targeting roles in analytics, data science, machine learning, **business intelligence, analytics** or data engineering, or closely related data careers. |
 
-[^1]: *North American Industry Classification System (NAICS) U.S. Census Bureau.* (n.d.). https://www.census.gov/naics/?input=5415&year=2022&details=541512
+[1]: *North American Industry Classification System (NAICS) U.S. Census Bureau.* (n.d.). https://www.census.gov/naics/?input=5415&year=2022&details=541512
