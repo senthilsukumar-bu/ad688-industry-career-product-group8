@@ -29,9 +29,12 @@ This project addresses these gaps by building a data-driven career evaluation pr
 ## Research and Product Rationale
 
 The case for building this tool is anchored in three ideas:
- 1. Documented strong labor market growth in BI-specific occupations
- 2. Documented transition in the BI tool landscape that has created new skill requirements, especially as AI handles more of the technical aspects of these roles, emphasizing skills that AI can't (currently) tackle, such as framing business problems, bringing a deep understanding of a firm's business model to BI solutioning, or Stakeholder management and accountability.
- 3. Connecting the gap between how students and professionals self-assess their BI readiness, versus what skills employers are actually looking for.
+
+1. Documented strong labor market growth in BI-specific occupations.
+
+2. Documented transition in the BI tool landscape that has created new skill requirements, especially as AI handles more of the technical aspects of these roles, emphasizing skills that AI can't (currently) tackle, such as framing business problems, bringing a deep understanding of a firm's business model to BI solutioning, or Stakeholder management and accountability.
+
+3. Connecting the gap between how students and professionals self-assess their BI readiness, versus what skills employers are actually looking for.
 
 ---
 
@@ -41,7 +44,7 @@ The U.S. Bureau of Labor Statistics projects 35 percent employment growth for da
 
 The World Economic Forum paces **Business Intelligence Analysts** third on its list of fastest-growing roles globally through 2027, behind only AI/ML Specialists and Sustainability Specialists, with Data Analysts and Scientists projected to add 1.4 million jobsl a 30–35 percent increase @wef2023.
 
-Additionally, the **BI tooling landscape** has undergone a significant shift. The migration from on-premise reporting tools (Crystal Reports, SSRS) to cloud-native platforms (Tableau Cloud, Microsoft Power BI, Looker, Sigma, Basedash) has redefined the core skill profile employers expect @lightcast2024. Analytics engineering, which is the practice of building modular, version-controlled data models using tools like dbt, has emerged as a new layer between data engineering and BI delivery, creating a new role that many students have not yet prepared for and is still evolving. Within NAICS 541512, this problem is especially acute as firms adopt new BI tools and stacks quickly. Career guidance needs to reflect these shifts in the skills landscape. 
+Additionally, the BI tooling landscape has undergone a significant shift. The migration from on-premise reporting tools (Crystal Reports, SSRS) to cloud-native platforms (Tableau Cloud, Microsoft Power BI, Looker, Sigma) has redefined the core skill profile employers expect. Forrester Research notes that "BI technology has become largely commoditized," with enterprises now prioritizing platforms native to cloud hyperscalers over legacy on-premise deployments @forrester2023.
 
 LinkedIn's Workforce Reports document that **BI and analytics roles** have lower remote availability than data engineering or ML engineering positions, reflecting the stakeholder-facing nature of BI work @linkedin2024. **Business intelligence roles**, particularly those involving executive dashboard delivery and KPI governance tend to require proximity to business stakeholders, making geography a stronger constraint for BI job seekers than for technical data roles.
 
@@ -52,15 +55,18 @@ LinkedIn's Workforce Reports document that **BI and analytics roles** have lower
 We expect this project to surface three primary findings specific to the BI and analytics career pathway within NAICS 541512.
 
 **First**, BI "Analyst" demand is concentrated around three roles, each with a fairly distinct skill set and salary range:
- 1. BI developer (tool-focused, platform implementation)
- 2. Analytics engineer (data modeling, dbt, Snowflake, visualization)
- 3. Analytics communicator (stakeholder-facing partnerships, KPI strategy, reporting governance)
+
+1. BI developer (tool-focused, platform implementation)
+
+2. Analytics engineer (data modeling, dbt, Snowflake, visualization)
+
+3. Analytics communicator (stakeholder-facing partnerships, KPI strategy, reporting governance)
 
 A student who can identify which archetype matches their strengths will compete in a smaller, better-defined market than one who applies generically to all "BI analyst" roles.
 
 **Second**, the broad tooling split between Power BI and Tableau represents a meaningful career specialization branch: employers who use one rarely use both, and compensation and industry concentration differ between firms employing either one. Power BI fluency tends to correlate with stronger demand in financial services and healthcare, while Tableau demand remains stronger in technology firms, but newer start ups tend to use more lightweight tools such as Basedash. Other tools may be required by firms in other industries. This has direct implications for how students should prioritize tool investment and learning.
 
-**Third**, SQL proficiency is still key. SQL combined with at least one cloud data platform (Snowflake or BigQuery) and one BI visualization tool constitutes the minimum viable skill set for entry-level BI roles in NAICS 541512. From these foundational skill sets, a typical student should focus on upskilling based on target roles (e.g., communications, product analytics etc.). We would want to explore the top, varied combinations of **SQL + Cloud Platform + BI tool + Role-specific needs* that would make students competitive in the BI job market.
+**Third**, SQL proficiency is still key. SQL combined with at least one cloud data platform (Snowflake or BigQuery) and one BI visualization tool constitutes the minimum viable skill set for entry-level BI roles in NAICS 541512. From these foundational skill sets, a typical student should focus on upskilling based on target roles (e.g., communications, product analytics etc.). We would want to explore the top, varied combinations of **SQL + Cloud Platform + BI tool + Role-specific needs** that would make students competitive in the BI job market.
 
 ---
 
