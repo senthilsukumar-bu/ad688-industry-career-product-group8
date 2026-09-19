@@ -1,5 +1,9 @@
 project:
   type: website
+  resources:
+    - "*.jpg"
+    - "images/**"
+  # output-dir: docs
 
 website:
   title: "AD688 Group Project 8"
@@ -7,7 +11,23 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - href: introduction.qmd
+        text: Introduction
+      - href: data_preparation.qmd
+        text: Data Preparation
+      - href: market_baseline.qmd
+        text: Market Baseline
+      - href: skill_gap_analysis.qmd
+        text: Skill Gap Analysis
+      - href: career_evaluation.qmd
+        text: Career Evaluation
+      - href: final_recommendations.qmd
+        text: Final Recommendations
       - about.qmd
+
+
+
+
 
 format:
   html:
@@ -17,5 +37,9 @@ format:
     css: styles.css
     toc: true
 
-
+jupyter:
+  kernelspec:
+    name: venv
+    display_name: Python (venv)
+    language: python
 
