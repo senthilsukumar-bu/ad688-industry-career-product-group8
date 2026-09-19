@@ -1,0 +1,12 @@
+{
+  "hash": "2952ea890fe3ff85aa2f82c5d681fab9",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: Career Evaluation\nformat: html\nexecute:\n  freeze: true\n---\n\n",
+    "supporting": [
+      "career_evaluation_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}
