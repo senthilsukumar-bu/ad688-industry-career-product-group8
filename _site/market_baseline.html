@@ -138,8 +138,14 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#use-this-clean-table-for-all-downstream-analysis" id="toc-use-this-clean-table-for-all-downstream-analysis" class="nav-link active" data-scroll-target="#use-this-clean-table-for-all-downstream-analysis">use this clean table for all downstream analysis</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -163,8 +169,18 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<p>from pyspark.sql import SparkSession from pyspark.sql import functions as F</p>
+<p>spark = SparkSession.builder<br>
+.appName(“AD688_JobFacts”)<br>
+.config(“spark.sql.session.timeZone”, “UTC”)<br>
+.getOrCreate() spark.sparkContext.setLogLevel(“ERROR”)</p>
+<p>jobs_raw_spark = spark.read.csv( “./outputs/api_job_facts_cleaned.csv”, header=True, inferSchema=True, multiLine=True, escape=‘“’ )</p>
+<section id="use-this-clean-table-for-all-downstream-analysis" class="level1">
+<h1>use this clean table for all downstream analysis</h1>
+<p>jobs_raw_spark.createOrReplaceTempView(“job_facts”) spark.sql(“SELECT * FROM job_facts LIMIT 10”).toPandas()</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

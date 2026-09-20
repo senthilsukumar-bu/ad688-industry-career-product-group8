@@ -123,7 +123,7 @@ spark.sparkContext.setLogLevel("ERROR")
 
 # Load from raw API CSV 
 jobs_raw_spark = spark.read.csv(
-    "api_job_facts.csv",
+    "./outputs/api_job_facts.csv",
     header=True,
     inferSchema=True,
     multiLine=True,
@@ -349,5 +349,6 @@ jobs_clean.show(5, truncate=60)
 
 jobs_clean.toPandas().to_csv("./outputs/api_job_facts_cleaned.csv", index=False)
 print("Saved → ./outputs/api_job_facts_cleaned.csv")
+spark.sql("SELECT * FROM job_facts LIMIT 10").toPandas()
 
 ```
