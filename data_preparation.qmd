@@ -21,6 +21,7 @@ from dotenv import load_dotenv
 
 import sys
 
+
 load_dotenv("M01_A/m01_data/.env")
 load_dotenv()
 
@@ -49,7 +50,7 @@ schema_response = requests.get(api_url("schema"), timeout=30)
 schema_response.raise_for_status()
 print("Schema keys:", list(schema_response.json().keys())[:10])
 
-MAX_RECORDS = 1_000
+#MAX_RECORDS = 10_000
 
 all_rows = []
 pull_log = []
@@ -72,13 +73,14 @@ while True:
         "rows_returned": len(page),
     })
     print(f"offset={params['offset']} | page={len(page)} | total={len(all_rows)}")
-    if len(all_rows) >= MAX_RECORDS:
-        break
+    #if len(all_rows) >= MAX_RECORDS:
+    #    break
     params["offset"] += params["limit"]
 
-
 jobs_raw = pd.json_normalize(all_rows)
-print(f"Raw pull: {jobs_raw.shape}")
+jobs_raw["posted_at"] = pd.to_datetime(jobs_raw["posted_at"], errors="coerce", utc=True)
+jobs_raw = jobs_raw[jobs_raw["posted_at"] >= pd.Timestamp("2026-01-01", tz="UTC")].copy()
+print(f"Raw pull (after date filter): {jobs_raw.shape}")
 print(jobs_raw.columns.tolist())
 
 ```
@@ -86,12 +88,12 @@ print(jobs_raw.columns.tolist())
 ```{python}
 
 TARGET_TITLES = [
-    "bi analyst",
-    "business intelligence analyst",
-    "data analyst",
-    "bi developer",
-    "business intelligence developer",
-    "analytics engineer",
+    "bi ",
+    "data ",
+    "analytics ",
+    "business intelligence ",
+    "reporting ",
+    "business ",
 ]
 
 # Find the title column (adjust if the name differs from what prints above)
@@ -107,7 +109,7 @@ import os
 os.makedirs("./outputs", exist_ok=True)
 jobs.to_csv("./outputs/api_job_facts.csv", index=False)
 print("Saved to ./outputs/api_job_facts.csv")
-
+jobs.createOrReplaceTempView("job_facts")
 
 ```
 
