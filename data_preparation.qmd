@@ -109,8 +109,245 @@ import os
 os.makedirs("./outputs", exist_ok=True)
 jobs.to_csv("./outputs/api_job_facts.csv", index=False)
 print("Saved to ./outputs/api_job_facts.csv")
-jobs.createOrReplaceTempView("job_facts")
-
 ```
 
+```{python}
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
 
+spark = SparkSession.builder \
+    .appName("AD688_JobFacts") \
+    .config("spark.sql.session.timeZone", "UTC") \
+    .getOrCreate()
+spark.sparkContext.setLogLevel("ERROR")
+
+# Load from raw API CSV 
+jobs_raw_spark = spark.read.csv(
+    "api_job_facts_cleanup2.csv",
+    header=True,
+    inferSchema=True,
+    multiLine=True,
+    escape='"'
+)
+
+FIELD_MAP = {
+    "job_id":                                        "job_id",
+    "posted_at":                                     "posted_at",
+    "title":                                         "title",
+    "normalized_title":                              "normalized_title",
+    "company_name":                                  "company_name",
+    "location_text":                                 "location_text",
+    "city":                                          "city",
+    "city_code":                                     "city_code",
+    "state":                                         "state",
+    "state_code":                                    "state_code",
+    "remote_status":                                 "remote_status",
+    "employment_type":                               "employment_type",
+    "salary_text":                                   "salary_text",
+    "annual_salary_min":                             "annual_salary_min",
+    "annual_salary_max":                             "annual_salary_max",
+    "hourly_salary_min":                             "hourly_salary_min",
+    "hourly_salary_max":                             "hourly_salary_max",
+    "soc_code":                                      "soc_code",
+    "soc_name":                                      "soc_name",
+    "occupation_family":                             "occupation_family",
+    "naics_code":                                    "naics_code",
+    "naics_name":                                    "naics_name",
+    "onet_code":                                     "onet_code",
+    "onet_name":                                     "onet_name",
+    "cip_code":                                      "cip_code",
+    "cip_name":                                      "cip_name",
+    "skills":                                        "skills",
+    "program_matches":                               "program_matches",
+    "description":                                   "description",
+    "bls.employment":                                "bls_employment",
+    "bls.annual_mean_wage":                          "bls_annual_mean_wage",
+    "bls.annual_median_wage":                        "bls_annual_median_wage",
+    "bls.source_year":                               "bls_source_year",
+    "student_signals.work_type":                     "student_signals_work_type",
+    "student_signals.requirements_summary":          "student_signals_requirements_summary",
+    "student_signals.responsibilities_summary":      "student_signals_responsibilities_summary",
+    "student_signals.technical_tools_summary":       "student_signals_technical_tools_summary",
+}
+
+select_exprs = []
+skipped = []
+for src, alias in FIELD_MAP.items():
+    if src in jobs_raw_spark.columns:
+        # Backtick-quote any column name containing a dot (flat CSV column, not a struct)
+        col_ref = F.col(f"`{src}`") if "." in src else F.col(src)
+        select_exprs.append(col_ref.alias(alias))
+    else:
+        skipped.append(src)
+
+if skipped:
+    print(f"Columns not found (skipped): {skipped}")
+
+jobs_selected = jobs_raw_spark.select(select_exprs)
+jobs_selected.createOrReplaceTempView("job_facts_raw")
+print(f"Selected {len(select_exprs)} columns — raw view registered as: job_facts_raw")
+jobs_selected.printSchema()
+
+jobs_clean = spark.sql("""
+
+    WITH
+
+    -- ── STEP 1: Remove noisy data ──────────────────────────────────────────
+    -- Rows with null job_id are dropped; they cannot be keyed or joined.
+    -- Rows with null title are dropped; they are unusable for downstream analysis.
+    
+    base AS (
+        SELECT *
+        FROM job_facts_raw
+        WHERE job_id IS NOT NULL
+          AND title IS NOT NULL
+    ),
+
+    -- ── STEP 2: Normalize categorical labels ─────────────────────────
+    -- remote_status and employment_type arrive with inconsistent casing
+    -- and freeform strings (e.g. "REMOTE", "Remote Work", "wfh").
+    -- Map to four canonical values. 
+    -- Any unrecognized value defaults to 'Unknown' rather than NULL so aggregations are more meaningful.
+    labeled AS (
+        SELECT *,
+
+        CASE
+            WHEN LOWER(TRIM(remote_status)) IN ('remote', 'fully remote', 'work from home', 'wfh', 'remote work')
+                OR LOWER(TRIM(remote_status)) LIKE '%remote%' AND LOWER(TRIM(remote_status)) NOT LIKE '%partial%'
+                OR LOWER(TRIM(remote_status)) LIKE '%wfh%'
+                OR LOWER(TRIM(remote_status)) LIKE '%home%'
+                THEN 'Remote'
+            WHEN LOWER(TRIM(remote_status)) IN ('hybrid', 'hybrid remote', 'partial remote', 'hybrid/remote')
+                OR LOWER(TRIM(remote_status)) LIKE '%hybrid%'
+                OR LOWER(TRIM(remote_status)) LIKE '%partial%'
+                THEN 'Hybrid'
+            WHEN LOWER(TRIM(remote_status)) IN ('on-site', 'onsite', 'in-office', 'in office', 'on site', 'office')
+                OR LOWER(TRIM(remote_status)) LIKE '%office%'
+                OR LOWER(TRIM(remote_status)) LIKE '%site%'
+                THEN 'On-site'
+            ELSE 'Unknown'
+        END AS remote_status_clean,
+
+        CASE
+            WHEN LOWER(TRIM(employment_type)) IN ('full-time', 'full time', 'fulltime', 'ft', 'permanent')
+                OR LOWER(TRIM(employment_type)) LIKE '%permanent%'
+                OR LOWER(TRIM(employment_type)) LIKE '%full%'
+                THEN 'Full-time'
+            WHEN LOWER(TRIM(employment_type)) IN ('part-time', 'part time', 'parttime', 'pt')
+                OR LOWER(TRIM(employment_type)) LIKE '%part%'
+                THEN 'Part-time'
+            WHEN LOWER(TRIM(employment_type)) IN ('contract', 'contractor', 'temp', 'temporary', 'freelance', 'c2c')
+                OR LOWER(TRIM(employment_type)) LIKE '%contract%'
+                OR LOWER(TRIM(employment_type)) LIKE '%temp%'
+                OR LOWER(TRIM(employment_type)) LIKE '%freelance%'
+                THEN 'Contract'
+            WHEN LOWER(TRIM(employment_type)) IN ('internship', 'intern', 'co-op', 'coop')
+                OR LOWER(TRIM(employment_type)) LIKE '%intern%'
+                THEN 'Internship'
+            ELSE 'Unknown'
+        END AS employment_type_clean
+
+
+        FROM base
+    ),
+
+    -- ── STEP 3: Salary outlier handling ─────────────────────────────
+    -- Salary fields contain a few data errors: $0, $1, implausibly high values from mis-parsed hourly-to-annual conversions, or potentially test records. 
+    -- Values outside plausible BI/analytics bands are set to NULL (even without salary data, the post itself e.g. skills are useful)
+    -- WHERE Annual band:  $20,000 – $500,000
+    -- WHERE Hourly band:  $10  – $250
+    -- WHERE NOT min > max (data entry error)
+    -- WHERE NOT both are set to NULL.
+    salaries AS (
+        SELECT *,
+
+            CASE
+                WHEN CAST(annual_salary_min AS DOUBLE) BETWEEN 20000 AND 500000
+                 AND CAST(annual_salary_max AS DOUBLE) BETWEEN 20000 AND 500000
+                 AND CAST(annual_salary_min AS DOUBLE) <= CAST(annual_salary_max AS DOUBLE)
+                    THEN CAST(annual_salary_min AS DOUBLE)
+                ELSE NULL
+            END AS annual_salary_min_clean,
+
+            CASE
+                WHEN CAST(annual_salary_min AS DOUBLE) BETWEEN 20000 AND 500000
+                 AND CAST(annual_salary_max AS DOUBLE) BETWEEN 20000 AND 500000
+                 AND CAST(annual_salary_min AS DOUBLE) <= CAST(annual_salary_max AS DOUBLE)
+                    THEN CAST(annual_salary_max AS DOUBLE)
+                ELSE NULL
+            END AS annual_salary_max_clean,
+
+            CASE
+                WHEN CAST(hourly_salary_min AS DOUBLE) BETWEEN 10 AND 250
+                 AND CAST(hourly_salary_max AS DOUBLE) BETWEEN 10 AND 250
+                 AND CAST(hourly_salary_min AS DOUBLE) <= CAST(hourly_salary_max AS DOUBLE)
+                    THEN CAST(hourly_salary_min AS DOUBLE)
+                ELSE NULL
+            END AS hourly_salary_min_clean,
+
+            CASE
+                WHEN CAST(hourly_salary_min AS DOUBLE) BETWEEN 10 AND 250
+                 AND CAST(hourly_salary_max AS DOUBLE) BETWEEN 10 AND 250
+                 AND CAST(hourly_salary_min AS DOUBLE) <= CAST(hourly_salary_max AS DOUBLE)
+                    THEN CAST(hourly_salary_max AS DOUBLE)
+                ELSE NULL
+            END AS hourly_salary_max_clean
+
+        FROM labeled
+    )
+
+    -- ── FINAL SELECT ─────────────────────────────────────────────────
+    -- Replace raw categorical and salary columns with cleaned versions.
+    -- All other optional fields (city, soc_code, bls_*, skills, etc.)
+    SELECT
+        job_id,
+        posted_at,
+        title,
+        normalized_title,
+        company_name,
+        location_text,
+        city,
+        city_code,
+        state,
+        state_code,
+        remote_status_clean                          AS remote_status,
+        employment_type_clean                        AS employment_type,
+        salary_text,
+        annual_salary_min_clean                      AS annual_salary_min,
+        annual_salary_max_clean                      AS annual_salary_max,
+        hourly_salary_min_clean                      AS hourly_salary_min,
+        hourly_salary_max_clean                      AS hourly_salary_max,
+        soc_code,
+        soc_name,
+        occupation_family,
+        naics_code,
+        naics_name,
+        onet_code,
+        onet_name,
+        cip_code,
+        cip_name,
+        skills,
+        program_matches,
+        description,
+        bls_employment,
+        bls_annual_mean_wage,
+        bls_annual_median_wage,
+        bls_source_year,
+        student_signals_work_type,
+        student_signals_requirements_summary,
+        student_signals_responsibilities_summary,
+        student_signals_technical_tools_summary
+
+    FROM salaries
+
+""")
+
+# Register as the canonical SQL view for all downstream analysis
+jobs_clean.createOrReplaceTempView("job_facts")
+print(f"Clean rows: {jobs_clean.count()}")
+jobs_clean.show(5, truncate=60)
+
+jobs_clean.toPandas().to_csv("./outputs/api_job_facts_cleaned.csv", index=False)
+print("Saved → ./outputs/api_job_facts_cleaned.csv")
+
+```
