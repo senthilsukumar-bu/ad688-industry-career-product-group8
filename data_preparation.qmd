@@ -123,7 +123,7 @@ spark.sparkContext.setLogLevel("ERROR")
 
 # Load from raw API CSV 
 jobs_raw_spark = spark.read.csv(
-    "api_job_facts_cleanup2.csv",
+    "api_job_facts.csv",
     header=True,
     inferSchema=True,
     multiLine=True,
