@@ -206,7 +206,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="load-data-from-met-api-and-initailize-pyspark-dataframe" class="level2">
 <h2 class="anchored" data-anchor-id="load-data-from-met-api-and-initailize-pyspark-dataframe">Load Data from MET API and Initailize pyspark DataFrame</h2>
-<div id="6f0be8aa" class="cell" data-execution_count="1">
+<div id="9c438b7f" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -293,7 +293,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="d9146c9c" class="cell" data-execution_count="2">
+<div id="7757bc37" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>TARGET_TITLES <span class="op">=</span> [</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bi "</span>,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"data "</span>,</span>
@@ -334,7 +334,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="94ca93b0" class="cell" data-execution_count="3">
+<div id="16efe757" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> functions <span class="im">as</span> F</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -346,7 +346,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Load from raw API CSV </span></span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>jobs_raw_spark <span class="op">=</span> spark.read.csv(</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"api_job_facts_cleanup2.csv"</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"api_job_facts.csv"</span>,</span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    header<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    inferSchema<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    multiLine<span class="op">=</span><span class="va">True</span>,</span>
@@ -579,7 +579,7 @@ Setting default log level to "WARN".
 To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pyspark/testing/utils.py:127: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
   require_minimum_pandas_version()
-26/09/20 16:14:31 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable</code></pre>
+26/09/20 16:21:16 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable</code></pre>
 </div>
 <div class="cell-output cell-output-error">
 <div class="ansi-escaped-output">
@@ -591,7 +591,7 @@ To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLeve
 <span class="ansi-green-fg">      9</span> 
 <span class="ansi-green-fg">     10</span> <span style="font-style:italic;color:rgb(95,135,135)"># Load from raw API CSV</span>
 <span class="ansi-green-fg">---&gt; </span><span class="ansi-green-fg">11</span> jobs_raw_spark = spark.read.csv(
-<span class="ansi-green-fg">     12</span>     <span class="ansi-yellow-fg">"api_job_facts_cleanup2.csv"</span>,
+<span class="ansi-green-fg">     12</span>     <span class="ansi-yellow-fg">"api_job_facts.csv"</span>,
 <span class="ansi-green-fg">     13</span>     header=<span style="font-weight:bold;color:rgb(0,135,0)">True</span>,
 <span class="ansi-green-fg">     14</span>     inferSchema=<span style="font-weight:bold;color:rgb(0,135,0)">True</span>,
 
@@ -622,7 +622,7 @@ To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLeve
 <span class="ansi-green-fg">    258</span> <span style="font-weight:bold;color:rgb(0,135,0)">else</span>:
 <span class="ansi-green-fg">    259</span>     <span style="font-weight:bold;color:rgb(0,135,0)">raise</span>
 
-<span class="ansi-red-fg">AnalysisException</span>: [PATH_NOT_FOUND] Path does not exist: file:/home/runner/work/ad688-industry-career-product-group8/ad688-industry-career-product-group8/api_job_facts_cleanup2.csv. SQLSTATE: 42K03</pre>
+<span class="ansi-red-fg">AnalysisException</span>: [PATH_NOT_FOUND] Path does not exist: file:/home/runner/work/ad688-industry-career-product-group8/ad688-industry-career-product-group8/api_job_facts.csv. SQLSTATE: 42K03</pre>
 </div>
 </div>
 </div>
