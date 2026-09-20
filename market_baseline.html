@@ -177,7 +177,7 @@ ul.task-list li input[type="checkbox"] {
 <p>jobs_raw_spark = spark.read.csv( “./outputs/api_job_facts_cleaned.csv”, header=True, inferSchema=True, multiLine=True, escape=‘“’ )</p>
 <section id="use-this-clean-table-for-all-downstream-analysis" class="level1">
 <h1>use this clean table for all downstream analysis</h1>
-<p>jobs_raw_spark.createOrReplaceTempView(“job_facts”)</p>
+<p>jobs_raw_spark.createOrReplaceTempView(“job_facts”) spark.sql(“SELECT * FROM job_facts LIMIT 10”).toPandas()</p>
 
 
 </section>
