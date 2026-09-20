@@ -8,5 +8,8 @@
 .env
 .env
 
+M01_A/m01_data/bronze/
+M01_A/m01_data/silver/
+
 # Dataset (large files - do not push to GitHub)
 outputs/

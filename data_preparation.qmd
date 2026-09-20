@@ -5,5 +5,110 @@ csl: csl/apa.csl
 format: html
 jupyter: python3
 execute:
-  freeze: true 
+  freeze: false 
+  error: true
+  echo: true
+  eval: true
 ---
+
+
+## Load Data from MET API and Initailize pyspark DataFrame
+```{python}
+import os
+import requests
+import pandas as pd
+from dotenv import load_dotenv
+
+import sys
+
+load_dotenv("M01_A/m01_data/.env")
+load_dotenv()
+
+API_KEY = os.getenv("EMPLOYABILITY_API_KEY", "").strip()
+BASE_URL = os.getenv("EMPLOYABILITY_API_BASE_URL", "https://met-employability-services.azurewebsites.net").strip().rstrip("/")
+STUDENT_API_BASE_URL = os.getenv("STUDENT_API_BASE_URL", "").strip().rstrip("/")
+
+if not API_KEY:
+    raise RuntimeError("EMPLOYABILITY_API_KEY is missing. Add it to .env before rendering this assignment.")
+if not BASE_URL:
+    raise RuntimeError("EMPLOYABILITY_API_BASE_URL is missing. Add it to .env before rendering this assignment.")
+if not STUDENT_API_BASE_URL:
+    if BASE_URL.endswith("/api/v1/student"):
+        STUDENT_API_BASE_URL = BASE_URL
+    elif BASE_URL.endswith("/met-career-match"):
+        STUDENT_API_BASE_URL = f"{BASE_URL}/api/v1"
+    else:
+        STUDENT_API_BASE_URL = f"{BASE_URL}/api/v1/student"
+
+def api_url(path):
+    return f"{STUDENT_API_BASE_URL}/{path.strip('/')}/"
+
+headers = {"X-API-Key": API_KEY, "Accept": "application/json"}
+
+schema_response = requests.get(api_url("schema"), timeout=30)
+schema_response.raise_for_status()
+print("Schema keys:", list(schema_response.json().keys())[:10])
+
+MAX_RECORDS = 1_000
+
+all_rows = []
+pull_log = []
+params = {"naics": "5415", "limit": 200, "offset": 0}
+
+while True:
+    response = requests.get(api_url("jobs"), headers=headers, params=params, timeout=60)
+    if response.status_code == 429:
+        raise RuntimeError("Rate limited. Rerun later.")
+    response.raise_for_status()
+    payload = response.json()
+    page = payload["results"]
+    if not page:
+        break
+    all_rows.extend(page)
+    pull_log.append({
+        "offset": params["offset"],
+        "limit": params["limit"],
+        "status_code": response.status_code,
+        "rows_returned": len(page),
+    })
+    print(f"offset={params['offset']} | page={len(page)} | total={len(all_rows)}")
+    if len(all_rows) >= MAX_RECORDS:
+        break
+    params["offset"] += params["limit"]
+
+
+jobs_raw = pd.json_normalize(all_rows)
+print(f"Raw pull: {jobs_raw.shape}")
+print(jobs_raw.columns.tolist())
+
+```
+
+```{python}
+
+TARGET_TITLES = [
+    "bi analyst",
+    "business intelligence analyst",
+    "data analyst",
+    "bi developer",
+    "business intelligence developer",
+    "analytics engineer",
+]
+
+# Find the title column (adjust if the name differs from what prints above)
+title_col = next((c for c in jobs_raw.columns if "title" in c.lower()), None)
+print(f"Using column: {title_col}")
+
+pattern = "|".join(TARGET_TITLES)
+jobs = jobs_raw[jobs_raw[title_col].str.lower().str.contains(pattern, na=False)].copy()
+print(f"Filtered rows: {jobs.shape}")
+
+# Save
+import os
+os.makedirs("./outputs", exist_ok=True)
+jobs.to_csv("./outputs/api_job_facts.csv", index=False)
+print("Saved to ./outputs/api_job_facts.csv")
+
+
+```
+
+
