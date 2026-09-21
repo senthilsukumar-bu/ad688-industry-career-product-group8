@@ -174,10 +174,10 @@ ul.task-list li input[type="checkbox"] {
 .appName(“AD688_JobFacts”)<br>
 .config(“spark.sql.session.timeZone”, “UTC”)<br>
 .getOrCreate() spark.sparkContext.setLogLevel(“ERROR”)</p>
-<p>jobs_raw_spark = spark.read.csv( “./outputs/api_job_facts_cleaned.csv”, header=True, inferSchema=True, multiLine=True, escape=‘“’ )</p>
+<p>jobs_clean = spark.read.csv( “./outputs/api_job_facts_cleaned.csv”, header=True, inferSchema=True, multiLine=True, escape=‘“’ )</p>
 <section id="use-this-clean-table-for-all-downstream-analysis" class="level1">
 <h1>use this clean table for all downstream analysis</h1>
-<p>jobs_raw_spark.createOrReplaceTempView(“job_facts”) spark.sql(“SELECT * FROM job_facts LIMIT 10”).toPandas()</p>
+<p>jobs_clean.createOrReplaceTempView(“job_facts”) spark.sql(“SELECT * FROM job_facts LIMIT 10”).toPandas()</p>
 
 
 </section>
