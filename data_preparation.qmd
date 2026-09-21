@@ -5,7 +5,7 @@ csl: csl/apa.csl
 format: html
 jupyter: python3
 execute:
-  freeze: false 
+  freeze: auto 
   error: true
   echo: true
   eval: true
