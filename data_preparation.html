@@ -214,7 +214,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="load-data-from-met-api-and-initailize-pyspark-dataframe" class="level2">
 <h2 class="anchored" data-anchor-id="load-data-from-met-api-and-initailize-pyspark-dataframe">Load Data from MET API and Initailize pyspark DataFrame</h2>
-<div id="091d5c80" class="cell" data-execution_count="1">
+<div id="6cac381f" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -272,7 +272,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Schema keys:"</span>, <span class="bu">list</span>(schema_response.json().keys())[:<span class="dv">10</span>])</span>
 <span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="co">#comment out to include all data</span></span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>MAX_RECORDS <span class="op">=</span> <span class="dv">1_000</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="co">#MAX_RECORDS = 1_000</span></span>
 <span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>all_rows <span class="op">=</span> []</span>
 <span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>pull_log <span class="op">=</span> []</span>
@@ -297,8 +297,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"offset=</span><span class="sc">{</span>params[<span class="st">'offset'</span>]<span class="sc">}</span><span class="ss"> | page=</span><span class="sc">{</span><span class="bu">len</span>(page)<span class="sc">}</span><span class="ss"> | total=</span><span class="sc">{</span><span class="bu">len</span>(all_rows)<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>    <span class="co">#comment out to include all data</span></span>
-<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(all_rows) <span class="op">&gt;=</span> MAX_RECORDS:</span>
-<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>    <span class="co">#if len(all_rows) &gt;= MAX_RECORDS:</span></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>    <span class="co">#    break</span></span>
 <span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>    params[<span class="st">"offset"</span>] <span class="op">+=</span> params[<span class="st">"limit"</span>]</span>
 <span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a></span>
@@ -316,11 +316,104 @@ offset=200 | page=200 | total=400
 offset=400 | page=200 | total=600
 offset=600 | page=200 | total=800
 offset=800 | page=200 | total=1000
-Raw pull (after date filter): (964, 60)
-['job_id', 'posted_at', 'expires_at', 'title', 'normalized_title', 'company_name', 'organization', 'is_staffing_agency', 'staffing_confidence', 'staffing_evidence', 'location_text', 'city', 'city_code', 'state', 'state_code', 'zip_code', 'msa_code', 'msa_name', 'latitude', 'longitude', 'remote_status', 'employment_type', 'salary_text', 'annual_salary_min', 'annual_salary_max', 'hourly_salary_min', 'hourly_salary_max', 'soc_code', 'soc_name', 'occupation_family', 'naics_code', 'naics_name', 'onet_code', 'onet_name', 'cip_code', 'cip_name', 'skills', 'program_matches', 'search_relevance_score', 'search_rank_reason', 'description', 'apply_url', 'bls.area_name', 'bls.employment', 'bls.annual_mean_wage', 'bls.annual_median_wage', 'bls.source_year', 'census.state_code', 'census.state_name', 'census.median_household_income', 'census.bachelors_or_higher_pct', 'census.labor_force_participation_rate', 'census.unemployment_rate', 'census.source_year', 'student_signals.work_type', 'student_signals.visa_sponsorship', 'student_signals.opt_cpt_eligible', 'student_signals.requirements_summary', 'student_signals.responsibilities_summary', 'student_signals.technical_tools_summary']</code></pre>
+offset=1000 | page=200 | total=1200
+offset=1200 | page=200 | total=1400
+offset=1400 | page=200 | total=1600
+offset=1600 | page=200 | total=1800
+offset=1800 | page=200 | total=2000
+offset=2000 | page=200 | total=2200
+offset=2200 | page=200 | total=2400
+offset=2400 | page=200 | total=2600
+offset=2600 | page=200 | total=2800
+offset=2800 | page=200 | total=3000
+offset=3000 | page=200 | total=3200
+offset=3200 | page=200 | total=3400
+offset=3400 | page=200 | total=3600
+offset=3600 | page=200 | total=3800
+offset=3800 | page=200 | total=4000
+offset=4000 | page=200 | total=4200
+offset=4200 | page=200 | total=4400
+offset=4400 | page=200 | total=4600
+offset=4600 | page=200 | total=4800
+offset=4800 | page=200 | total=5000
+offset=5000 | page=200 | total=5200
+offset=5200 | page=200 | total=5400
+offset=5400 | page=200 | total=5600
+offset=5600 | page=200 | total=5800
+offset=5800 | page=200 | total=6000
+offset=6000 | page=200 | total=6200
+offset=6200 | page=200 | total=6400
+offset=6400 | page=200 | total=6600
+offset=6600 | page=200 | total=6800
+offset=6800 | page=200 | total=7000
+offset=7000 | page=200 | total=7200
+offset=7200 | page=200 | total=7400
+offset=7400 | page=200 | total=7600
+offset=7600 | page=200 | total=7800
+offset=7800 | page=200 | total=8000
+offset=8000 | page=200 | total=8200
+offset=8200 | page=200 | total=8400
+offset=8400 | page=200 | total=8600
+offset=8600 | page=200 | total=8800
+offset=8800 | page=200 | total=9000
+offset=9000 | page=200 | total=9200
+offset=9200 | page=200 | total=9400
+offset=9400 | page=200 | total=9600
+offset=9600 | page=200 | total=9800
+offset=9800 | page=200 | total=10000
+offset=10000 | page=200 | total=10200
+offset=10200 | page=200 | total=10400
+offset=10400 | page=200 | total=10600
+offset=10600 | page=200 | total=10800
+offset=10800 | page=200 | total=11000
+offset=11000 | page=200 | total=11200
+offset=11200 | page=200 | total=11400
+offset=11400 | page=200 | total=11600
+offset=11600 | page=200 | total=11800
+offset=11800 | page=200 | total=12000
+offset=12000 | page=200 | total=12200
+offset=12200 | page=200 | total=12400
+offset=12400 | page=200 | total=12600
+offset=12600 | page=200 | total=12800
+offset=12800 | page=200 | total=13000
+offset=13000 | page=200 | total=13200
+offset=13200 | page=200 | total=13400
+offset=13400 | page=200 | total=13600
+offset=13600 | page=200 | total=13800
+offset=13800 | page=200 | total=14000
+offset=14000 | page=200 | total=14200
+offset=14200 | page=200 | total=14400
+offset=14400 | page=200 | total=14600
+offset=14600 | page=200 | total=14800
+offset=14800 | page=200 | total=15000
+offset=15000 | page=200 | total=15200
+offset=15200 | page=200 | total=15400
+offset=15400 | page=200 | total=15600
+offset=15600 | page=200 | total=15800
+offset=15800 | page=200 | total=16000
+offset=16000 | page=200 | total=16200
+offset=16200 | page=200 | total=16400
+offset=16400 | page=200 | total=16600
+offset=16600 | page=200 | total=16800
+offset=16800 | page=200 | total=17000
+offset=17000 | page=200 | total=17200
+offset=17200 | page=200 | total=17400
+offset=17400 | page=200 | total=17600
+offset=17600 | page=200 | total=17800
+offset=17800 | page=200 | total=18000
+offset=18000 | page=200 | total=18200
+offset=18200 | page=200 | total=18400
+offset=18400 | page=200 | total=18600
+offset=18600 | page=200 | total=18800
+offset=18800 | page=200 | total=19000
+offset=19000 | page=200 | total=19200
+offset=19200 | page=200 | total=19400
+offset=19400 | page=32 | total=19432
+Raw pull (after date filter): (15928, 107)
+['job_id', 'posted_at', 'expires_at', 'title', 'normalized_title', 'company_name', 'organization', 'is_staffing_agency', 'staffing_confidence', 'staffing_evidence', 'location_text', 'city', 'city_code', 'state', 'state_code', 'zip_code', 'msa_code', 'msa_name', 'latitude', 'longitude', 'remote_status', 'employment_type', 'salary_text', 'annual_salary_min', 'annual_salary_max', 'hourly_salary_min', 'hourly_salary_max', 'soc_code', 'soc_name', 'occupation_family', 'naics_code', 'naics_name', 'onet_code', 'onet_name', 'cip_code', 'cip_name', 'skills', 'program_matches', 'search_relevance_score', 'search_rank_reason', 'description', 'apply_url', 'bls.area_name', 'bls.employment', 'bls.annual_mean_wage', 'bls.annual_median_wage', 'bls.source_year', 'census.state_code', 'census.state_name', 'census.median_household_income', 'census.bachelors_or_higher_pct', 'census.labor_force_participation_rate', 'census.unemployment_rate', 'census.source_year', 'student_signals.work_type', 'student_signals.visa_sponsorship', 'student_signals.opt_cpt_eligible', 'student_signals.requirements_summary', 'student_signals.responsibilities_summary', 'student_signals.technical_tools_summary', 'organization.organization_id', 'organization.name', 'organization.canonical_name', 'organization.website_url', 'organization.logo_url', 'organization.description', 'organization.industry', 'organization.industries', 'organization.employee_count', 'organization.headquarters', 'organization.organization_naics', 'organization.organization_markets', 'organization.active_job_count', 'organization.linkedin.url', 'organization.linkedin.slug', 'organization.linkedin.followers', 'organization.linkedin.size', 'organization.linkedin.type', 'organization.linkedin.founded_date', 'organization.linkedin.specialties', 'organization.linkedin.locations', 'organization.linkedin.slogan', 'organization.linkedin.logo_url', 'organization.linkedin.estimated_revenue_lower_bound_usd', 'organization.linkedin.estimated_revenue_higher_bound_usd', 'organization.linkedin.largest_headcount_country', 'organization.crunchbase.profile_url', 'organization.crunchbase.profile_uuid', 'organization.crunchbase.acquisition_status', 'organization.crunchbase.ipo_date', 'organization.crunchbase.categories', 'organization.glassdoor.profile_url', 'organization.glassdoor.review_count', 'organization.glassdoor.salary_count', 'organization.glassdoor.interview_count', 'organization.glassdoor.benefit_count', 'organization.glassdoor.primary_industry_name', 'organization.glassdoor.primary_industry_sector_name', 'organization.glassdoor.ratings.overall', 'organization.glassdoor.ratings.culture_and_values', 'organization.glassdoor.ratings.diversity_and_inclusion', 'organization.glassdoor.ratings.work_life_balance', 'organization.glassdoor.ratings.senior_management', 'organization.glassdoor.ratings.compensation_and_benefits', 'organization.glassdoor.ratings.career_opportunities', 'organization.glassdoor.ratings.recommend_to_friend', 'organization.glassdoor.ratings.business_outlook']</code></pre>
 </div>
 </div>
-<div id="27696b0d" class="cell" data-execution_count="2">
+<div id="6e4c7f6b" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>TARGET_TITLES <span class="op">=</span> [</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bi "</span>,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"data "</span>,</span>
@@ -345,11 +438,11 @@ Raw pull (after date filter): (964, 60)
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved to ./outputs/api_job_facts.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Using column: title
-Filtered rows: (70, 60)
+Filtered rows: (1782, 107)
 Saved to ./outputs/api_job_facts.csv</code></pre>
 </div>
 </div>
-<div id="3e2e32e3" class="cell" data-execution_count="3">
+<div id="210f928c" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> functions <span class="im">as</span> F</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -596,7 +689,11 @@ Setting default log level to "WARN".
 To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
 /home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/testing/utils.py:127: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
   require_minimum_pandas_version()
-26/09/21 02:50:11 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable</code></pre>
+26/09/21 03:08:38 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+
+[Stage 1:&gt;                                                          (0 + 1) / 1]
+
+                                                                                </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Selected 37 columns — raw view registered as: job_facts_raw
@@ -614,10 +711,10 @@ root
  |-- remote_status: string (nullable = true)
  |-- employment_type: string (nullable = true)
  |-- salary_text: string (nullable = true)
- |-- annual_salary_min: string (nullable = true)
- |-- annual_salary_max: string (nullable = true)
- |-- hourly_salary_min: string (nullable = true)
- |-- hourly_salary_max: string (nullable = true)
+ |-- annual_salary_min: double (nullable = true)
+ |-- annual_salary_max: double (nullable = true)
+ |-- hourly_salary_min: double (nullable = true)
+ |-- hourly_salary_max: double (nullable = true)
  |-- soc_code: string (nullable = true)
  |-- soc_name: string (nullable = true)
  |-- occupation_family: string (nullable = true)
@@ -638,16 +735,24 @@ root
  |-- student_signals_requirements_summary: string (nullable = true)
  |-- student_signals_responsibilities_summary: string (nullable = true)
  |-- student_signals_technical_tools_summary: string (nullable = true)
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+[Stage 2:&gt;                                                          (0 + 1) / 1]
 
-Clean rows: 70</code></pre>
+                                                                                </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Clean rows: 1782</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
 [Stage 5:&gt;                                                          (0 + 1) / 1]
 
-                                                                                
-/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/conversion.py:298: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
-  require_minimum_pandas_version()</code></pre>
+[Stage 5:===========================================================(1 + 0) / 1]
+
+                                                                                </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>+------+-------------------+------------------------------------------------------------+-------------------------------------+------------+-------------+----+---------+-------+----------+-------------+---------------+------------------------------------------------------------+-----------------+-----------------+-----------------+-----------------+--------+-------------------+----------------------------------------------------------+----------+--------------------------------------------+----------+-------------------+--------+----------------+------------------------------------------------------------+------------------------------------------------------------+------------------------------------------------------------+--------------+--------------------+----------------------+---------------+-------------------------+------------------------------------------------------------+------------------------------------------------------------+----------------------------------------------------------+
@@ -659,12 +764,20 @@ Clean rows: 70</code></pre>
 |680977|2026-08-06 21:00:00|                                IT Enterprise Data Architect|         IT Enterprise Data Architect| Connectwise|       Remote|NULL|     NULL| Remote|      NULL|       Hybrid|        Unknown|{'min': '', 'max': '', 'currency': '', 'period': '', 'sum...|             NULL|             NULL|             NULL|             NULL| 15-1243|Database Architects|                                 Computer and Mathematical|    541500|Computer Systems Design and Related Services|15-1243.00|Database Architects| 11.0701|Computer Science|[{'name': 'Analytics', 'type': 'Specialized Skill', 'conf...|[{'program_name': 'Applied Business Analytics', 'score': ...|*ConnectWise is an industry and Global leading software c...|       67140.0|            144440.0|              139500.0|         2025.0|                     NULL|requirements are met. Performs hands-on data analysis, pr...|Owns and continuously evolves the enterprise data model s...|                                SQL, Salesforce, Snowflake|
 |680996|2026-08-06 20:47:22|                                     Principal Data Engineer|              Principal Data Engineer|   Energyhub|       Remote|NULL|     NULL| Remote|      NULL|       Remote|        Unknown|{'min': '', 'max': '', 'currency': '', 'period': '', 'sum...|             NULL|             NULL|             NULL|             NULL| 15-1243|Database Architects|                                 Computer and Mathematical|    541500|Computer Systems Design and Related Services|15-1243.00|Database Architects| 11.0701|Computer Science|[{'name': 'Airflow', 'type': 'Specialized Skill', 'confid...|[{'program_name': 'Applied Business Analytics', 'score': ...|**As a Principal Data Engineer, you will:** - Design and ...|       67140.0|            144440.0|              139500.0|         2025.0|                     NULL|requirements and Company policies. By submitting your app...|The base salary offered is part of a total compensation p...|Python, SQL, Java, AWS, Tableau, Snowflake, MongoDB, React|
 +------+-------------------+------------------------------------------------------------+-------------------------------------+------------+-------------+----+---------+-------+----------+-------------+---------------+------------------------------------------------------------+-----------------+-----------------+-----------------+-----------------+--------+-------------------+----------------------------------------------------------+----------+--------------------------------------------+----------+-------------------+--------+----------------+------------------------------------------------------------+------------------------------------------------------------+------------------------------------------------------------+--------------+--------------------+----------------------+---------------+-------------------------+------------------------------------------------------------+------------------------------------------------------------+----------------------------------------------------------+
-only showing top 5 rows
-Saved ./outputs/api_job_facts_cleaned.csv</code></pre>
+only showing top 5 rows</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/types.py:778: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
+<pre><code>/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/conversion.py:298: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
+  require_minimum_pandas_version()
+
+[Stage 6:&gt;                                                          (0 + 1) / 1]
+
+                                                                                
+/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/types.py:778: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
   require_minimum_pandas_version()</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Saved ./outputs/api_job_facts_cleaned.csv</code></pre>
 </div>
 </div>
 </section>
@@ -1035,8 +1148,8 @@ Saved ./outputs/api_job_facts_cleaned.csv</code></pre>
 </tbody>
 </table>
 <hr>
-<div id="0c0a68df" class="cell" data-execution_count="4">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>spark.sql(<span class="st">"SELECT * FROM job_facts LIMIT 50"</span>).toPandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="45175035" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>spark.sql(<span class="st">"SELECT * FROM job_facts LIMIT 50"</span>).toPandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/conversion.py:298: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
   require_minimum_pandas_version()
