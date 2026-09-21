@@ -214,7 +214,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="load-data-from-met-api-and-initailize-pyspark-dataframe" class="level2">
 <h2 class="anchored" data-anchor-id="load-data-from-met-api-and-initailize-pyspark-dataframe">Load Data from MET API and Initailize pyspark DataFrame</h2>
-<div id="9975548c" class="cell" data-execution_count="1">
+<div id="31d2299d" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -413,36 +413,67 @@ Raw pull (after date filter): (15928, 107)
 ['job_id', 'posted_at', 'expires_at', 'title', 'normalized_title', 'company_name', 'organization', 'is_staffing_agency', 'staffing_confidence', 'staffing_evidence', 'location_text', 'city', 'city_code', 'state', 'state_code', 'zip_code', 'msa_code', 'msa_name', 'latitude', 'longitude', 'remote_status', 'employment_type', 'salary_text', 'annual_salary_min', 'annual_salary_max', 'hourly_salary_min', 'hourly_salary_max', 'soc_code', 'soc_name', 'occupation_family', 'naics_code', 'naics_name', 'onet_code', 'onet_name', 'cip_code', 'cip_name', 'skills', 'program_matches', 'search_relevance_score', 'search_rank_reason', 'description', 'apply_url', 'bls.area_name', 'bls.employment', 'bls.annual_mean_wage', 'bls.annual_median_wage', 'bls.source_year', 'census.state_code', 'census.state_name', 'census.median_household_income', 'census.bachelors_or_higher_pct', 'census.labor_force_participation_rate', 'census.unemployment_rate', 'census.source_year', 'student_signals.work_type', 'student_signals.visa_sponsorship', 'student_signals.opt_cpt_eligible', 'student_signals.requirements_summary', 'student_signals.responsibilities_summary', 'student_signals.technical_tools_summary', 'organization.organization_id', 'organization.name', 'organization.canonical_name', 'organization.website_url', 'organization.logo_url', 'organization.description', 'organization.industry', 'organization.industries', 'organization.employee_count', 'organization.headquarters', 'organization.organization_naics', 'organization.organization_markets', 'organization.active_job_count', 'organization.linkedin.url', 'organization.linkedin.slug', 'organization.linkedin.followers', 'organization.linkedin.size', 'organization.linkedin.type', 'organization.linkedin.founded_date', 'organization.linkedin.specialties', 'organization.linkedin.locations', 'organization.linkedin.slogan', 'organization.linkedin.logo_url', 'organization.linkedin.estimated_revenue_lower_bound_usd', 'organization.linkedin.estimated_revenue_higher_bound_usd', 'organization.linkedin.largest_headcount_country', 'organization.crunchbase.profile_url', 'organization.crunchbase.profile_uuid', 'organization.crunchbase.acquisition_status', 'organization.crunchbase.ipo_date', 'organization.crunchbase.categories', 'organization.glassdoor.profile_url', 'organization.glassdoor.review_count', 'organization.glassdoor.salary_count', 'organization.glassdoor.interview_count', 'organization.glassdoor.benefit_count', 'organization.glassdoor.primary_industry_name', 'organization.glassdoor.primary_industry_sector_name', 'organization.glassdoor.ratings.overall', 'organization.glassdoor.ratings.culture_and_values', 'organization.glassdoor.ratings.diversity_and_inclusion', 'organization.glassdoor.ratings.work_life_balance', 'organization.glassdoor.ratings.senior_management', 'organization.glassdoor.ratings.compensation_and_benefits', 'organization.glassdoor.ratings.career_opportunities', 'organization.glassdoor.ratings.recommend_to_friend', 'organization.glassdoor.ratings.business_outlook']</code></pre>
 </div>
 </div>
-<div id="5426dc1d" class="cell" data-execution_count="2">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>TARGET_TITLES <span class="op">=</span> [</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bi "</span>,</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"data "</span>,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"analytics "</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"business intelligence "</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"reporting "</span>,</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"business "</span>,</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the title column (adjust if the name differs from what prints above)</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>title_col <span class="op">=</span> <span class="bu">next</span>((c <span class="cf">for</span> c <span class="kw">in</span> jobs_raw.columns <span class="cf">if</span> <span class="st">"title"</span> <span class="kw">in</span> c.lower()), <span class="va">None</span>)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Using column: </span><span class="sc">{</span>title_col<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>pattern <span class="op">=</span> <span class="st">"|"</span>.join(TARGET_TITLES)</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>jobs <span class="op">=</span> jobs_raw[jobs_raw[title_col].<span class="bu">str</span>.lower().<span class="bu">str</span>.contains(pattern, na<span class="op">=</span><span class="va">False</span>)].copy()</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Filtered rows: </span><span class="sc">{</span>jobs<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Save</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>os.makedirs(<span class="st">"./outputs"</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>jobs.to_csv(<span class="st">"./outputs/api_job_facts.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved to ./outputs/api_job_facts.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="c3a20fb5" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os, re</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>title_col <span class="op">=</span> <span class="bu">next</span>((c <span class="cf">for</span> c <span class="kw">in</span> jobs_raw.columns <span class="cf">if</span> <span class="st">"title"</span> <span class="kw">in</span> c.lower()), <span class="va">None</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Title column: </span><span class="sc">{</span>title_col<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Sample titles:"</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(jobs_raw[title_col].dropna().head(<span class="dv">20</span>).tolist())</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Per-pattern row counts </span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>TARGET_TITLES <span class="op">=</span> [</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">\b</span><span class="vs">analyst</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">\b</span><span class="vs">data</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">\b</span><span class="vs">analytics</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">\b</span><span class="vs">business intelligence</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">\b</span><span class="vs">reporting</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">\b</span><span class="vs">business</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">\b</span><span class="vs">bi</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">\b</span><span class="vs">insights</span><span class="op">?</span><span class="dv">\b</span><span class="vs">"</span>,        </span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">\b</span><span class="vs">visuali</span><span class="pp">[sz]</span><span class="vs">ation</span><span class="dv">\b</span><span class="vs">"</span>, </span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">\b</span><span class="vs">dashboard</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">\b</span><span class="vs">forecast</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">\b</span><span class="vs">metrics</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">\b</span><span class="vs">quant</span><span class="dv">\b</span><span class="vs">"</span>,       </span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> term <span class="kw">in</span> TARGET_TITLES:</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    n <span class="op">=</span> jobs_raw[title_col].<span class="bu">str</span>.lower().<span class="bu">str</span>.contains(term, na<span class="op">=</span><span class="va">False</span>, regex<span class="op">=</span><span class="va">True</span>).<span class="bu">sum</span>()</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"  '</span><span class="sc">{</span>term<span class="sc">}</span><span class="ss">' → </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss"> rows"</span>)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter and save</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>pattern <span class="op">=</span> <span class="st">"|"</span>.join(TARGET_TITLES)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>jobs <span class="op">=</span> jobs_raw[jobs_raw[title_col].<span class="bu">str</span>.lower().<span class="bu">str</span>.contains(pattern, na<span class="op">=</span><span class="va">False</span>, regex<span class="op">=</span><span class="va">True</span>)].copy()</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Filtered rows: </span><span class="sc">{</span>jobs<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co">#os.makedirs("./outputs", exist_ok=True)</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co">#jobs.to_csv("./outputs/api_job_facts.csv", index=False)</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co">#print("Saved to ./outputs/api_job_facts.csv")</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Using column: title
-Filtered rows: (1782, 107)
-Saved to ./outputs/api_job_facts.csv</code></pre>
+<pre><code>Title column: title
+
+Sample titles:
+['Staff Software Development Engineer SDM', 'Ausbildung 2026 - Fachinformatiker für Systemintegration (m/w/d)', 'Engineering Manager Thailand', 'Human Resources Specialist (Information Systems)', 'INFORMATION TECHNOLOGY ASSET MANAGEMENT SPECIALIST', 'Senior Software Engineer, Video', 'Sales Enablement Specialist', 'GTM Enablement Manager', 'Sales Enablement Manager', 'Strategic Accounts Manager, Industrial', 'Senior Software Engineer, Datastores (Auth0)', 'Senior, Engineering Manager - Perception &amp; Auto-Tagging', 'Chief Engineer, Ground Maneuver', 'Scientist II, Degrader Antibody Conjugate Characterization', 'Senior Security Research Engineer', 'Senior DevOps Engineer', 'Management and Program Analyst', 'CCure Administrator', 'Senior Software Engineer', 'Sr Cloud Infrastructure &amp; Platform Engineer']
+  '\banalyst\b' → 880 rows
+  '\bdata\b' → 1148 rows
+  '\banalytics\b' → 142 rows
+  '\bbusiness intelligence\b' → 39 rows
+  '\breporting\b' → 17 rows
+  '\bbusiness\b' → 655 rows
+  '\bbi\b' → 11 rows
+  '\binsights?\b' → 21 rows
+  '\bvisuali[sz]ation\b' → 8 rows
+  '\bdashboard\b' → 0 rows
+  '\bforecast\b' → 0 rows
+  '\bmetrics\b' → 3 rows
+  '\bquant\b' → 7 rows
+
+Filtered rows: (2353, 107)</code></pre>
 </div>
 </div>
-<div id="c19d3821" class="cell" data-execution_count="3">
+<div id="fc0b2e38" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> functions <span class="im">as</span> F</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -452,253 +483,252 @@ Saved to ./outputs/api_job_facts.csv</code></pre>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    .getOrCreate()</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>spark.sparkContext.setLogLevel(<span class="st">"ERROR"</span>)</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Load from raw API CSV </span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>jobs_raw_spark <span class="op">=</span> spark.read.csv(</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"./outputs/api_job_facts.csv"</span>,</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    header<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    inferSchema<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    multiLine<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    escape<span class="op">=</span><span class="st">'"'</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Serialize any list/dict cells → JSON strings so Spark sees a consistent type</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>jobs_for_spark <span class="op">=</span> jobs.copy()</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> jobs_for_spark.select_dtypes(include<span class="op">=</span><span class="st">"object"</span>).columns:</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    jobs_for_spark[col] <span class="op">=</span> jobs_for_spark[col].<span class="bu">apply</span>(</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        <span class="kw">lambda</span> x: json.dumps(x) <span class="cf">if</span> <span class="bu">isinstance</span>(x, (<span class="bu">list</span>, <span class="bu">dict</span>)) <span class="cf">else</span> x</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>FIELD_MAP <span class="op">=</span> {</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"job_id"</span>:                                        <span class="st">"job_id"</span>,</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"posted_at"</span>:                                     <span class="st">"posted_at"</span>,</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">"title"</span>:                                         <span class="st">"title"</span>,</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">"normalized_title"</span>:                              <span class="st">"normalized_title"</span>,</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">"company_name"</span>:                                  <span class="st">"company_name"</span>,</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"location_text"</span>:                                 <span class="st">"location_text"</span>,</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"city"</span>:                                          <span class="st">"city"</span>,</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"city_code"</span>:                                     <span class="st">"city_code"</span>,</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"state"</span>:                                         <span class="st">"state"</span>,</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"state_code"</span>:                                    <span class="st">"state_code"</span>,</span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"remote_status"</span>:                                 <span class="st">"remote_status"</span>,</span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"employment_type"</span>:                               <span class="st">"employment_type"</span>,</span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"salary_text"</span>:                                   <span class="st">"salary_text"</span>,</span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"annual_salary_min"</span>:                             <span class="st">"annual_salary_min"</span>,</span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"annual_salary_max"</span>:                             <span class="st">"annual_salary_max"</span>,</span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hourly_salary_min"</span>:                             <span class="st">"hourly_salary_min"</span>,</span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hourly_salary_max"</span>:                             <span class="st">"hourly_salary_max"</span>,</span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"soc_code"</span>:                                      <span class="st">"soc_code"</span>,</span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"soc_name"</span>:                                      <span class="st">"soc_name"</span>,</span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">"occupation_family"</span>:                             <span class="st">"occupation_family"</span>,</span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"naics_code"</span>:                                    <span class="st">"naics_code"</span>,</span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    <span class="st">"naics_name"</span>:                                    <span class="st">"naics_name"</span>,</span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    <span class="st">"onet_code"</span>:                                     <span class="st">"onet_code"</span>,</span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>    <span class="st">"onet_name"</span>:                                     <span class="st">"onet_name"</span>,</span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cip_code"</span>:                                      <span class="st">"cip_code"</span>,</span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cip_name"</span>:                                      <span class="st">"cip_name"</span>,</span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">"skills"</span>:                                        <span class="st">"skills"</span>,</span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>    <span class="st">"program_matches"</span>:                               <span class="st">"program_matches"</span>,</span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>    <span class="st">"description"</span>:                                   <span class="st">"description"</span>,</span>
-<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.employment"</span>:                                <span class="st">"bls_employment"</span>,</span>
-<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.annual_mean_wage"</span>:                          <span class="st">"bls_annual_mean_wage"</span>,</span>
-<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.annual_median_wage"</span>:                        <span class="st">"bls_annual_median_wage"</span>,</span>
-<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.source_year"</span>:                               <span class="st">"bls_source_year"</span>,</span>
-<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.work_type"</span>:                     <span class="st">"student_signals_work_type"</span>,</span>
-<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.requirements_summary"</span>:          <span class="st">"student_signals_requirements_summary"</span>,</span>
-<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.responsibilities_summary"</span>:      <span class="st">"student_signals_responsibilities_summary"</span>,</span>
-<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.technical_tools_summary"</span>:       <span class="st">"student_signals_technical_tools_summary"</span>,</span>
-<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>select_exprs <span class="op">=</span> []</span>
-<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>skipped <span class="op">=</span> []</span>
-<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> src, alias <span class="kw">in</span> FIELD_MAP.items():</span>
-<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> src <span class="kw">in</span> jobs_raw_spark.columns:</span>
-<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Backtick-quote any column name containing a dot (flat CSV column, not a struct)</span></span>
-<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>        col_ref <span class="op">=</span> F.col(<span class="ss">f"`</span><span class="sc">{</span>src<span class="sc">}</span><span class="ss">`"</span>) <span class="cf">if</span> <span class="st">"."</span> <span class="kw">in</span> src <span class="cf">else</span> F.col(src)</span>
-<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>        select_exprs.append(col_ref.alias(alias))</span>
-<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>        skipped.append(src)</span>
-<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> skipped:</span>
-<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Columns not found (skipped): </span><span class="sc">{</span>skipped<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>jobs_selected <span class="op">=</span> jobs_raw_spark.select(select_exprs)</span>
-<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>jobs_selected.createOrReplaceTempView(<span class="st">"job_facts_raw"</span>)</span>
-<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Selected </span><span class="sc">{</span><span class="bu">len</span>(select_exprs)<span class="sc">}</span><span class="ss"> columns — raw view registered as: job_facts_raw"</span>)</span>
-<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>jobs_selected.printSchema()</span>
-<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>jobs_clean <span class="op">=</span> spark.sql(<span class="st">"""</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>jobs_raw_spark <span class="op">=</span> spark.createDataFrame(jobs_for_spark)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>FIELD_MAP <span class="op">=</span> {</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">"job_id"</span>:                                        <span class="st">"job_id"</span>,</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">"posted_at"</span>:                                     <span class="st">"posted_at"</span>,</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">"title"</span>:                                         <span class="st">"title"</span>,</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"normalized_title"</span>:                              <span class="st">"normalized_title"</span>,</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"company_name"</span>:                                  <span class="st">"company_name"</span>,</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"location_text"</span>:                                 <span class="st">"location_text"</span>,</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"city"</span>:                                          <span class="st">"city"</span>,</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"city_code"</span>:                                     <span class="st">"city_code"</span>,</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"state"</span>:                                         <span class="st">"state"</span>,</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"state_code"</span>:                                    <span class="st">"state_code"</span>,</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"remote_status"</span>:                                 <span class="st">"remote_status"</span>,</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"employment_type"</span>:                               <span class="st">"employment_type"</span>,</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"salary_text"</span>:                                   <span class="st">"salary_text"</span>,</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"annual_salary_min"</span>:                             <span class="st">"annual_salary_min"</span>,</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"annual_salary_max"</span>:                             <span class="st">"annual_salary_max"</span>,</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hourly_salary_min"</span>:                             <span class="st">"hourly_salary_min"</span>,</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hourly_salary_max"</span>:                             <span class="st">"hourly_salary_max"</span>,</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">"soc_code"</span>:                                      <span class="st">"soc_code"</span>,</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"soc_name"</span>:                                      <span class="st">"soc_name"</span>,</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    <span class="st">"occupation_family"</span>:                             <span class="st">"occupation_family"</span>,</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    <span class="st">"naics_code"</span>:                                    <span class="st">"naics_code"</span>,</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>    <span class="st">"naics_name"</span>:                                    <span class="st">"naics_name"</span>,</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>    <span class="st">"onet_code"</span>:                                     <span class="st">"onet_code"</span>,</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    <span class="st">"onet_name"</span>:                                     <span class="st">"onet_name"</span>,</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cip_code"</span>:                                      <span class="st">"cip_code"</span>,</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cip_name"</span>:                                      <span class="st">"cip_name"</span>,</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>    <span class="st">"skills"</span>:                                        <span class="st">"skills"</span>,</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>    <span class="st">"program_matches"</span>:                               <span class="st">"program_matches"</span>,</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>    <span class="st">"description"</span>:                                   <span class="st">"description"</span>,</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.employment"</span>:                                <span class="st">"bls_employment"</span>,</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.annual_mean_wage"</span>:                          <span class="st">"bls_annual_mean_wage"</span>,</span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.annual_median_wage"</span>:                        <span class="st">"bls_annual_median_wage"</span>,</span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.source_year"</span>:                               <span class="st">"bls_source_year"</span>,</span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.work_type"</span>:                     <span class="st">"student_signals_work_type"</span>,</span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.requirements_summary"</span>:          <span class="st">"student_signals_requirements_summary"</span>,</span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.responsibilities_summary"</span>:      <span class="st">"student_signals_responsibilities_summary"</span>,</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.technical_tools_summary"</span>:       <span class="st">"student_signals_technical_tools_summary"</span>,</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>select_exprs <span class="op">=</span> []</span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>skipped <span class="op">=</span> []</span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> src, alias <span class="kw">in</span> FIELD_MAP.items():</span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> src <span class="kw">in</span> jobs_raw_spark.columns:</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Backtick-quote any column name containing a dot (flat CSV column, not a struct)</span></span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>        col_ref <span class="op">=</span> F.col(<span class="ss">f"`</span><span class="sc">{</span>src<span class="sc">}</span><span class="ss">`"</span>) <span class="cf">if</span> <span class="st">"."</span> <span class="kw">in</span> src <span class="cf">else</span> F.col(src)</span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>        select_exprs.append(col_ref.alias(alias))</span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>        skipped.append(src)</span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> skipped:</span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Columns not found (skipped): </span><span class="sc">{</span>skipped<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>jobs_selected <span class="op">=</span> jobs_raw_spark.select(select_exprs)</span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>jobs_selected.createOrReplaceTempView(<span class="st">"job_facts_raw"</span>)</span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Selected </span><span class="sc">{</span><span class="bu">len</span>(select_exprs)<span class="sc">}</span><span class="ss"> columns — raw view registered as: job_facts_raw"</span>)</span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>jobs_selected.printSchema()</span>
 <span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH</span></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>jobs_clean <span class="op">=</span> spark.sql(<span class="st">"""</span></span>
 <span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── STEP 1: Remove noisy data ──────────────────────────────────────────</span></span>
-<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Rows with null job_id are dropped; they cannot be keyed or joined.</span></span>
-<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Rows with null title are dropped; they are unusable for downstream analysis.</span></span>
-<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
-<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a><span class="st">    base AS (</span></span>
-<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT *</span></span>
-<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM job_facts_raw</span></span>
-<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a><span class="st">        WHERE job_id IS NOT NULL</span></span>
-<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a><span class="st">          AND title IS NOT NULL</span></span>
-<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
-<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── STEP 2: Normalize categorical labels ─────────────────────────</span></span>
-<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a><span class="st">    -- remote_status and employment_type arrive with inconsistent casing</span></span>
-<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a><span class="st">    -- and freeform strings (e.g. "REMOTE", "Remote Work", "wfh").</span></span>
-<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Map to four canonical values. </span></span>
-<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Any unrecognized value defaults to 'Unknown' rather than NULL so aggregations are more meaningful.</span></span>
-<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a><span class="st">    labeled AS (</span></span>
-<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT *,</span></span>
-<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a><span class="st">        CASE</span></span>
-<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(remote_status)) IN ('remote', 'fully remote', 'work from home', 'wfh', 'remote work')</span></span>
-<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%r</span><span class="st">emote%' AND LOWER(TRIM(remote_status)) NOT LIKE '%partial%'</span></span>
-<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '%wfh%'</span></span>
-<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%ho</span><span class="st">me%'</span></span>
-<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Remote'</span></span>
-<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(remote_status)) IN ('hybrid', 'hybrid remote', 'partial remote', 'hybrid/remote')</span></span>
-<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '%hybrid%'</span></span>
-<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '%partial%'</span></span>
-<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Hybrid'</span></span>
-<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(remote_status)) IN ('on-site', 'onsite', 'in-office', 'in office', 'on site', 'office')</span></span>
-<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%o</span><span class="st">ffice%'</span></span>
-<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%s</span><span class="st">ite%'</span></span>
-<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'On-site'</span></span>
-<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a><span class="st">            ELSE 'Unknown'</span></span>
-<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a><span class="st">        END AS remote_status_clean,</span></span>
-<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a><span class="st">        CASE</span></span>
-<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('full-time', 'full time', 'fulltime', 'ft', 'permanent')</span></span>
-<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '%permanent%'</span></span>
-<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%f</span><span class="st">ull%'</span></span>
-<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Full-time'</span></span>
-<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('part-time', 'part time', 'parttime', 'pt')</span></span>
-<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '%part%'</span></span>
-<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Part-time'</span></span>
-<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('contract', 'contractor', 'temp', 'temporary', 'freelance', 'c2c')</span></span>
-<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%c</span><span class="st">ontract%'</span></span>
-<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '%temp%'</span></span>
-<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%f</span><span class="st">reelance%'</span></span>
-<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Contract'</span></span>
-<span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('internship', 'intern', 'co-op', 'coop')</span></span>
-<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%i</span><span class="st">ntern%'</span></span>
-<span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Internship'</span></span>
-<span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a><span class="st">            ELSE 'Unknown'</span></span>
-<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a><span class="st">        END AS employment_type_clean</span></span>
-<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-136"><a href="#cb5-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-137"><a href="#cb5-137" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM base</span></span>
-<span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
-<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── STEP 3: Salary outlier handling ─────────────────────────────</span></span>
-<span id="cb5-141"><a href="#cb5-141" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Salary fields contain a few data errors: $0, $1, implausibly high values from mis-parsed hourly-to-annual conversions, or potentially test records. </span></span>
-<span id="cb5-142"><a href="#cb5-142" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Values outside plausible BI/analytics bands are set to NULL (even without salary data, the post itself e.g. skills are useful)</span></span>
-<span id="cb5-143"><a href="#cb5-143" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE Annual band:  $20,000 – $500,000</span></span>
-<span id="cb5-144"><a href="#cb5-144" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE Hourly band:  $10  – $250</span></span>
-<span id="cb5-145"><a href="#cb5-145" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE NOT min &gt; max (data entry error)</span></span>
-<span id="cb5-146"><a href="#cb5-146" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE NOT both are set to NULL.</span></span>
-<span id="cb5-147"><a href="#cb5-147" aria-hidden="true" tabindex="-1"></a><span class="st">    salaries AS (</span></span>
-<span id="cb5-148"><a href="#cb5-148" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT *,</span></span>
-<span id="cb5-149"><a href="#cb5-149" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-150"><a href="#cb5-150" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
-<span id="cb5-151"><a href="#cb5-151" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(annual_salary_min AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
-<span id="cb5-152"><a href="#cb5-152" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_max AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
-<span id="cb5-153"><a href="#cb5-153" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_min AS DOUBLE) &lt;= CAST(annual_salary_max AS DOUBLE)</span></span>
-<span id="cb5-154"><a href="#cb5-154" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(annual_salary_min AS DOUBLE)</span></span>
-<span id="cb5-155"><a href="#cb5-155" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
-<span id="cb5-156"><a href="#cb5-156" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS annual_salary_min_clean,</span></span>
-<span id="cb5-157"><a href="#cb5-157" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-158"><a href="#cb5-158" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
-<span id="cb5-159"><a href="#cb5-159" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(annual_salary_min AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
-<span id="cb5-160"><a href="#cb5-160" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_max AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
-<span id="cb5-161"><a href="#cb5-161" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_min AS DOUBLE) &lt;= CAST(annual_salary_max AS DOUBLE)</span></span>
-<span id="cb5-162"><a href="#cb5-162" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(annual_salary_max AS DOUBLE)</span></span>
-<span id="cb5-163"><a href="#cb5-163" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
-<span id="cb5-164"><a href="#cb5-164" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS annual_salary_max_clean,</span></span>
-<span id="cb5-165"><a href="#cb5-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-166"><a href="#cb5-166" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
-<span id="cb5-167"><a href="#cb5-167" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(hourly_salary_min AS DOUBLE) BETWEEN 10 AND 250</span></span>
-<span id="cb5-168"><a href="#cb5-168" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_max AS DOUBLE) BETWEEN 10 AND 250</span></span>
-<span id="cb5-169"><a href="#cb5-169" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_min AS DOUBLE) &lt;= CAST(hourly_salary_max AS DOUBLE)</span></span>
-<span id="cb5-170"><a href="#cb5-170" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(hourly_salary_min AS DOUBLE)</span></span>
-<span id="cb5-171"><a href="#cb5-171" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
-<span id="cb5-172"><a href="#cb5-172" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS hourly_salary_min_clean,</span></span>
-<span id="cb5-173"><a href="#cb5-173" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-174"><a href="#cb5-174" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
-<span id="cb5-175"><a href="#cb5-175" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(hourly_salary_min AS DOUBLE) BETWEEN 10 AND 250</span></span>
-<span id="cb5-176"><a href="#cb5-176" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_max AS DOUBLE) BETWEEN 10 AND 250</span></span>
-<span id="cb5-177"><a href="#cb5-177" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_min AS DOUBLE) &lt;= CAST(hourly_salary_max AS DOUBLE)</span></span>
-<span id="cb5-178"><a href="#cb5-178" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(hourly_salary_max AS DOUBLE)</span></span>
-<span id="cb5-179"><a href="#cb5-179" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
-<span id="cb5-180"><a href="#cb5-180" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS hourly_salary_max_clean</span></span>
-<span id="cb5-181"><a href="#cb5-181" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-182"><a href="#cb5-182" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM labeled</span></span>
-<span id="cb5-183"><a href="#cb5-183" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
-<span id="cb5-184"><a href="#cb5-184" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-185"><a href="#cb5-185" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── FINAL SELECT ─────────────────────────────────────────────────</span></span>
-<span id="cb5-186"><a href="#cb5-186" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Replace raw categorical and salary columns with cleaned versions.</span></span>
-<span id="cb5-187"><a href="#cb5-187" aria-hidden="true" tabindex="-1"></a><span class="st">    -- All other optional fields (city, soc_code, bls_*, skills, etc.)</span></span>
-<span id="cb5-188"><a href="#cb5-188" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
-<span id="cb5-189"><a href="#cb5-189" aria-hidden="true" tabindex="-1"></a><span class="st">        job_id,</span></span>
-<span id="cb5-190"><a href="#cb5-190" aria-hidden="true" tabindex="-1"></a><span class="st">        posted_at,</span></span>
-<span id="cb5-191"><a href="#cb5-191" aria-hidden="true" tabindex="-1"></a><span class="st">        title,</span></span>
-<span id="cb5-192"><a href="#cb5-192" aria-hidden="true" tabindex="-1"></a><span class="st">        normalized_title,</span></span>
-<span id="cb5-193"><a href="#cb5-193" aria-hidden="true" tabindex="-1"></a><span class="st">        company_name,</span></span>
-<span id="cb5-194"><a href="#cb5-194" aria-hidden="true" tabindex="-1"></a><span class="st">        location_text,</span></span>
-<span id="cb5-195"><a href="#cb5-195" aria-hidden="true" tabindex="-1"></a><span class="st">        city,</span></span>
-<span id="cb5-196"><a href="#cb5-196" aria-hidden="true" tabindex="-1"></a><span class="st">        city_code,</span></span>
-<span id="cb5-197"><a href="#cb5-197" aria-hidden="true" tabindex="-1"></a><span class="st">        state,</span></span>
-<span id="cb5-198"><a href="#cb5-198" aria-hidden="true" tabindex="-1"></a><span class="st">        state_code,</span></span>
-<span id="cb5-199"><a href="#cb5-199" aria-hidden="true" tabindex="-1"></a><span class="st">        remote_status_clean                          AS remote_status,</span></span>
-<span id="cb5-200"><a href="#cb5-200" aria-hidden="true" tabindex="-1"></a><span class="st">        employment_type_clean                        AS employment_type,</span></span>
-<span id="cb5-201"><a href="#cb5-201" aria-hidden="true" tabindex="-1"></a><span class="st">        salary_text,</span></span>
-<span id="cb5-202"><a href="#cb5-202" aria-hidden="true" tabindex="-1"></a><span class="st">        annual_salary_min_clean                      AS annual_salary_min,</span></span>
-<span id="cb5-203"><a href="#cb5-203" aria-hidden="true" tabindex="-1"></a><span class="st">        annual_salary_max_clean                      AS annual_salary_max,</span></span>
-<span id="cb5-204"><a href="#cb5-204" aria-hidden="true" tabindex="-1"></a><span class="st">        hourly_salary_min_clean                      AS hourly_salary_min,</span></span>
-<span id="cb5-205"><a href="#cb5-205" aria-hidden="true" tabindex="-1"></a><span class="st">        hourly_salary_max_clean                      AS hourly_salary_max,</span></span>
-<span id="cb5-206"><a href="#cb5-206" aria-hidden="true" tabindex="-1"></a><span class="st">        soc_code,</span></span>
-<span id="cb5-207"><a href="#cb5-207" aria-hidden="true" tabindex="-1"></a><span class="st">        soc_name,</span></span>
-<span id="cb5-208"><a href="#cb5-208" aria-hidden="true" tabindex="-1"></a><span class="st">        occupation_family,</span></span>
-<span id="cb5-209"><a href="#cb5-209" aria-hidden="true" tabindex="-1"></a><span class="st">        naics_code,</span></span>
-<span id="cb5-210"><a href="#cb5-210" aria-hidden="true" tabindex="-1"></a><span class="st">        naics_name,</span></span>
-<span id="cb5-211"><a href="#cb5-211" aria-hidden="true" tabindex="-1"></a><span class="st">        onet_code,</span></span>
-<span id="cb5-212"><a href="#cb5-212" aria-hidden="true" tabindex="-1"></a><span class="st">        onet_name,</span></span>
-<span id="cb5-213"><a href="#cb5-213" aria-hidden="true" tabindex="-1"></a><span class="st">        cip_code,</span></span>
-<span id="cb5-214"><a href="#cb5-214" aria-hidden="true" tabindex="-1"></a><span class="st">        cip_name,</span></span>
-<span id="cb5-215"><a href="#cb5-215" aria-hidden="true" tabindex="-1"></a><span class="st">        skills,</span></span>
-<span id="cb5-216"><a href="#cb5-216" aria-hidden="true" tabindex="-1"></a><span class="st">        program_matches,</span></span>
-<span id="cb5-217"><a href="#cb5-217" aria-hidden="true" tabindex="-1"></a><span class="st">        description,</span></span>
-<span id="cb5-218"><a href="#cb5-218" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_employment,</span></span>
-<span id="cb5-219"><a href="#cb5-219" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_annual_mean_wage,</span></span>
-<span id="cb5-220"><a href="#cb5-220" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_annual_median_wage,</span></span>
-<span id="cb5-221"><a href="#cb5-221" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_source_year,</span></span>
-<span id="cb5-222"><a href="#cb5-222" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_work_type,</span></span>
-<span id="cb5-223"><a href="#cb5-223" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_requirements_summary,</span></span>
-<span id="cb5-224"><a href="#cb5-224" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_responsibilities_summary,</span></span>
-<span id="cb5-225"><a href="#cb5-225" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_technical_tools_summary</span></span>
-<span id="cb5-226"><a href="#cb5-226" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-227"><a href="#cb5-227" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM salaries</span></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH</span></span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── STEP 1: Remove noisy data ──────────────────────────────────────────</span></span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Rows with null job_id are dropped; they cannot be keyed or joined.</span></span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Rows with null title are dropped; they are unusable for downstream analysis.</span></span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a><span class="st">    base AS (</span></span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT *</span></span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM job_facts_raw</span></span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a><span class="st">        WHERE job_id IS NOT NULL</span></span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a><span class="st">          AND title IS NOT NULL</span></span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── STEP 2: Normalize categorical labels ─────────────────────────</span></span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a><span class="st">    -- remote_status and employment_type arrive with inconsistent casing</span></span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a><span class="st">    -- and freeform strings (e.g. "REMOTE", "Remote Work", "wfh").</span></span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Map to four canonical values. </span></span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Any unrecognized value defaults to 'Unknown' rather than NULL so aggregations are more meaningful.</span></span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a><span class="st">    labeled AS (</span></span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT *,</span></span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a><span class="st">        CASE</span></span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(remote_status)) IN ('remote', 'fully remote', 'work from home', 'wfh', 'remote work')</span></span>
+<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%r</span><span class="st">emote%' AND LOWER(TRIM(remote_status)) NOT LIKE '%partial%'</span></span>
+<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '%wfh%'</span></span>
+<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%ho</span><span class="st">me%'</span></span>
+<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Remote'</span></span>
+<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(remote_status)) IN ('hybrid', 'hybrid remote', 'partial remote', 'hybrid/remote')</span></span>
+<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '%hybrid%'</span></span>
+<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '%partial%'</span></span>
+<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Hybrid'</span></span>
+<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(remote_status)) IN ('on-site', 'onsite', 'in-office', 'in office', 'on site', 'office')</span></span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%o</span><span class="st">ffice%'</span></span>
+<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%s</span><span class="st">ite%'</span></span>
+<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'On-site'</span></span>
+<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a><span class="st">            ELSE 'Unknown'</span></span>
+<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a><span class="st">        END AS remote_status_clean,</span></span>
+<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a><span class="st">        CASE</span></span>
+<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('full-time', 'full time', 'fulltime', 'ft', 'permanent')</span></span>
+<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '%permanent%'</span></span>
+<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%f</span><span class="st">ull%'</span></span>
+<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Full-time'</span></span>
+<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('part-time', 'part time', 'parttime', 'pt')</span></span>
+<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '%part%'</span></span>
+<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Part-time'</span></span>
+<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('contract', 'contractor', 'temp', 'temporary', 'freelance', 'c2c')</span></span>
+<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%c</span><span class="st">ontract%'</span></span>
+<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '%temp%'</span></span>
+<span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%f</span><span class="st">reelance%'</span></span>
+<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Contract'</span></span>
+<span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('internship', 'intern', 'co-op', 'coop')</span></span>
+<span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%i</span><span class="st">ntern%'</span></span>
+<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Internship'</span></span>
+<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a><span class="st">            ELSE 'Unknown'</span></span>
+<span id="cb5-136"><a href="#cb5-136" aria-hidden="true" tabindex="-1"></a><span class="st">        END AS employment_type_clean</span></span>
+<span id="cb5-137"><a href="#cb5-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM base</span></span>
+<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb5-141"><a href="#cb5-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-142"><a href="#cb5-142" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── STEP 3: Salary outlier handling ─────────────────────────────</span></span>
+<span id="cb5-143"><a href="#cb5-143" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Salary fields contain a few data errors: $0, $1, implausibly high values from mis-parsed hourly-to-annual conversions, or potentially test records. </span></span>
+<span id="cb5-144"><a href="#cb5-144" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Values outside plausible BI/analytics bands are set to NULL (even without salary data, the post itself e.g. skills are useful)</span></span>
+<span id="cb5-145"><a href="#cb5-145" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE Annual band:  $20,000 – $500,000</span></span>
+<span id="cb5-146"><a href="#cb5-146" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE Hourly band:  $10  – $250</span></span>
+<span id="cb5-147"><a href="#cb5-147" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE NOT min &gt; max (data entry error)</span></span>
+<span id="cb5-148"><a href="#cb5-148" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE NOT both are set to NULL.</span></span>
+<span id="cb5-149"><a href="#cb5-149" aria-hidden="true" tabindex="-1"></a><span class="st">    salaries AS (</span></span>
+<span id="cb5-150"><a href="#cb5-150" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT *,</span></span>
+<span id="cb5-151"><a href="#cb5-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-152"><a href="#cb5-152" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
+<span id="cb5-153"><a href="#cb5-153" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(annual_salary_min AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
+<span id="cb5-154"><a href="#cb5-154" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_max AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
+<span id="cb5-155"><a href="#cb5-155" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_min AS DOUBLE) &lt;= CAST(annual_salary_max AS DOUBLE)</span></span>
+<span id="cb5-156"><a href="#cb5-156" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(annual_salary_min AS DOUBLE)</span></span>
+<span id="cb5-157"><a href="#cb5-157" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
+<span id="cb5-158"><a href="#cb5-158" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS annual_salary_min_clean,</span></span>
+<span id="cb5-159"><a href="#cb5-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-160"><a href="#cb5-160" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
+<span id="cb5-161"><a href="#cb5-161" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(annual_salary_min AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
+<span id="cb5-162"><a href="#cb5-162" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_max AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
+<span id="cb5-163"><a href="#cb5-163" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_min AS DOUBLE) &lt;= CAST(annual_salary_max AS DOUBLE)</span></span>
+<span id="cb5-164"><a href="#cb5-164" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(annual_salary_max AS DOUBLE)</span></span>
+<span id="cb5-165"><a href="#cb5-165" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
+<span id="cb5-166"><a href="#cb5-166" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS annual_salary_max_clean,</span></span>
+<span id="cb5-167"><a href="#cb5-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-168"><a href="#cb5-168" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
+<span id="cb5-169"><a href="#cb5-169" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(hourly_salary_min AS DOUBLE) BETWEEN 10 AND 250</span></span>
+<span id="cb5-170"><a href="#cb5-170" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_max AS DOUBLE) BETWEEN 10 AND 250</span></span>
+<span id="cb5-171"><a href="#cb5-171" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_min AS DOUBLE) &lt;= CAST(hourly_salary_max AS DOUBLE)</span></span>
+<span id="cb5-172"><a href="#cb5-172" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(hourly_salary_min AS DOUBLE)</span></span>
+<span id="cb5-173"><a href="#cb5-173" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
+<span id="cb5-174"><a href="#cb5-174" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS hourly_salary_min_clean,</span></span>
+<span id="cb5-175"><a href="#cb5-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-176"><a href="#cb5-176" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
+<span id="cb5-177"><a href="#cb5-177" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(hourly_salary_min AS DOUBLE) BETWEEN 10 AND 250</span></span>
+<span id="cb5-178"><a href="#cb5-178" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_max AS DOUBLE) BETWEEN 10 AND 250</span></span>
+<span id="cb5-179"><a href="#cb5-179" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_min AS DOUBLE) &lt;= CAST(hourly_salary_max AS DOUBLE)</span></span>
+<span id="cb5-180"><a href="#cb5-180" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(hourly_salary_max AS DOUBLE)</span></span>
+<span id="cb5-181"><a href="#cb5-181" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
+<span id="cb5-182"><a href="#cb5-182" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS hourly_salary_max_clean</span></span>
+<span id="cb5-183"><a href="#cb5-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-184"><a href="#cb5-184" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM labeled</span></span>
+<span id="cb5-185"><a href="#cb5-185" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb5-186"><a href="#cb5-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-187"><a href="#cb5-187" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── FINAL SELECT ─────────────────────────────────────────────────</span></span>
+<span id="cb5-188"><a href="#cb5-188" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Replace raw categorical and salary columns with cleaned versions.</span></span>
+<span id="cb5-189"><a href="#cb5-189" aria-hidden="true" tabindex="-1"></a><span class="st">    -- All other optional fields (city, soc_code, bls_*, skills, etc.)</span></span>
+<span id="cb5-190"><a href="#cb5-190" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb5-191"><a href="#cb5-191" aria-hidden="true" tabindex="-1"></a><span class="st">        job_id,</span></span>
+<span id="cb5-192"><a href="#cb5-192" aria-hidden="true" tabindex="-1"></a><span class="st">        posted_at,</span></span>
+<span id="cb5-193"><a href="#cb5-193" aria-hidden="true" tabindex="-1"></a><span class="st">        title,</span></span>
+<span id="cb5-194"><a href="#cb5-194" aria-hidden="true" tabindex="-1"></a><span class="st">        normalized_title,</span></span>
+<span id="cb5-195"><a href="#cb5-195" aria-hidden="true" tabindex="-1"></a><span class="st">        company_name,</span></span>
+<span id="cb5-196"><a href="#cb5-196" aria-hidden="true" tabindex="-1"></a><span class="st">        location_text,</span></span>
+<span id="cb5-197"><a href="#cb5-197" aria-hidden="true" tabindex="-1"></a><span class="st">        city,</span></span>
+<span id="cb5-198"><a href="#cb5-198" aria-hidden="true" tabindex="-1"></a><span class="st">        city_code,</span></span>
+<span id="cb5-199"><a href="#cb5-199" aria-hidden="true" tabindex="-1"></a><span class="st">        state,</span></span>
+<span id="cb5-200"><a href="#cb5-200" aria-hidden="true" tabindex="-1"></a><span class="st">        state_code,</span></span>
+<span id="cb5-201"><a href="#cb5-201" aria-hidden="true" tabindex="-1"></a><span class="st">        remote_status_clean                          AS remote_status,</span></span>
+<span id="cb5-202"><a href="#cb5-202" aria-hidden="true" tabindex="-1"></a><span class="st">        employment_type_clean                        AS employment_type,</span></span>
+<span id="cb5-203"><a href="#cb5-203" aria-hidden="true" tabindex="-1"></a><span class="st">        salary_text,</span></span>
+<span id="cb5-204"><a href="#cb5-204" aria-hidden="true" tabindex="-1"></a><span class="st">        annual_salary_min_clean                      AS annual_salary_min,</span></span>
+<span id="cb5-205"><a href="#cb5-205" aria-hidden="true" tabindex="-1"></a><span class="st">        annual_salary_max_clean                      AS annual_salary_max,</span></span>
+<span id="cb5-206"><a href="#cb5-206" aria-hidden="true" tabindex="-1"></a><span class="st">        hourly_salary_min_clean                      AS hourly_salary_min,</span></span>
+<span id="cb5-207"><a href="#cb5-207" aria-hidden="true" tabindex="-1"></a><span class="st">        hourly_salary_max_clean                      AS hourly_salary_max,</span></span>
+<span id="cb5-208"><a href="#cb5-208" aria-hidden="true" tabindex="-1"></a><span class="st">        soc_code,</span></span>
+<span id="cb5-209"><a href="#cb5-209" aria-hidden="true" tabindex="-1"></a><span class="st">        soc_name,</span></span>
+<span id="cb5-210"><a href="#cb5-210" aria-hidden="true" tabindex="-1"></a><span class="st">        occupation_family,</span></span>
+<span id="cb5-211"><a href="#cb5-211" aria-hidden="true" tabindex="-1"></a><span class="st">        naics_code,</span></span>
+<span id="cb5-212"><a href="#cb5-212" aria-hidden="true" tabindex="-1"></a><span class="st">        naics_name,</span></span>
+<span id="cb5-213"><a href="#cb5-213" aria-hidden="true" tabindex="-1"></a><span class="st">        onet_code,</span></span>
+<span id="cb5-214"><a href="#cb5-214" aria-hidden="true" tabindex="-1"></a><span class="st">        onet_name,</span></span>
+<span id="cb5-215"><a href="#cb5-215" aria-hidden="true" tabindex="-1"></a><span class="st">        cip_code,</span></span>
+<span id="cb5-216"><a href="#cb5-216" aria-hidden="true" tabindex="-1"></a><span class="st">        cip_name,</span></span>
+<span id="cb5-217"><a href="#cb5-217" aria-hidden="true" tabindex="-1"></a><span class="st">        skills,</span></span>
+<span id="cb5-218"><a href="#cb5-218" aria-hidden="true" tabindex="-1"></a><span class="st">        program_matches,</span></span>
+<span id="cb5-219"><a href="#cb5-219" aria-hidden="true" tabindex="-1"></a><span class="st">        description,</span></span>
+<span id="cb5-220"><a href="#cb5-220" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_employment,</span></span>
+<span id="cb5-221"><a href="#cb5-221" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_annual_mean_wage,</span></span>
+<span id="cb5-222"><a href="#cb5-222" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_annual_median_wage,</span></span>
+<span id="cb5-223"><a href="#cb5-223" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_source_year,</span></span>
+<span id="cb5-224"><a href="#cb5-224" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_work_type,</span></span>
+<span id="cb5-225"><a href="#cb5-225" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_requirements_summary,</span></span>
+<span id="cb5-226"><a href="#cb5-226" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_responsibilities_summary,</span></span>
+<span id="cb5-227"><a href="#cb5-227" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_technical_tools_summary</span></span>
 <span id="cb5-228"><a href="#cb5-228" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-229"><a href="#cb5-229" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span>
+<span id="cb5-229"><a href="#cb5-229" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM salaries</span></span>
 <span id="cb5-230"><a href="#cb5-230" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-231"><a href="#cb5-231" aria-hidden="true" tabindex="-1"></a><span class="co"># Register as the canonical SQL view for all downstream analysis</span></span>
-<span id="cb5-232"><a href="#cb5-232" aria-hidden="true" tabindex="-1"></a>jobs_clean.createOrReplaceTempView(<span class="st">"job_facts"</span>)</span>
-<span id="cb5-233"><a href="#cb5-233" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Clean rows: </span><span class="sc">{</span>jobs_clean<span class="sc">.</span>count()<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb5-234"><a href="#cb5-234" aria-hidden="true" tabindex="-1"></a>jobs_clean.show(<span class="dv">5</span>, truncate<span class="op">=</span><span class="dv">60</span>)</span>
-<span id="cb5-235"><a href="#cb5-235" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-236"><a href="#cb5-236" aria-hidden="true" tabindex="-1"></a>jobs_clean.toPandas().to_csv(<span class="st">"./outputs/api_job_facts_cleaned.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb5-237"><a href="#cb5-237" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved ./outputs/api_job_facts_cleaned.csv"</span>)</span>
-<span id="cb5-238"><a href="#cb5-238" aria-hidden="true" tabindex="-1"></a><span class="co">#spark.sql("SELECT * FROM job_facts LIMIT 10").toPandas()</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-231"><a href="#cb5-231" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span>
+<span id="cb5-232"><a href="#cb5-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-233"><a href="#cb5-233" aria-hidden="true" tabindex="-1"></a><span class="co"># Register as the canonical SQL view for all downstream analysis</span></span>
+<span id="cb5-234"><a href="#cb5-234" aria-hidden="true" tabindex="-1"></a>jobs_clean.createOrReplaceTempView(<span class="st">"job_facts"</span>)</span>
+<span id="cb5-235"><a href="#cb5-235" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Clean rows: </span><span class="sc">{</span>jobs_clean<span class="sc">.</span>count()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb5-236"><a href="#cb5-236" aria-hidden="true" tabindex="-1"></a>jobs_clean.show(<span class="dv">5</span>, truncate<span class="op">=</span><span class="dv">60</span>)</span>
+<span id="cb5-237"><a href="#cb5-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-238"><a href="#cb5-238" aria-hidden="true" tabindex="-1"></a>jobs_clean.toPandas().to_csv(<span class="st">"./outputs/api_job_facts_cleaned.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb5-239"><a href="#cb5-239" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved ./outputs/api_job_facts_cleaned.csv"</span>)</span>
+<span id="cb5-240"><a href="#cb5-240" aria-hidden="true" tabindex="-1"></a><span class="co">#spark.sql("SELECT * FROM job_facts LIMIT 10").toPandas()</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>WARNING: Using incubator modules: jdk.incubator.vector
-WARNING: package sun.security.action not in java.base
-Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
-Setting default log level to "WARN".
-To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
-/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/testing/utils.py:127: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
+<pre><code>/tmp/ipykernel_5119/1740352702.py:14: Pandas4Warning: For backward compatibility, 'str' dtypes are included by select_dtypes when 'object' dtype is specified. This behavior is deprecated and will be removed in a future version. Explicitly pass 'str' to `include` to select them, or to `exclude` to remove them and silence this warning.
+See https://pandas.pydata.org/docs/user_guide/migration-3-strings.html#string-migration-select-dtypes for details on how to write code that works with pandas 2 and 3.
+  for col in jobs_for_spark.select_dtypes(include="object").columns:
+/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/conversion.py:659: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
   require_minimum_pandas_version()
-26/09/21 03:35:06 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-
-[Stage 1:&gt;                                                          (0 + 1) / 1]
-
-                                                                                </code></pre>
+/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/conversion.py:936: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
+  require_minimum_pandas_version()
+/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/types.py:712: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
+  require_minimum_pandas_version()</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Selected 37 columns — raw view registered as: job_facts_raw
 root
- |-- job_id: integer (nullable = true)
+ |-- job_id: long (nullable = true)
  |-- posted_at: timestamp (nullable = true)
  |-- title: string (nullable = true)
  |-- normalized_title: string (nullable = true)
@@ -711,68 +741,46 @@ root
  |-- remote_status: string (nullable = true)
  |-- employment_type: string (nullable = true)
  |-- salary_text: string (nullable = true)
- |-- annual_salary_min: double (nullable = true)
- |-- annual_salary_max: double (nullable = true)
- |-- hourly_salary_min: double (nullable = true)
- |-- hourly_salary_max: double (nullable = true)
+ |-- annual_salary_min: string (nullable = true)
+ |-- annual_salary_max: string (nullable = true)
+ |-- hourly_salary_min: string (nullable = true)
+ |-- hourly_salary_max: string (nullable = true)
  |-- soc_code: string (nullable = true)
  |-- soc_name: string (nullable = true)
  |-- occupation_family: string (nullable = true)
- |-- naics_code: integer (nullable = true)
+ |-- naics_code: string (nullable = true)
  |-- naics_name: string (nullable = true)
  |-- onet_code: string (nullable = true)
  |-- onet_name: string (nullable = true)
- |-- cip_code: double (nullable = true)
+ |-- cip_code: string (nullable = true)
  |-- cip_name: string (nullable = true)
  |-- skills: string (nullable = true)
  |-- program_matches: string (nullable = true)
  |-- description: string (nullable = true)
  |-- bls_employment: double (nullable = true)
- |-- bls_annual_mean_wage: double (nullable = true)
- |-- bls_annual_median_wage: double (nullable = true)
+ |-- bls_annual_mean_wage: string (nullable = true)
+ |-- bls_annual_median_wage: string (nullable = true)
  |-- bls_source_year: double (nullable = true)
  |-- student_signals_work_type: string (nullable = true)
  |-- student_signals_requirements_summary: string (nullable = true)
  |-- student_signals_responsibilities_summary: string (nullable = true)
  |-- student_signals_technical_tools_summary: string (nullable = true)
-</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-[Stage 2:&gt;                                                          (0 + 1) / 1]
 
-                                                                                </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Clean rows: 1782</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-[Stage 5:&gt;                                                          (0 + 1) / 1]
-
-                                                                                </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>+------+-------------------+------------------------------------------------------------+-------------------------------------+------------+-------------+----+---------+-------+----------+-------------+---------------+------------------------------------------------------------+-----------------+-----------------+-----------------+-----------------+--------+-------------------+----------------------------------------------------------+----------+--------------------------------------------+----------+-------------------+--------+----------------+------------------------------------------------------------+------------------------------------------------------------+------------------------------------------------------------+--------------+--------------------+----------------------+---------------+-------------------------+------------------------------------------------------------+------------------------------------------------------------+----------------------------------------------------------+
-|job_id|          posted_at|                                                       title|                     normalized_title|company_name|location_text|city|city_code|  state|state_code|remote_status|employment_type|                                                 salary_text|annual_salary_min|annual_salary_max|hourly_salary_min|hourly_salary_max|soc_code|           soc_name|                                         occupation_family|naics_code|                                  naics_name| onet_code|          onet_name|cip_code|        cip_name|                                                      skills|                                             program_matches|                                                 description|bls_employment|bls_annual_mean_wage|bls_annual_median_wage|bls_source_year|student_signals_work_type|                        student_signals_requirements_summary|                    student_signals_responsibilities_summary|                   student_signals_technical_tools_summary|
-+------+-------------------+------------------------------------------------------------+-------------------------------------+------------+-------------+----+---------+-------+----------+-------------+---------------+------------------------------------------------------------+-----------------+-----------------+-----------------+-----------------+--------+-------------------+----------------------------------------------------------+----------+--------------------------------------------+----------+-------------------+--------+----------------+------------------------------------------------------------+------------------------------------------------------------+------------------------------------------------------------+--------------+--------------------+----------------------+---------------+-------------------------+------------------------------------------------------------+------------------------------------------------------------+----------------------------------------------------------+
-|680799|2026-08-06 22:47:26|                       Software Engineer, Data Platform Team|Software Engineer, Data Platform Team|    Coinbase|       Remote|NULL|     NULL| Remote|      NULL|       Remote|        Unknown|{'min': '', 'max': '', 'currency': '', 'period': '', 'sum...|             NULL|             NULL|             NULL|             NULL| 15-1252|Software Developers|                                 Computer and Mathematical|    541500|Computer Systems Design and Related Services|15-1252.00|Software Developers| 11.0701|Computer Science|[{'name': 'Abstractions', 'type': 'Specialized Skill', 'c...|[{'program_name': 'Applied Business Analytics', 'score': ...|Ready to do the most impactful work of your career? At [C...|     1687890.0|            148100.0|              135980.0|         2025.0|                     NULL|Required Skills and Experience 3+ years of relevant work ...|roles within the Data Platform team, each with a differen...|                      Python, SQL, Java, Docker, Snowflake|
-|680849|2026-08-06 22:11:41|                              Freelance Senior Data Engineer|       Freelance Senior Data Engineer|     Hugeinc|United States|NULL|     NULL|   NULL|      NULL|       Remote|       Contract|{'min': '', 'max': '', 'currency': '', 'period': '', 'sum...|             NULL|             NULL|             NULL|             NULL| 15-1243|Database Architects|                                 Computer and Mathematical|    541500|Computer Systems Design and Related Services|15-1243.00|Database Architects| 11.0701|Computer Science|[{'name': 'Analytics', 'type': 'Specialized Skill', 'conf...|[{'program_name': 'Applied Business Analytics', 'score': ...|**Location: This position is remote within the United Sta...|       67140.0|            144440.0|              139500.0|         2025.0|                 Contract|requirements and measurement solutions. Support debugging...|role is currently not available for hire or work in New M...|                                         JavaScript, Agile|
-|680864|2026-08-06 22:02:28|Business Applications Specialist (Brazilian Portuguese Sp...|     Business Applications Specialist|       Capco|      Orlando|NULL|     NULL|Orlando|      NULL|      Unknown|        Unknown|{'min': '', 'max': '', 'currency': '', 'period': '', 'sum...|             NULL|             NULL|             NULL|             NULL| 27-2011|             Actors|Arts, Design, Entertainment, Sports, and Media Occupations|    541500|Computer Systems Design and Related Services|27-2011.00|             Actors| 11.0701|Computer Science|                                                          []|[{'program_name': 'Advanced Information Technology', 'sco...|**Business Applications Specialist (Brazilian Portuguese ...|       55000.0|                NULL|                  NULL|         2025.0|                     NULL|Experience supporting **SAP SuccessFactors**, Greenhouse ...|Role** Join Capco's Global Internal Applications team and...|                                                      NULL|
-|680977|2026-08-06 21:00:00|                                IT Enterprise Data Architect|         IT Enterprise Data Architect| Connectwise|       Remote|NULL|     NULL| Remote|      NULL|       Hybrid|        Unknown|{'min': '', 'max': '', 'currency': '', 'period': '', 'sum...|             NULL|             NULL|             NULL|             NULL| 15-1243|Database Architects|                                 Computer and Mathematical|    541500|Computer Systems Design and Related Services|15-1243.00|Database Architects| 11.0701|Computer Science|[{'name': 'Analytics', 'type': 'Specialized Skill', 'conf...|[{'program_name': 'Applied Business Analytics', 'score': ...|*ConnectWise is an industry and Global leading software c...|       67140.0|            144440.0|              139500.0|         2025.0|                     NULL|requirements are met. Performs hands-on data analysis, pr...|Owns and continuously evolves the enterprise data model s...|                                SQL, Salesforce, Snowflake|
-|680996|2026-08-06 20:47:22|                                     Principal Data Engineer|              Principal Data Engineer|   Energyhub|       Remote|NULL|     NULL| Remote|      NULL|       Remote|        Unknown|{'min': '', 'max': '', 'currency': '', 'period': '', 'sum...|             NULL|             NULL|             NULL|             NULL| 15-1243|Database Architects|                                 Computer and Mathematical|    541500|Computer Systems Design and Related Services|15-1243.00|Database Architects| 11.0701|Computer Science|[{'name': 'Airflow', 'type': 'Specialized Skill', 'confid...|[{'program_name': 'Applied Business Analytics', 'score': ...|**As a Principal Data Engineer, you will:** - Design and ...|       67140.0|            144440.0|              139500.0|         2025.0|                     NULL|requirements and Company policies. By submitting your app...|The base salary offered is part of a total compensation p...|Python, SQL, Java, AWS, Tableau, Snowflake, MongoDB, React|
-+------+-------------------+------------------------------------------------------------+-------------------------------------+------------+-------------+----+---------+-------+----------+-------------+---------------+------------------------------------------------------------+-----------------+-----------------+-----------------+-----------------+--------+-------------------+----------------------------------------------------------+----------+--------------------------------------------+----------+-------------------+--------+----------------+------------------------------------------------------------+------------------------------------------------------------+------------------------------------------------------------+--------------+--------------------+----------------------+---------------+-------------------------+------------------------------------------------------------+------------------------------------------------------------+----------------------------------------------------------+
+Clean rows: 2353
++------+-------------------+------------------------------------------------------------+-------------------------------------+----------------------------------------------------+-------------------+--------+---------+-----------+----------+-------------+---------------+------------------------------------------------------------+-----------------+-----------------+-----------------+-----------------+--------+-------------------+----------------------------------------------------------+----------+--------------------------------------------+----------+-------------------+--------+------------------+------------------------------------------------------------+------------------------------------------------------------+------------------------------------------------------------+--------------+--------------------+----------------------+---------------+-------------------------+------------------------------------------------------------+------------------------------------------------------------+---------------------------------------+
+|job_id|          posted_at|                                                       title|                     normalized_title|                                        company_name|      location_text|    city|city_code|      state|state_code|remote_status|employment_type|                                                 salary_text|annual_salary_min|annual_salary_max|hourly_salary_min|hourly_salary_max|soc_code|           soc_name|                                         occupation_family|naics_code|                                  naics_name| onet_code|          onet_name|cip_code|          cip_name|                                                      skills|                                             program_matches|                                                 description|bls_employment|bls_annual_mean_wage|bls_annual_median_wage|bls_source_year|student_signals_work_type|                        student_signals_requirements_summary|                    student_signals_responsibilities_summary|student_signals_technical_tools_summary|
++------+-------------------+------------------------------------------------------------+-------------------------------------+----------------------------------------------------+-------------------+--------+---------+-----------+----------+-------------+---------------+------------------------------------------------------------+-----------------+-----------------+-----------------+-----------------+--------+-------------------+----------------------------------------------------------+----------+--------------------------------------------+----------+-------------------+--------+------------------+------------------------------------------------------------+------------------------------------------------------------+------------------------------------------------------------+--------------+--------------------+----------------------+---------------+-------------------------+------------------------------------------------------------+------------------------------------------------------------+---------------------------------------+
+|680685|2026-08-07 00:00:00|                              Management and Program Analyst|       Management and Program Analyst|Office Of The Secretary Of Health And Human Services|Multiple, Locations|Multiple|         |  Locations|          |      Unknown|        Unknown|                                                    Per Year|             NULL|             NULL|             NULL|             NULL| 13-1111|Management Analysts|                         Business and Financial Operations|    541500|Computer Systems Design and Related Services|13-1111.00|Management Analysts| 52.1301|Management Science|[{"name": "Adjudication", "type": "Specialized Skill", "c...|[{"program_name": "Applied Business Analytics", "score": ...|Summary: This position is located in the Department of He...|      898280.0|           113790.00|             101860.00|         2025.0|                         |requirements.'] How to apply: To apply for this position,...|Duties: ['As a Management and Program Analyst, you will: ...|                                       |
+|680788|2026-08-06 22:58:08|                           Senior Incentives Systems Analyst|    Senior Incentives Systems Analyst|                                           Hootsuite|  Pune, Maharashtra|    Pune|         |Maharashtra|          |       Remote|        Unknown|{'min': '', 'max': '', 'currency': '', 'period': '', 'sum...|             NULL|             NULL|             NULL|             NULL| 41-9012|             Models|                             Sales and Related Occupations|    541500|Computer Systems Design and Related Services|41-9012.00|             Models| 52.0211|Project Management|[{"name": "Accountability", "type": "Common Skill", "conf...|[{"program_name": "Computer Information Systems", "score"...|We’re looking for a Senior Revenue Incentive Compensation...|        3780.0|            72800.00|              48470.00|         2025.0|                         |requirements needed to implement and calculate and proces...|responsibilities to understand how your team’s work drive...|          SQL, Excel, Salesforce, Agile|
+|680799|2026-08-06 22:47:26|                       Software Engineer, Data Platform Team|Software Engineer, Data Platform Team|                                            Coinbase|             Remote|        |         |     Remote|          |       Remote|        Unknown|{'min': '', 'max': '', 'currency': '', 'period': '', 'sum...|             NULL|             NULL|             NULL|             NULL| 15-1252|Software Developers|                                 Computer and Mathematical|    541500|Computer Systems Design and Related Services|15-1252.00|Software Developers| 11.0701|  Computer Science|[{"name": "Abstractions", "type": "Specialized Skill", "c...|[{"program_name": "Applied Business Analytics", "score": ...|Ready to do the most impactful work of your career? At [C...|     1687890.0|           148100.00|             135980.00|         2025.0|                         |Required Skills and Experience 3+ years of relevant work ...|roles within the Data Platform team, each with a differen...|   Python, SQL, Java, Docker, Snowflake|
+|680849|2026-08-06 22:11:41|                              Freelance Senior Data Engineer|       Freelance Senior Data Engineer|                                             Hugeinc|      United States|        |         |           |          |       Remote|       Contract|{'min': '', 'max': '', 'currency': '', 'period': '', 'sum...|             NULL|             NULL|             NULL|             NULL| 15-1243|Database Architects|                                 Computer and Mathematical|    541500|Computer Systems Design and Related Services|15-1243.00|Database Architects| 11.0701|  Computer Science|[{"name": "Analytics", "type": "Specialized Skill", "conf...|[{"program_name": "Applied Business Analytics", "score": ...|**Location: This position is remote within the United Sta...|       67140.0|           144440.00|             139500.00|         2025.0|                 Contract|requirements and measurement solutions. Support debugging...|role is currently not available for hire or work in New M...|                      JavaScript, Agile|
+|680864|2026-08-06 22:02:28|Business Applications Specialist (Brazilian Portuguese Sp...|     Business Applications Specialist|                                               Capco|            Orlando|        |         |    Orlando|          |      Unknown|        Unknown|{'min': '', 'max': '', 'currency': '', 'period': '', 'sum...|             NULL|             NULL|             NULL|             NULL| 27-2011|             Actors|Arts, Design, Entertainment, Sports, and Media Occupations|    541500|Computer Systems Design and Related Services|27-2011.00|             Actors| 11.0701|  Computer Science|                                                          []|[{"program_name": "Advanced Information Technology", "sco...|**Business Applications Specialist (Brazilian Portuguese ...|       55000.0|                NULL|                  NULL|         2025.0|                         |Experience supporting **SAP SuccessFactors**, Greenhouse ...|Role** Join Capco's Global Internal Applications team and...|                                       |
++------+-------------------+------------------------------------------------------------+-------------------------------------+----------------------------------------------------+-------------------+--------+---------+-----------+----------+-------------+---------------+------------------------------------------------------------+-----------------+-----------------+-----------------+-----------------+--------+-------------------+----------------------------------------------------------+----------+--------------------------------------------+----------+-------------------+--------+------------------+------------------------------------------------------------+------------------------------------------------------------+------------------------------------------------------------+--------------+--------------------+----------------------+---------------+-------------------------+------------------------------------------------------------+------------------------------------------------------------+---------------------------------------+
 only showing top 5 rows</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/conversion.py:298: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
   require_minimum_pandas_version()
-
-[Stage 6:&gt;                                                          (0 + 1) / 1]
-
-[Stage 6:===========================================================(1 + 0) / 1]
-
-                                                                                
 /home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/types.py:778: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
   require_minimum_pandas_version()</code></pre>
 </div>
@@ -1148,15 +1156,15 @@ only showing top 5 rows</code></pre>
 </tbody>
 </table>
 <hr>
-<div id="80879768" class="cell" data-execution_count="4">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>spark.sql(<span class="st">"SELECT * FROM job_facts LIMIT 50"</span>).toPandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="1c4ca4e4" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>spark.sql(<span class="st">"SELECT * FROM job_facts LIMIT 50"</span>).toPandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/conversion.py:298: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
   require_minimum_pandas_version()
 /home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/types.py:778: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
   require_minimum_pandas_version()</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="12">
 <div>
 
 
@@ -1190,46 +1198,94 @@ only showing top 5 rows</code></pre>
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
+<td>680685</td>
+<td>2026-08-07 00:00:00</td>
+<td>Management and Program Analyst</td>
+<td>Management and Program Analyst</td>
+<td>Office Of The Secretary Of Health And Human Se...</td>
+<td>Multiple, Locations</td>
+<td>Multiple</td>
+<td></td>
+<td>Locations</td>
+<td></td>
+<td>...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
+<td>Summary: This position is located in the Depar...</td>
+<td>898280.0</td>
+<td>113790.00</td>
+<td>101860.00</td>
+<td>2025.0</td>
+<td></td>
+<td>requirements.'] How to apply: To apply for thi...</td>
+<td>Duties: ['As a Management and Program Analyst,...</td>
+<td></td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>680788</td>
+<td>2026-08-06 22:58:08</td>
+<td>Senior Incentives Systems Analyst</td>
+<td>Senior Incentives Systems Analyst</td>
+<td>Hootsuite</td>
+<td>Pune, Maharashtra</td>
+<td>Pune</td>
+<td></td>
+<td>Maharashtra</td>
+<td></td>
+<td>...</td>
+<td>[{"program_name": "Computer Information System...</td>
+<td>We’re looking for a Senior Revenue Incentive C...</td>
+<td>3780.0</td>
+<td>72800.00</td>
+<td>48470.00</td>
+<td>2025.0</td>
+<td></td>
+<td>requirements needed to implement and calculate...</td>
+<td>responsibilities to understand how your team’s...</td>
+<td>SQL, Excel, Salesforce, Agile</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
 <td>680799</td>
 <td>2026-08-06 22:47:26</td>
 <td>Software Engineer, Data Platform Team</td>
 <td>Software Engineer, Data Platform Team</td>
 <td>Coinbase</td>
 <td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
+<td></td>
+<td></td>
 <td>Remote</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>Ready to do the most impactful work of your ca...</td>
 <td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
+<td>148100.00</td>
+<td>135980.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>Required Skills and Experience 3+ years of rel...</td>
 <td>roles within the Data Platform team, each with...</td>
 <td>Python, SQL, Java, Docker, Snowflake</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
+<th data-quarto-table-cell-role="th">3</th>
 <td>680849</td>
 <td>2026-08-06 22:11:41</td>
 <td>Freelance Senior Data Engineer</td>
 <td>Freelance Senior Data Engineer</td>
 <td>Hugeinc</td>
 <td>United States</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>**Location: This position is remote within the...</td>
 <td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
+<td>144440.00</td>
+<td>139500.00</td>
 <td>2025.0</td>
 <td>Contract</td>
 <td>requirements and measurement solutions. Suppor...</td>
@@ -1237,79 +1293,103 @@ only showing top 5 rows</code></pre>
 <td>JavaScript, Agile</td>
 </tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
+<th data-quarto-table-cell-role="th">4</th>
 <td>680864</td>
 <td>2026-08-06 22:02:28</td>
 <td>Business Applications Specialist (Brazilian Po...</td>
 <td>Business Applications Specialist</td>
 <td>Capco</td>
 <td>Orlando</td>
-<td>NaN</td>
-<td>NaN</td>
+<td></td>
+<td></td>
 <td>Orlando</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Advanced Information Techno...</td>
+<td>[{"program_name": "Advanced Information Techno...</td>
 <td>**Business Applications Specialist (Brazilian ...</td>
 <td>55000.0</td>
 <td>NaN</td>
 <td>NaN</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>Experience supporting **SAP SuccessFactors**, ...</td>
 <td>Role** Join Capco's Global Internal Applicatio...</td>
-<td>NaN</td>
+<td></td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
+<th data-quarto-table-cell-role="th">5</th>
 <td>680977</td>
 <td>2026-08-06 21:00:00</td>
 <td>IT Enterprise Data Architect</td>
 <td>IT Enterprise Data Architect</td>
 <td>Connectwise</td>
 <td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
+<td></td>
+<td></td>
 <td>Remote</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>*ConnectWise is an industry and Global leading...</td>
 <td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
+<td>144440.00</td>
+<td>139500.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>requirements are met. Performs hands-on data a...</td>
 <td>Owns and continuously evolves the enterprise d...</td>
 <td>SQL, Salesforce, Snowflake</td>
 </tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
+<th data-quarto-table-cell-role="th">6</th>
 <td>680996</td>
 <td>2026-08-06 20:47:22</td>
 <td>Principal Data Engineer</td>
 <td>Principal Data Engineer</td>
 <td>Energyhub</td>
 <td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
+<td></td>
+<td></td>
 <td>Remote</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>**As a Principal Data Engineer, you will:** - ...</td>
 <td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
+<td>144440.00</td>
+<td>139500.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>requirements and Company policies. By submitti...</td>
 <td>The base salary offered is part of a total com...</td>
 <td>Python, SQL, Java, AWS, Tableau, Snowflake, Mo...</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">5</th>
+<th data-quarto-table-cell-role="th">7</th>
+<td>681099</td>
+<td>2026-08-06 19:59:09</td>
+<td>Technical IT Support - Analyst (Job 1418)</td>
+<td>Technical IT Support - Analyst</td>
+<td>Dlhcorporation</td>
+<td>Bethesda, Maryland</td>
+<td>Bethesda</td>
+<td></td>
+<td>Maryland</td>
+<td>MD</td>
+<td>...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
+<td>**About Us** DLH delivers improved health and ...</td>
+<td>898280.0</td>
+<td>113790.00</td>
+<td>101860.00</td>
+<td>2025.0</td>
+<td></td>
+<td>requirements, translate business needs into te...</td>
+<td>Collaborate with business stakeholders to gath...</td>
+<td>Agile</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">8</th>
 <td>681317</td>
 <td>2026-08-06 18:01:13</td>
 <td>Senior Data Engineer (R13923)</td>
@@ -1317,23 +1397,23 @@ only showing top 5 rows</code></pre>
 <td>Oportun</td>
 <td>Remote, Mx</td>
 <td>Remote</td>
-<td>NaN</td>
+<td></td>
 <td>Mx</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>### **ABOUT OPORTUN** Oportun (Nasdaq: OPRT) i...</td>
 <td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
+<td>144440.00</td>
+<td>139500.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>requirements gathering to final successful del...</td>
 <td>role where you will have the opportunity to ta...</td>
 <td>Python, SQL, Java, AWS, Azure, GCP, Spark, Pos...</td>
 </tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">6</th>
+<tr class="even">
+<th data-quarto-table-cell-role="th">9</th>
 <td>681325</td>
 <td>2026-08-06 17:58:22</td>
 <td>Staff Data Scientist, Imaging</td>
@@ -1341,23 +1421,71 @@ only showing top 5 rows</code></pre>
 <td>Biohub</td>
 <td>Redwood City, Ca (Hybrid)</td>
 <td>Redwood City</td>
-<td>NaN</td>
+<td></td>
 <td>Ca (Hybrid)</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>Biohub is the first large-scale initiative bri...</td>
 <td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
+<td>126800.00</td>
+<td>120230.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>Biohub is the first large-scale initiative bri...</td>
 <td>role is part of the Data team, which focuses o...</td>
 <td>Python</td>
 </tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">10</th>
+<td>681334</td>
+<td>2026-08-06 17:55:10</td>
+<td>IT Services Analyst I</td>
+<td>IT Services Analyst I</td>
+<td>Thetradedesk</td>
+<td>New York, New York</td>
+<td>New York</td>
+<td></td>
+<td>New York</td>
+<td>NY</td>
+<td>...</td>
+<td>[{"program_name": "Administrative Sciences", "...</td>
+<td>The Trade Desk is a global technology company ...</td>
+<td>55000.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>2025.0</td>
+<td>Full Time, Contract</td>
+<td>requirements of the Los Angeles Fair Chance In...</td>
+<td>responsibilities with strategic project work. ...</td>
+<td></td>
+</tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">7</th>
+<th data-quarto-table-cell-role="th">11</th>
+<td>681341</td>
+<td>2026-08-06 17:53:21</td>
+<td>Regulatory Quant &amp; Intelligence Specialist (Re...</td>
+<td>Regulatory Quant &amp; Intelligence Specialist</td>
+<td>Bybit</td>
+<td>Abu Dhabi, Uae; Hong Kong Sar</td>
+<td>Abu Dhabi</td>
+<td></td>
+<td>Uae; Hong Kong Sar</td>
+<td></td>
+<td>...</td>
+<td>[{"program_name": "Database Management &amp; Busin...</td>
+<td>**About Us** Established in 2018, Bybit is one...</td>
+<td>3780.0</td>
+<td>72800.00</td>
+<td>48470.00</td>
+<td>2025.0</td>
+<td></td>
+<td>requirements into product design and internal ...</td>
+<td>Responsibilities ### Regulatory Decision Model...</td>
+<td>Python</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">12</th>
 <td>681458</td>
 <td>2026-08-06 16:55:53</td>
 <td>Senior Software Engineer, Business Systems - D...</td>
@@ -1365,23 +1493,23 @@ only showing top 5 rows</code></pre>
 <td>Verkada</td>
 <td>San Mateo, California</td>
 <td>San Mateo</td>
-<td>NaN</td>
+<td></td>
 <td>California</td>
 <td>CA</td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>### **Who We Are** Verkada is transforming how...</td>
 <td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
+<td>148100.00</td>
+<td>135980.00</td>
 <td>2025.0</td>
 <td>Full Time</td>
 <td>### **Who We Are** Verkada is transforming how...</td>
 <td>Role** As a member of our Business Systems Eng...</td>
 <td>Python, SQL</td>
 </tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">8</th>
+<tr class="even">
+<th data-quarto-table-cell-role="th">13</th>
 <td>681546</td>
 <td>2026-08-06 16:10:40</td>
 <td>Business Process Analyst 752</td>
@@ -1389,23 +1517,23 @@ only showing top 5 rows</code></pre>
 <td>Freedomconsulting</td>
 <td>Springfield, Virginia</td>
 <td>Springfield</td>
-<td>NaN</td>
+<td></td>
 <td>Virginia</td>
 <td>VA</td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>Freedom Technology Solutions Group is seeking ...</td>
 <td>898280.0</td>
-<td>113790.0</td>
-<td>101860.0</td>
+<td>113790.00</td>
+<td>101860.00</td>
 <td>2025.0</td>
 <td>Contract</td>
 <td>requirements documents. They also serve as int...</td>
 <td>Reports to a manager or head of a unit/departm...</td>
 <td>AWS, Azure, Excel, Kubernetes, Docker, Jira, A...</td>
 </tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">9</th>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">14</th>
 <td>681697</td>
 <td>2026-08-06 15:13:55</td>
 <td>Data Product Manager</td>
@@ -1413,23 +1541,23 @@ only showing top 5 rows</code></pre>
 <td>Bybit</td>
 <td>Kuala Lumpur, Malaysia</td>
 <td>Kuala Lumpur</td>
-<td>NaN</td>
+<td></td>
 <td>Malaysia</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Construction Management &amp; T...</td>
+<td>[{"program_name": "Construction Management &amp; T...</td>
 <td>**About Us** Established in 2018, Bybit is one...</td>
 <td>395240.0</td>
-<td>177770.0</td>
-<td>166790.0</td>
+<td>177770.00</td>
+<td>166790.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>requirements design through resource coordinat...</td>
 <td>Own the overall planning and strategic directi...</td>
 <td>SQL</td>
 </tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">10</th>
+<tr class="even">
+<th data-quarto-table-cell-role="th">15</th>
 <td>681707</td>
 <td>2026-08-06 15:06:55</td>
 <td>Big Data Development Engineer</td>
@@ -1437,23 +1565,23 @@ only showing top 5 rows</code></pre>
 <td>Bybit</td>
 <td>Kuala Lumpur, Malaysia</td>
 <td>Kuala Lumpur</td>
-<td>NaN</td>
+<td></td>
 <td>Malaysia</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>**About Us** Established in 2018, Bybit is one...</td>
 <td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
+<td>144440.00</td>
+<td>139500.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>Bachelor's degree or above in Computer Science...</td>
 <td>Lead the architecture design and development o...</td>
 <td>Java, Spark</td>
 </tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">11</th>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">16</th>
 <td>681717</td>
 <td>2026-08-06 15:02:41</td>
 <td>Business Partner Division - Pricing Manager</td>
@@ -1461,23 +1589,23 @@ only showing top 5 rows</code></pre>
 <td>Rocketmiles</td>
 <td>New, York City</td>
 <td>New</td>
-<td>NaN</td>
+<td></td>
 <td>York City</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Advanced Information Techno...</td>
+<td>[{"program_name": "Advanced Information Techno...</td>
 <td>**Our Company** Booking Holdings (NASDAQ: BKNG...</td>
 <td>55000.0</td>
 <td>NaN</td>
 <td>NaN</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>requirements Candidates should be authorized t...</td>
 <td>role would sit within the division that connec...</td>
 <td>Python, SQL, R, Tableau</td>
 </tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">12</th>
+<tr class="even">
+<th data-quarto-table-cell-role="th">17</th>
 <td>661485</td>
 <td>2026-08-06 15:02:40</td>
 <td>Business Partner Division - Pricing Manager</td>
@@ -1485,23 +1613,23 @@ only showing top 5 rows</code></pre>
 <td>Agoda</td>
 <td>New, York City</td>
 <td>New</td>
-<td>NaN</td>
+<td></td>
 <td>York City</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Advanced Information Techno...</td>
+<td>[{"program_name": "Advanced Information Techno...</td>
 <td>**About Agoda** At Agoda, we bridge the world ...</td>
 <td>NaN</td>
 <td>NaN</td>
 <td>NaN</td>
 <td>NaN</td>
-<td>NaN</td>
+<td></td>
 <td>We are committed to providing equal employment...</td>
 <td>role would sit within the division that connec...</td>
 <td>Python, SQL, R, Tableau</td>
 </tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">13</th>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">18</th>
 <td>681724</td>
 <td>2026-08-06 14:57:21</td>
 <td>Staff Software Engineer, Data Engineering - Id...</td>
@@ -1509,23 +1637,47 @@ only showing top 5 rows</code></pre>
 <td>Pingidentity</td>
 <td>Austin, Texas</td>
 <td>Austin</td>
-<td>NaN</td>
+<td></td>
 <td>Texas</td>
 <td>TX</td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>**About Ping Identity:** At Ping Identity, we ...</td>
 <td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
+<td>148100.00</td>
+<td>135980.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>requirements, modular design, observability, m...</td>
 <td>Duties (SoD)—by enhancing existing functionali...</td>
 <td>SQL, AWS, Azure, Kubernetes, Docker, Spark</td>
 </tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">19</th>
+<td>681755</td>
+<td>2026-08-06 14:39:04</td>
+<td>Planning/Experimentation Database Management A...</td>
+<td>Planning/Experimentation Database Management A...</td>
+<td>Coreone</td>
+<td>Tampa, Florida</td>
+<td>Tampa</td>
+<td></td>
+<td>Florida</td>
+<td>FL</td>
+<td>...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
+<td>Join our team at Core One! Our mission is to b...</td>
+<td>898280.0</td>
+<td>113790.00</td>
+<td>101860.00</td>
+<td>2025.0</td>
+<td></td>
+<td>Enter, validate, and maintain USSOCOM operatio...</td>
+<td>Utilize automated information management syste...</td>
+<td>Excel</td>
+</tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">14</th>
+<th data-quarto-table-cell-role="th">20</th>
 <td>681882</td>
 <td>2026-08-06 13:52:00</td>
 <td>QA Lead, Business Applications</td>
@@ -1533,47 +1685,95 @@ only showing top 5 rows</code></pre>
 <td>Payoneer</td>
 <td>Tel Aviv District, Israel</td>
 <td>Tel Aviv District</td>
-<td>NaN</td>
+<td></td>
 <td>Israel</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Database Management &amp; Busin...</td>
+<td>[{"program_name": "Database Management &amp; Busin...</td>
 <td>**About Payoneer** Founded in 2005, Payoneer i...</td>
 <td>3780.0</td>
-<td>72800.0</td>
-<td>48470.0</td>
+<td>72800.00</td>
+<td>48470.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>**About Payoneer** Founded in 2005, Payoneer i...</td>
 <td>role helps ensure that quality remains a core ...</td>
 <td>SQL, MongoDB, Agile, Scrum</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">15</th>
+<th data-quarto-table-cell-role="th">21</th>
 <td>681929</td>
 <td>2026-08-06 13:32:07</td>
 <td>Business Development Representative</td>
 <td>Business Development Representative</td>
 <td>Velir</td>
 <td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
+<td></td>
+<td></td>
 <td>Remote</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Advanced Information Techno...</td>
+<td>[{"program_name": "Advanced Information Techno...</td>
 <td>Velir is an established mid-sized agency with ...</td>
 <td>55000.0</td>
 <td>NaN</td>
 <td>NaN</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>Frequent sitting at a desk performing work on ...</td>
 <td>Responsibilities:** **Outbound Prospecting &amp; C...</td>
 <td>Salesforce</td>
 </tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">16</th>
+<th data-quarto-table-cell-role="th">22</th>
+<td>681970</td>
+<td>2026-08-06 13:20:42</td>
+<td>Professional Services Operations Analyst</td>
+<td>Professional Services Operations Analyst</td>
+<td>Tenableinc</td>
+<td>Ma Boston Office, Headquarters Maryland Columbia</td>
+<td>Ma Boston Office</td>
+<td></td>
+<td>Headquarters Maryland Columbia</td>
+<td></td>
+<td>...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
+<td>**Who is Tenable?** Tenable® is the Exposure M...</td>
+<td>898280.0</td>
+<td>113790.00</td>
+<td>101860.00</td>
+<td>2025.0</td>
+<td></td>
+<td>qualifications, skills, competencies, location...</td>
+<td>responsibilities that management may deem nece...</td>
+<td>SQL, Tableau, Excel, Salesforce</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">23</th>
+<td>682046</td>
+<td>2026-08-06 12:43:18</td>
+<td>Application Support Analyst</td>
+<td>Application Support Analyst</td>
+<td>Amdaris</td>
+<td>Timiș, Romania</td>
+<td>Timiș</td>
+<td></td>
+<td>Romania</td>
+<td></td>
+<td>...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
+<td>We fuse together exceptional talent who delive...</td>
+<td>1687890.0</td>
+<td>148100.00</td>
+<td>135980.00</td>
+<td>2025.0</td>
+<td></td>
+<td>Typically requires a Bachelor’s degree or equi...</td>
+<td>responsibilities are to ensure that the design...</td>
+<td>SQL, Java, Azure</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">24</th>
 <td>682071</td>
 <td>2026-08-06 12:14:58</td>
 <td>Student Data Consultant</td>
@@ -1581,47 +1781,95 @@ only showing top 5 rows</code></pre>
 <td>Map</td>
 <td>Copenhagen, Denmark</td>
 <td>Copenhagen</td>
-<td>NaN</td>
+<td></td>
 <td>Denmark</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>#### **Who We Are** WPP Enterprise Solutions d...</td>
 <td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
+<td>126800.00</td>
+<td>120230.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>requirements, considering the client's busines...</td>
 <td>role with us, on how you can update your infor...</td>
 <td>AWS, Salesforce</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">17</th>
+<th data-quarto-table-cell-role="th">25</th>
+<td>682105</td>
+<td>2026-08-06 11:26:26</td>
+<td>Application Analyst</td>
+<td>Application Analyst</td>
+<td>Gibsondunn</td>
+<td>London</td>
+<td></td>
+<td></td>
+<td>London</td>
+<td></td>
+<td>...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
+<td>**Summary:** Gibson Dunn is a leading global l...</td>
+<td>190650.0</td>
+<td>132510.00</td>
+<td>129180.00</td>
+<td>2025.0</td>
+<td>Contract</td>
+<td>requirements into scalable, secure technical s...</td>
+<td>Responsibilities include:** Application Manage...</td>
+<td>SQL, Agile</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">26</th>
+<td>682124</td>
+<td>2026-08-06 11:00:40</td>
+<td>Quant Developer (C++)</td>
+<td>Quant Developer</td>
+<td>Squarepointcapital</td>
+<td>Montreal, Quebec</td>
+<td>Montreal</td>
+<td></td>
+<td>Quebec</td>
+<td></td>
+<td>...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
+<td>**Position Overview** As a member of collabora...</td>
+<td>1687890.0</td>
+<td>148100.00</td>
+<td>135980.00</td>
+<td>2025.0</td>
+<td></td>
+<td>requirements into concrete trading implementat...</td>
+<td>role is $120,000 if located in New York. This ...</td>
+<td>Python, R, Jira</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">27</th>
 <td>682197</td>
 <td>2026-08-06 09:48:41</td>
 <td>Senior Software Engineer - Data Solutions Team</td>
 <td>Senior Software Engineer - Data Solutions Team</td>
 <td>Teads1</td>
 <td>Ljubljana</td>
-<td>NaN</td>
-<td>NaN</td>
+<td></td>
+<td></td>
 <td>Ljubljana</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>**About Teads** Teads is a leading omnichannel...</td>
 <td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
+<td>148100.00</td>
+<td>135980.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>**About Teads** Teads is a leading omnichannel...</td>
 <td>Responsibilities** **Identity** Manage the ide...</td>
 <td>Python, SQL, TypeScript, Excel</td>
 </tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">18</th>
+<th data-quarto-table-cell-role="th">28</th>
 <td>682319</td>
 <td>2026-08-06 06:21:02</td>
 <td>Staff Data Engineer</td>
@@ -1629,47 +1877,47 @@ only showing top 5 rows</code></pre>
 <td>Coupang</td>
 <td>Z Test &amp;, Templates Only</td>
 <td>Z Test &amp;</td>
-<td>NaN</td>
+<td></td>
 <td>Templates Only</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>We exist to wow our customers. We know we’re d...</td>
 <td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
+<td>144440.00</td>
+<td>139500.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>8+ years of relevant industry experience as a ...</td>
 <td>Ideate, build, and manage analytics and produc...</td>
 <td>Python, SQL</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">19</th>
+<th data-quarto-table-cell-role="th">29</th>
 <td>661494</td>
 <td>2026-08-06 04:25:30</td>
 <td>Lead Manager/Associate Director, Strategy &amp; An...</td>
 <td>Lead Manager/Associate Director, Strategy &amp; An...</td>
 <td>Agoda</td>
 <td>Bangkok</td>
-<td>NaN</td>
-<td>NaN</td>
+<td></td>
+<td></td>
 <td>Bangkok</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
 <td>[]</td>
 <td>**About Agoda** At Agoda, we bridge the world ...</td>
 <td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
+<td>126800.00</td>
+<td>120230.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>7+ years of total professional experience in a...</td>
 <td>Lead the design and implementation of a unifie...</td>
 <td>SQL, Tableau</td>
 </tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">20</th>
+<th data-quarto-table-cell-role="th">30</th>
 <td>682388</td>
 <td>2026-08-06 03:57:02</td>
 <td>Senior Data Engineer</td>
@@ -1677,23 +1925,47 @@ only showing top 5 rows</code></pre>
 <td>Fanaticscommerce</td>
 <td>Tampa, Florida</td>
 <td>Tampa</td>
-<td>NaN</td>
+<td></td>
 <td>Florida</td>
 <td>FL</td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>Fanatics Commerce is the global leader in lice...</td>
 <td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
+<td>144440.00</td>
+<td>139500.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>requirements, optimize analytical workflows, a...</td>
 <td>Fanatics Commerce is the global leader in lice...</td>
 <td>Python, SQL</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">21</th>
+<th data-quarto-table-cell-role="th">31</th>
+<td>682643</td>
+<td>2026-08-05 22:58:36</td>
+<td>Software Engineer, II - Autonomy Data</td>
+<td>Software Engineer, II - Autonomy Data</td>
+<td>Torcrobotics</td>
+<td>Blacksburg, Virginia</td>
+<td>Blacksburg</td>
+<td></td>
+<td>Virginia</td>
+<td>VA</td>
+<td>...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
+<td>**About The Company:** At Torc, we have always...</td>
+<td>1687890.0</td>
+<td>148100.00</td>
+<td>135980.00</td>
+<td>2025.0</td>
+<td>Full Time</td>
+<td>qualifications listed for this opportunity, we...</td>
+<td>Moving large scale sensor data reliably from v...</td>
+<td>Python, SQL, R, AWS</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">32</th>
 <td>682670</td>
 <td>2026-08-05 22:27:00</td>
 <td>Staff Data Architect</td>
@@ -1701,23 +1973,23 @@ only showing top 5 rows</code></pre>
 <td>Fanduel</td>
 <td>New, York City</td>
 <td>New</td>
-<td>NaN</td>
+<td></td>
 <td>York City</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Foundations of Health Commu...</td>
+<td>[{"program_name": "Foundations of Health Commu...</td>
 <td>**THE POSITION**Our roster has an opening with...</td>
 <td>55000.0</td>
 <td>NaN</td>
 <td>NaN</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>required to perform other such duties as assig...</td>
 <td>responsibilities outlined above, employees may...</td>
 <td>Spark</td>
 </tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">22</th>
+<tr class="even">
+<th data-quarto-table-cell-role="th">33</th>
 <td>682674</td>
 <td>2026-08-05 22:22:03</td>
 <td>IT Director, Data Services and AI Enablement</td>
@@ -1725,47 +1997,47 @@ only showing top 5 rows</code></pre>
 <td>Heartflowinc</td>
 <td>Rohnert Park, California</td>
 <td>Rohnert Park</td>
-<td>NaN</td>
+<td></td>
 <td>California</td>
 <td>CA</td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>Heartflow is a medical technology company adva...</td>
 <td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
+<td>144440.00</td>
+<td>139500.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>Requirements &amp; Work Experience** Education: Ba...</td>
 <td>role leads a small team responsible for data i...</td>
 <td>AWS, Tableau, Salesforce</td>
 </tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">23</th>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">34</th>
 <td>682702</td>
 <td>2026-08-05 22:07:27</td>
 <td>Sr. Business Systems Analyst</td>
 <td>Sr. Business Systems Analyst</td>
 <td>Elastic</td>
 <td>United States</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>Elastic, the Search AI Company, enables everyo...</td>
 <td>898280.0</td>
-<td>113790.0</td>
-<td>101860.0</td>
+<td>113790.00</td>
+<td>101860.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>requirements, and deliver solutions that refle...</td>
 <td>Role** We’re seeking a **Senior Business Syste...</td>
 <td>Salesforce, Agile</td>
 </tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">24</th>
+<tr class="even">
+<th data-quarto-table-cell-role="th">35</th>
 <td>682754</td>
 <td>2026-08-05 21:40:16</td>
 <td>Sr. Business Operations Manager — Hyperscale L...</td>
@@ -1773,95 +2045,239 @@ only showing top 5 rows</code></pre>
 <td>Purestorage</td>
 <td>Santa Clara, California</td>
 <td>Santa Clara</td>
-<td>NaN</td>
+<td></td>
 <td>California</td>
 <td>CA</td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>We’re in an unbelievably exciting area of tech...</td>
 <td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
+<td>144440.00</td>
+<td>139500.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>Serve as the principal LoB liaison for Salesfo...</td>
 <td>ROLE Everpure is seeking a strategic and techn...</td>
 <td>SQL, Tableau, Excel, Salesforce</td>
 </tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">25</th>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">36</th>
 <td>682778</td>
 <td>2026-08-05 21:30:32</td>
 <td>Internal Audit Analytics Associate</td>
 <td>Internal Audit Analytics Associate</td>
 <td>Coinbase</td>
 <td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
+<td></td>
+<td></td>
 <td>Remote</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>Ready to do the most impactful work of your ca...</td>
 <td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
+<td>126800.00</td>
+<td>120230.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>requirements and outputs. Test data ETL proces...</td>
 <td>role translates complex audit data requests in...</td>
 <td>SQL, Snowflake</td>
 </tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">37</th>
+<td>682919</td>
+<td>2026-08-05 20:33:20</td>
+<td>Service Desk Level 1 Analyst</td>
+<td>Service Desk Level 1 Analyst</td>
+<td>Dyopath</td>
+<td>Remote</td>
+<td></td>
+<td></td>
+<td>Remote</td>
+<td></td>
+<td>...</td>
+<td>[{"program_name": "Project Management", "score...</td>
+<td># Join DYOPATH as a Service Desk Level 1 Analy...</td>
+<td>1066670.0</td>
+<td>110740.00</td>
+<td>102320.00</td>
+<td>2025.0</td>
+<td></td>
+<td>qualifications required of the employee assign...</td>
+<td>Respond to incoming phone calls, emails, and c...</td>
+<td></td>
+</tr>
 <tr class="odd">
-<th data-quarto-table-cell-role="th">26</th>
+<th data-quarto-table-cell-role="th">38</th>
+<td>682937</td>
+<td>2026-08-05 20:25:39</td>
+<td>Operations Engineer - Human Data</td>
+<td>Operations Engineer - Human Data</td>
+<td>Xai</td>
+<td>Palo Alto, California</td>
+<td>Palo Alto</td>
+<td></td>
+<td>California</td>
+<td>CA</td>
+<td>...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
+<td>SpaceXAI’s mission is to create AI systems tha...</td>
+<td>898280.0</td>
+<td>113790.00</td>
+<td>101860.00</td>
+<td>2025.0</td>
+<td></td>
+<td>Weekend work may be required. Travel to other ...</td>
+<td>Partner with model and engineering teams to un...</td>
+<td>Python, SQL</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">39</th>
+<td>683002</td>
+<td>2026-08-05 20:02:49</td>
+<td>Build Analyst</td>
+<td>Build Analyst</td>
+<td>Unlimitedtechnology</td>
+<td>Rochester, New York</td>
+<td>Rochester</td>
+<td></td>
+<td>New York</td>
+<td>NY</td>
+<td>...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
+<td>Come join our team! At Unlimited Technology, w...</td>
+<td>898280.0</td>
+<td>113790.00</td>
+<td>101860.00</td>
+<td>2025.0</td>
+<td>Contract</td>
+<td>requirements for both internal and external cl...</td>
+<td>Responsibilities: Works closely with Infrastru...</td>
+<td>Excel</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">40</th>
 <td>683576</td>
 <td>2026-08-05 19:21:11</td>
 <td>Data Analyst</td>
 <td>Data Analyst</td>
 <td>Zestai</td>
 <td>United States</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>**About Zest AI:** Zest AI has been perfecting...</td>
 <td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
+<td>126800.00</td>
+<td>120230.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>**About Zest AI:** Zest AI has been perfecting...</td>
 <td>Duties: Translate unstructured business proble...</td>
 <td>Python, R, Java</td>
 </tr>
 <tr class="even">
-<th data-quarto-table-cell-role="th">27</th>
+<th data-quarto-table-cell-role="th">41</th>
+<td>683725</td>
+<td>2026-08-05 18:23:07</td>
+<td>Technical Success Analyst - EU / UK</td>
+<td>Technical Success Analyst - EU / UK</td>
+<td>Marqeta</td>
+<td>London, Uk</td>
+<td>London</td>
+<td></td>
+<td>Uk</td>
+<td></td>
+<td>...</td>
+<td>[{"program_name": "Administrative Sciences", "...</td>
+<td>Marqeta is looking for a **Technical Success S...</td>
+<td>395240.0</td>
+<td>177770.00</td>
+<td>166790.00</td>
+<td>2025.0</td>
+<td></td>
+<td>Marqeta endeavors to make reasonable accommoda...</td>
+<td>role in delivering Marqeta’s cutting-edge card...</td>
+<td>SQL</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">42</th>
+<td>683726</td>
+<td>2026-08-05 18:23:05</td>
+<td>Technical Success Analyst - EU / UK</td>
+<td>Technical Success Analyst - EU / UK</td>
+<td>Mqreferrals</td>
+<td>London, Uk</td>
+<td>London</td>
+<td></td>
+<td>Uk</td>
+<td></td>
+<td>...</td>
+<td>[{"program_name": "Administrative Sciences", "...</td>
+<td>Marqeta is looking for a **Technical Success S...</td>
+<td>395240.0</td>
+<td>177770.00</td>
+<td>166790.00</td>
+<td>2025.0</td>
+<td></td>
+<td>Marqeta is looking for a **Technical Success S...</td>
+<td>role in delivering Marqeta’s cutting-edge card...</td>
+<td>SQL</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">43</th>
+<td>661504</td>
+<td>2026-08-05 17:58:56</td>
+<td>Staff Advanced Analytics, Digital &amp; AI Products</td>
+<td>Staff Advanced Analytics, Digital &amp; AI Products</td>
+<td>Airbnb</td>
+<td>Bangalore, India</td>
+<td>Bangalore</td>
+<td></td>
+<td>India</td>
+<td></td>
+<td>...</td>
+<td>[]</td>
+<td>Airbnb was born in 2007 when two hosts welcome...</td>
+<td>262440.0</td>
+<td>126800.00</td>
+<td>120230.00</td>
+<td>2025.0</td>
+<td></td>
+<td>Airbnb was born in 2007 when two hosts welcome...</td>
+<td>role will sit under the Advanced Analytics fam...</td>
+<td>Python, SQL</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">44</th>
 <td>683787</td>
 <td>2026-08-05 17:58:14</td>
 <td>Senior Business Development Manager (Full Cycl...</td>
 <td>Senior Business Development Manager</td>
 <td>Inovalon</td>
 <td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
+<td></td>
+<td></td>
 <td>Remote</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Database Management &amp; Busin...</td>
+<td>[{"program_name": "Database Management &amp; Busin...</td>
 <td>Inovalon was founded in 1998 on the belief tha...</td>
 <td>55000.0</td>
 <td>NaN</td>
 <td>NaN</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>requirements as outlined within Inovalon’s Ope...</td>
 <td>Responsibilities: · Lead and executes all sale...</td>
 <td>Excel, Salesforce</td>
 </tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">28</th>
+<tr class="even">
+<th data-quarto-table-cell-role="th">45</th>
 <td>683788</td>
 <td>2026-08-05 17:58:11</td>
 <td>Senior Business Development Manager (Full Cycl...</td>
@@ -1869,47 +2285,47 @@ only showing top 5 rows</code></pre>
 <td>Inovalon</td>
 <td>Tampa, Florida</td>
 <td>Tampa</td>
-<td>NaN</td>
+<td></td>
 <td>Florida</td>
 <td>FL</td>
 <td>...</td>
-<td>[{'program_name': 'Database Management &amp; Busin...</td>
+<td>[{"program_name": "Database Management &amp; Busin...</td>
 <td>Inovalon was founded in 1998 on the belief tha...</td>
 <td>55000.0</td>
 <td>NaN</td>
 <td>NaN</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>requirements as outlined within Inovalon’s Ope...</td>
 <td>Responsibilities: · Lead and executes all sale...</td>
 <td>Excel, Salesforce</td>
 </tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">29</th>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">46</th>
 <td>683977</td>
 <td>2026-08-05 16:47:49</td>
 <td>Senior Analytics Consultant</td>
 <td>Senior Analytics Consultant</td>
 <td>Uniteus</td>
 <td>United States</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>**Job Title:**Senior Analytics Consultant **De...</td>
 <td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
+<td>126800.00</td>
+<td>120230.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>requirements for custom data solutions, includ...</td>
 <td>**What You'll Do**: **Analytics Consulting &amp; C...</td>
 <td>SQL, Tableau, Power BI, Excel, Jira</td>
 </tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">30</th>
+<tr class="even">
+<th data-quarto-table-cell-role="th">47</th>
 <td>683994</td>
 <td>2026-08-05 16:38:39</td>
 <td>Software Engineer III - Data Platform</td>
@@ -1917,23 +2333,23 @@ only showing top 5 rows</code></pre>
 <td>Idme</td>
 <td>Mountain View, California</td>
 <td>Mountain View</td>
-<td>NaN</td>
+<td></td>
 <td>California</td>
 <td>CA</td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>## **Company Overview** &lt;ID.me&gt; is the next-ge...</td>
 <td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
+<td>148100.00</td>
+<td>135980.00</td>
 <td>2025.0</td>
 <td>Full Time</td>
 <td>Contribute to documentation, runbooks, and int...</td>
 <td>Build and maintain **automated reliability too...</td>
 <td>Python, Java, JavaScript, AWS, Azure, GCP, Kub...</td>
 </tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">31</th>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">48</th>
 <td>683997</td>
 <td>2026-08-05 16:36:15</td>
 <td>Business Operations Analyst</td>
@@ -1941,452 +2357,44 @@ only showing top 5 rows</code></pre>
 <td>Numerix</td>
 <td>Remote, India</td>
 <td>Remote</td>
-<td>NaN</td>
+<td></td>
 <td>India</td>
-<td>NaN</td>
+<td></td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
 <td>Since our founding in 1996, we have been at th...</td>
 <td>898280.0</td>
-<td>113790.0</td>
-<td>101860.0</td>
+<td>113790.00</td>
+<td>101860.00</td>
 <td>2025.0</td>
-<td>NaN</td>
+<td></td>
 <td>Triage and resolve technical issues related to...</td>
 <td>role involves incident management, technical s...</td>
 <td>Python, AWS</td>
 </tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">32</th>
-<td>684176</td>
-<td>2026-08-05 15:16:05</td>
-<td>Business Communication &amp; Cultural Change Manager</td>
-<td>Business Communication &amp; Cultural Change Manager</td>
-<td>Spektrum</td>
-<td>The Hague, Netherlands</td>
-<td>The Hague</td>
-<td>NaN</td>
-<td>Netherlands</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td>Spektrum have a wide range of exciting opportu...</td>
-<td>898280.0</td>
-<td>113790.0</td>
-<td>101860.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Communication Leadership Design and deliver cl...</td>
-<td>Develop and execute change management strategi...</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">33</th>
-<td>684360</td>
-<td>2026-08-05 13:44:16</td>
-<td>Senior Data Governance and Tooling Manager</td>
-<td>Senior Data Governance and Tooling Manager</td>
-<td>Chainguard</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td>Chainguard is the trusted source for open sour...</td>
-<td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements into scalable data frameworks tha...</td>
-<td>What you will do:** ### **Data Strategy &amp; Gove...</td>
-<td>Salesforce, Spark, Snowflake</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">34</th>
-<td>684397</td>
-<td>2026-08-05 13:28:15</td>
-<td>Power BI Developer</td>
-<td>Power BI Developer</td>
-<td>Picoquantitativetrading</td>
-<td>Hyderabad</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Hyderabad</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td>Pico fuels the global capital markets communit...</td>
-<td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements, define success measures, agree d...</td>
-<td>Responsibilities and Duties:** Experience work...</td>
-<td>SQL, Power BI, Salesforce</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">35</th>
-<td>684563</td>
-<td>2026-08-05 10:18:20</td>
-<td>Senior Data Scientist</td>
-<td>Senior Data Scientist</td>
-<td>Workato</td>
-<td>Sofia, Bulgaria</td>
-<td>Sofia</td>
-<td>NaN</td>
-<td>Bulgaria</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td># **About Workato** Workato delivers enterpris...</td>
-<td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Requirements** ### **Qualifications / Experien...</td>
-<td>Responsibilities** We are looking for an excep...</td>
-<td>Python, Snowflake</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">36</th>
-<td>684666</td>
-<td>2026-08-05 08:14:22</td>
-<td>Lead Business Analyst</td>
-<td>Lead Business Analyst</td>
-<td>Financialtimes33</td>
-<td>London;, Sofia</td>
-<td>London;</td>
-<td>NaN</td>
-<td>Sofia</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{'program_name': 'Financial Management', 'sco...</td>
-<td>## About Us The Financial Times is one of the ...</td>
-<td>898280.0</td>
-<td>113790.0</td>
-<td>101860.0</td>
-<td>2025.0</td>
-<td>Full Time</td>
-<td>Produce high-quality business, functional and ...</td>
-<td>Lead the assessment and triage of new change i...</td>
-<td>Agile</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">37</th>
-<td>684701</td>
-<td>2026-08-05 07:25:26</td>
-<td>Senior Data Scientist</td>
-<td>Senior Data Scientist</td>
-<td>Helloheart</td>
-<td>Tel Aviv, Israel</td>
-<td>Tel Aviv</td>
-<td>NaN</td>
-<td>Israel</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td>**About Hello Heart:** Hello Heart is on a mis...</td>
-<td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>5+ years of hands-on experience developing, de...</td>
-<td>Lead end-to-end development of predictive ML m...</td>
-<td>Python, AWS, Kubernetes, Docker</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">38</th>
-<td>685732</td>
-<td>2026-08-04 21:38:10</td>
-<td>Principal Data Scientist</td>
-<td>Principal Data Scientist</td>
-<td>Gradientai</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td>***This is a fully remote opportunity with hyb...</td>
-<td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Fluency with actuarial methods and working wit...</td>
-<td>We are an equal opportunity employer. Salary R...</td>
-<td>Python, R</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">39</th>
-<td>685736</td>
-<td>2026-08-04 21:36:48</td>
-<td>Staff Data Scientist</td>
-<td>Staff Data Scientist</td>
-<td>Gradientai</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td>***This is a fully remote opportunity with hyb...</td>
-<td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Fluency with actuarial methods and working wit...</td>
-<td>We are an equal opportunity employer. Salary R...</td>
-<td>Python, R, Docker</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">40</th>
-<td>685748</td>
-<td>2026-08-04 21:29:09</td>
-<td>Senior Data Scientist</td>
-<td>Senior Data Scientist</td>
-<td>Gradientai</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td>***This is a fully remote opportunity with hyb...</td>
-<td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Fluency with actuarial methods and working wit...</td>
-<td>We are an equal opportunity employer. Salary R...</td>
-<td>Python, SQL, R, AWS, Azure, Docker, Agile</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">41</th>
-<td>685842</td>
-<td>2026-08-04 20:43:36</td>
-<td>Sr Business Systems Analyst</td>
-<td>Sr Business Systems Analyst</td>
-<td>Nintendo</td>
-<td>Redmond, Washington</td>
-<td>Redmond</td>
-<td>NaN</td>
-<td>Washington</td>
-<td>WA</td>
-<td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td>**Nintendo of America** **About Nintendo of Am...</td>
-<td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements through technical documentation. ...</td>
-<td>Acts as liaison between business constituents ...</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">42</th>
-<td>685909</td>
-<td>2026-08-04 20:19:00</td>
-<td>Business Continuity Manager</td>
-<td>Business Continuity Manager</td>
-<td>Jamf</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{'program_name': 'Enterprise Risk Management'...</td>
-<td>At Jamf, we believe in an open, flexible cultu...</td>
-<td>55000.0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Plan, design, coordinate, lead, and execute co...</td>
-<td>Responsibilities involve a strategic blend of ...</td>
-<td>NaN</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">43</th>
-<td>685984</td>
-<td>2026-08-04 19:43:09</td>
-<td>Senior Manager/Associate Director, Business Sy...</td>
-<td>Senior Manager/Associate Director, Business Sy...</td>
-<td>Kuraoncology</td>
-<td>Boston, Massachusetts</td>
-<td>Boston</td>
-<td>NaN</td>
-<td>Massachusetts</td>
-<td>MA</td>
-<td>...</td>
-<td>[{'program_name': 'Business &amp; Management (Admi...</td>
-<td>Are you ready to join a team committed to maki...</td>
-<td>55000.0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements, measuring business outcomes, and...</td>
-<td>role is responsible for oversight of applicati...</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">44</th>
-<td>686082</td>
-<td>2026-08-04 18:47:56</td>
-<td>Data Platform &amp; Integration Engineer</td>
-<td>Data Platform &amp; Integration Engineer</td>
-<td>Mcneeswallacenurickllc</td>
-<td>Remote, Pennsylvania</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>Pennsylvania</td>
-<td>PA</td>
-<td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td>Joining **McNees Wallace &amp; Nurick LLC** means ...</td>
-<td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Serve as the firm's subject matter expert for ...</td>
-<td>Own the firm's enterprise data platform and da...</td>
-<td>Python, SQL, Java, Azure, Snowflake</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">45</th>
-<td>686134</td>
-<td>2026-08-04 18:27:11</td>
-<td>Senior Staff DevOps Engineer — Data Discovery ...</td>
-<td>Senior Staff DevOps Engineer — Data Discovery ...</td>
-<td>Onetrust</td>
-<td>Atlanta, Georgia</td>
-<td>Atlanta</td>
-<td>NaN</td>
-<td>Georgia</td>
-<td>GA</td>
-<td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td>### Strength in Trust OneTrust’s mission is to...</td>
-<td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
-<td>2025.0</td>
-<td>Part Time</td>
-<td>requirements or flexibility depending on the s...</td>
-<td>role, you will lead the infrastructure strateg...</td>
-<td>Python, R, AWS, Azure, GCP, Kubernetes, Docker...</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">46</th>
-<td>686152</td>
-<td>2026-08-04 18:20:48</td>
-<td>Manager, AI Solutions &amp; Analytics - Battery St...</td>
-<td>Manager, AI Solutions &amp; Analytics - Battery St...</td>
-<td>Pluspower</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td>**Company Overview** Plus Power is an energy s...</td>
-<td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Minimum BA/BS in economics, data science, comp...</td>
-<td>Drive implementation of Plus Power’s AI operat...</td>
-<td>Python, SQL, AWS, Azure, Excel, Snowflake</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">47</th>
-<td>686219</td>
-<td>2026-08-04 17:49:51</td>
-<td>Senior Manager, Data Engineering</td>
-<td>Senior Manager, Data Engineering</td>
-<td>Dropbox</td>
-<td>Remote Canada:, Select Locations</td>
-<td>Remote Canada:</td>
-<td>NaN</td>
-<td>Select Locations</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td>## Role Description We are seeking a Senior Ma...</td>
-<td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>8+ years of data engineering or backend/data i...</td>
-<td>Data Quality &amp; Observability: Establish and en...</td>
-<td>Spark, Snowflake</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">48</th>
-<td>686584</td>
-<td>2026-08-04 15:09:07</td>
-<td>Data Analysis Engineer</td>
-<td>Data Analysis Engineer</td>
-<td>Toshibaglobalcommercesolutions</td>
-<td>Guadalajara, Office</td>
-<td>Guadalajara</td>
-<td>NaN</td>
-<td>Office</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td>**The company.** Toshiba is a provider of tech...</td>
-<td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>role also focuses on producing accurate, repea...</td>
-<td>Python, SQL, R, Tableau, Power BI, Excel, Jira</td>
-</tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">49</th>
-<td>686585</td>
-<td>2026-08-04 15:07:18</td>
-<td>Director, Data Engineering</td>
-<td>Director, Data Engineering</td>
-<td>Sharkninjaoperatingllc</td>
-<td>Needham, Massachusetts</td>
-<td>Needham</td>
-<td>NaN</td>
-<td>Massachusetts</td>
-<td>MA</td>
+<td>684150</td>
+<td>2026-08-05 15:28:55</td>
+<td>Cloud Security Analyst II</td>
+<td>Cloud Security Analyst II</td>
+<td>Conga</td>
+<td>Ma ; Houston, Texas</td>
+<td>Ma ; Houston</td>
+<td></td>
+<td>Texas</td>
+<td>TX</td>
 <td>...</td>
-<td>[{'program_name': 'Applied Business Analytics'...</td>
-<td>**About Us** SharkNinja is a global product de...</td>
-<td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
+<td>[{"program_name": "Applied Business Analytics"...</td>
+<td>**A career that’s the whole package!** At Cong...</td>
+<td>190650.0</td>
+<td>132510.00</td>
+<td>129180.00</td>
 <td>2025.0</td>
-<td>NaN</td>
-<td>Evaluate emerging technologies and identify op...</td>
-<td>Define and execute the enterprise Data Enginee...</td>
-<td>Python, SQL, AWS, Azure, Spark, Snowflake</td>
+<td>Internship, Full Time</td>
+<td>requirements for new infrastructure and servic...</td>
+<td>responsibilities up or down should we select a...</td>
+<td>Python, AWS, Azure, GCP, Kubernetes</td>
 </tr>
 </tbody>
 </table>
