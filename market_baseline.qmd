@@ -28,6 +28,9 @@ jobs_clean = spark.read.csv(
 
 # use this clean table for all downstream analysis
 jobs_clean.createOrReplaceTempView("job_facts")
+spark.sql("SELECT COUNT(*) AS row_count FROM job_facts").show()
 spark.sql("SELECT * FROM job_facts LIMIT 50").toPandas()
+
+
 
 ```
