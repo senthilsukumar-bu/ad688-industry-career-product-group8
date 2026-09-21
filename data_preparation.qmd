@@ -16,7 +16,7 @@ execute:
 import os
 import requests
 import pandas as pd
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
 import sys
 
