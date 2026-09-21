@@ -70,7 +70,7 @@ schema_response.raise_for_status()
 print("Schema keys:", list(schema_response.json().keys())[:10])
 
 #comment out to include all data
-MAX_RECORDS = 1_000
+#MAX_RECORDS = 1_000
 
 all_rows = []
 pull_log = []
@@ -95,8 +95,8 @@ while True:
     print(f"offset={params['offset']} | page={len(page)} | total={len(all_rows)}")
 
     #comment out to include all data
-    if len(all_rows) >= MAX_RECORDS:
-        break
+    #if len(all_rows) >= MAX_RECORDS:
+    #    break
 
     params["offset"] += params["limit"]
 
