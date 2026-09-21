@@ -50,7 +50,8 @@ schema_response = requests.get(api_url("schema"), timeout=30)
 schema_response.raise_for_status()
 print("Schema keys:", list(schema_response.json().keys())[:10])
 
-#MAX_RECORDS = 10_000
+#comment out to include all data
+MAX_RECORDS = 1_000
 
 all_rows = []
 pull_log = []
@@ -73,8 +74,11 @@ while True:
         "rows_returned": len(page),
     })
     print(f"offset={params['offset']} | page={len(page)} | total={len(all_rows)}")
-    #if len(all_rows) >= MAX_RECORDS:
-    #    break
+
+    #comment out to include all data
+    if len(all_rows) >= MAX_RECORDS:
+        break
+        
     params["offset"] += params["limit"]
 
 jobs_raw = pd.json_normalize(all_rows)
@@ -348,7 +352,7 @@ print(f"Clean rows: {jobs_clean.count()}")
 jobs_clean.show(5, truncate=60)
 
 jobs_clean.toPandas().to_csv("./outputs/api_job_facts_cleaned.csv", index=False)
-print("Saved → ./outputs/api_job_facts_cleaned.csv")
+print("Saved ./outputs/api_job_facts_cleaned.csv")
 spark.sql("SELECT * FROM job_facts LIMIT 10").toPandas()
 
 ```

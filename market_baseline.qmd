@@ -17,7 +17,7 @@ spark = SparkSession.builder \
     .getOrCreate()
 spark.sparkContext.setLogLevel("ERROR")
 
-jobs_raw_spark = spark.read.csv(
+jobs_clean = spark.read.csv(
     "./outputs/api_job_facts_cleaned.csv",
     header=True,
     inferSchema=True,
@@ -26,5 +26,5 @@ jobs_raw_spark = spark.read.csv(
 )
 
 # use this clean table for all downstream analysis
-jobs_raw_spark.createOrReplaceTempView("job_facts")
+jobs_clean.createOrReplaceTempView("job_facts")
 spark.sql("SELECT * FROM job_facts LIMIT 10").toPandas()
