@@ -26,10 +26,45 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -73,6 +108,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
 <link rel="stylesheet" href="styles.css">
@@ -138,14 +176,8 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#use-this-clean-table-for-all-downstream-analysis" id="toc-use-this-clean-table-for-all-downstream-analysis" class="nav-link active" data-scroll-target="#use-this-clean-table-for-all-downstream-analysis">use this clean table for all downstream analysis</a></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -169,18 +201,1286 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>from pyspark.sql import SparkSession from pyspark.sql import functions as F</p>
-<p>spark = SparkSession.builder<br>
-.appName(“AD688_JobFacts”)<br>
-.config(“spark.sql.session.timeZone”, “UTC”)<br>
-.getOrCreate() spark.sparkContext.setLogLevel(“ERROR”)</p>
-<p>jobs_clean = spark.read.csv( “./outputs/api_job_facts_cleaned.csv”, header=True, inferSchema=True, multiLine=True, escape=‘“’ )</p>
-<section id="use-this-clean-table-for-all-downstream-analysis" class="level1">
-<h1>use this clean table for all downstream analysis</h1>
-<p>jobs_clean.createOrReplaceTempView(“job_facts”) spark.sql(“SELECT * FROM job_facts LIMIT 10”).toPandas()</p>
+<div id="eb9939bc" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> functions <span class="im">as</span> F</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder <span class="op">\</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    .appName(<span class="st">"AD688_JobFacts"</span>) <span class="op">\</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    .config(<span class="st">"spark.sql.session.timeZone"</span>, <span class="st">"UTC"</span>) <span class="op">\</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    .getOrCreate()</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>spark.sparkContext.setLogLevel(<span class="st">"ERROR"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>jobs_clean <span class="op">=</span> spark.read.csv(</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"./outputs/api_job_facts_cleaned.csv"</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    header<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    inferSchema<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    multiLine<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    escape<span class="op">=</span><span class="st">'"'</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># use this clean table for all downstream analysis</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>jobs_clean.createOrReplaceTempView(<span class="st">"job_facts"</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>spark.sql(<span class="st">"SELECT * FROM job_facts LIMIT 50"</span>).toPandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING: Using incubator modules: jdk.incubator.vector
+WARNING: package sun.security.action not in java.base
+Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/testing/utils.py:127: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
+  require_minimum_pandas_version()
+26/09/21 02:12:08 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/conversion.py:298: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
+  require_minimum_pandas_version()
+
+[Stage 2:&gt;                                                          (0 + 1) / 1]
+
+                                                                                
+/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/types.py:778: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
+  require_minimum_pandas_version()</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<div>
 
 
-</section>
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">job_id</th>
+<th data-quarto-table-cell-role="th">posted_at</th>
+<th data-quarto-table-cell-role="th">title</th>
+<th data-quarto-table-cell-role="th">normalized_title</th>
+<th data-quarto-table-cell-role="th">company_name</th>
+<th data-quarto-table-cell-role="th">location_text</th>
+<th data-quarto-table-cell-role="th">city</th>
+<th data-quarto-table-cell-role="th">city_code</th>
+<th data-quarto-table-cell-role="th">state</th>
+<th data-quarto-table-cell-role="th">state_code</th>
+<th data-quarto-table-cell-role="th">...</th>
+<th data-quarto-table-cell-role="th">program_matches</th>
+<th data-quarto-table-cell-role="th">description</th>
+<th data-quarto-table-cell-role="th">bls_employment</th>
+<th data-quarto-table-cell-role="th">bls_annual_mean_wage</th>
+<th data-quarto-table-cell-role="th">bls_annual_median_wage</th>
+<th data-quarto-table-cell-role="th">bls_source_year</th>
+<th data-quarto-table-cell-role="th">student_signals_work_type</th>
+<th data-quarto-table-cell-role="th">student_signals_requirements_summary</th>
+<th data-quarto-table-cell-role="th">student_signals_responsibilities_summary</th>
+<th data-quarto-table-cell-role="th">student_signals_technical_tools_summary</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>680799</td>
+<td>2026-08-06 22:47:26</td>
+<td>Software Engineer, Data Platform Team</td>
+<td>Software Engineer, Data Platform Team</td>
+<td>Coinbase</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>Ready to do the most impactful work of your ca...</td>
+<td>1687890.0</td>
+<td>148100.0</td>
+<td>135980.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Required Skills and Experience 3+ years of rel...</td>
+<td>roles within the Data Platform team, each with...</td>
+<td>Python, SQL, Java, Docker, Snowflake</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>680849</td>
+<td>2026-08-06 22:11:41</td>
+<td>Freelance Senior Data Engineer</td>
+<td>Freelance Senior Data Engineer</td>
+<td>Hugeinc</td>
+<td>United States</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>**Location: This position is remote within the...</td>
+<td>67140.0</td>
+<td>144440.0</td>
+<td>139500.0</td>
+<td>2025.0</td>
+<td>Contract</td>
+<td>requirements and measurement solutions. Suppor...</td>
+<td>role is currently not available for hire or wo...</td>
+<td>JavaScript, Agile</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>680864</td>
+<td>2026-08-06 22:02:28</td>
+<td>Business Applications Specialist (Brazilian Po...</td>
+<td>Business Applications Specialist</td>
+<td>Capco</td>
+<td>Orlando</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Orlando</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Advanced Information Techno...</td>
+<td>**Business Applications Specialist (Brazilian ...</td>
+<td>55000.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Experience supporting **SAP SuccessFactors**, ...</td>
+<td>Role** Join Capco's Global Internal Applicatio...</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>680977</td>
+<td>2026-08-06 21:00:00</td>
+<td>IT Enterprise Data Architect</td>
+<td>IT Enterprise Data Architect</td>
+<td>Connectwise</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>*ConnectWise is an industry and Global leading...</td>
+<td>67140.0</td>
+<td>144440.0</td>
+<td>139500.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements are met. Performs hands-on data a...</td>
+<td>Owns and continuously evolves the enterprise d...</td>
+<td>SQL, Salesforce, Snowflake</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>680996</td>
+<td>2026-08-06 20:47:22</td>
+<td>Principal Data Engineer</td>
+<td>Principal Data Engineer</td>
+<td>Energyhub</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>**As a Principal Data Engineer, you will:** - ...</td>
+<td>67140.0</td>
+<td>144440.0</td>
+<td>139500.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements and Company policies. By submitti...</td>
+<td>The base salary offered is part of a total com...</td>
+<td>Python, SQL, Java, AWS, Tableau, Snowflake, Mo...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5</th>
+<td>681317</td>
+<td>2026-08-06 18:01:13</td>
+<td>Senior Data Engineer (R13923)</td>
+<td>Senior Data Engineer</td>
+<td>Oportun</td>
+<td>Remote, Mx</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>Mx</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>### **ABOUT OPORTUN** Oportun (Nasdaq: OPRT) i...</td>
+<td>67140.0</td>
+<td>144440.0</td>
+<td>139500.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements gathering to final successful del...</td>
+<td>role where you will have the opportunity to ta...</td>
+<td>Python, SQL, Java, AWS, Azure, GCP, Spark, Pos...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">6</th>
+<td>681325</td>
+<td>2026-08-06 17:58:22</td>
+<td>Staff Data Scientist, Imaging</td>
+<td>Staff Data Scientist, Imaging</td>
+<td>Biohub</td>
+<td>Redwood City, Ca (Hybrid)</td>
+<td>Redwood City</td>
+<td>NaN</td>
+<td>Ca (Hybrid)</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>Biohub is the first large-scale initiative bri...</td>
+<td>262440.0</td>
+<td>126800.0</td>
+<td>120230.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Biohub is the first large-scale initiative bri...</td>
+<td>role is part of the Data team, which focuses o...</td>
+<td>Python</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">7</th>
+<td>681458</td>
+<td>2026-08-06 16:55:53</td>
+<td>Senior Software Engineer, Business Systems - D...</td>
+<td>Senior Software Engineer, Business Systems - D...</td>
+<td>Verkada</td>
+<td>San Mateo, California</td>
+<td>San Mateo</td>
+<td>NaN</td>
+<td>California</td>
+<td>CA</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>### **Who We Are** Verkada is transforming how...</td>
+<td>1687890.0</td>
+<td>148100.0</td>
+<td>135980.0</td>
+<td>2025.0</td>
+<td>Full Time</td>
+<td>### **Who We Are** Verkada is transforming how...</td>
+<td>Role** As a member of our Business Systems Eng...</td>
+<td>Python, SQL</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">8</th>
+<td>681546</td>
+<td>2026-08-06 16:10:40</td>
+<td>Business Process Analyst 752</td>
+<td>Business Process Analyst 752</td>
+<td>Freedomconsulting</td>
+<td>Springfield, Virginia</td>
+<td>Springfield</td>
+<td>NaN</td>
+<td>Virginia</td>
+<td>VA</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>Freedom Technology Solutions Group is seeking ...</td>
+<td>898280.0</td>
+<td>113790.0</td>
+<td>101860.0</td>
+<td>2025.0</td>
+<td>Contract</td>
+<td>requirements documents. They also serve as int...</td>
+<td>Reports to a manager or head of a unit/departm...</td>
+<td>AWS, Azure, Excel, Kubernetes, Docker, Jira, A...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">9</th>
+<td>681697</td>
+<td>2026-08-06 15:13:55</td>
+<td>Data Product Manager</td>
+<td>Data Product Manager</td>
+<td>Bybit</td>
+<td>Kuala Lumpur, Malaysia</td>
+<td>Kuala Lumpur</td>
+<td>NaN</td>
+<td>Malaysia</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Construction Management &amp; T...</td>
+<td>**About Us** Established in 2018, Bybit is one...</td>
+<td>395240.0</td>
+<td>177770.0</td>
+<td>166790.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements design through resource coordinat...</td>
+<td>Own the overall planning and strategic directi...</td>
+<td>SQL</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">10</th>
+<td>681707</td>
+<td>2026-08-06 15:06:55</td>
+<td>Big Data Development Engineer</td>
+<td>Big Data Development Engineer</td>
+<td>Bybit</td>
+<td>Kuala Lumpur, Malaysia</td>
+<td>Kuala Lumpur</td>
+<td>NaN</td>
+<td>Malaysia</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>**About Us** Established in 2018, Bybit is one...</td>
+<td>67140.0</td>
+<td>144440.0</td>
+<td>139500.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Bachelor's degree or above in Computer Science...</td>
+<td>Lead the architecture design and development o...</td>
+<td>Java, Spark</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">11</th>
+<td>681717</td>
+<td>2026-08-06 15:02:41</td>
+<td>Business Partner Division - Pricing Manager</td>
+<td>Business Partner Division - Pricing Manager</td>
+<td>Rocketmiles</td>
+<td>New, York City</td>
+<td>New</td>
+<td>NaN</td>
+<td>York City</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Advanced Information Techno...</td>
+<td>**Our Company** Booking Holdings (NASDAQ: BKNG...</td>
+<td>55000.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements Candidates should be authorized t...</td>
+<td>role would sit within the division that connec...</td>
+<td>Python, SQL, R, Tableau</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">12</th>
+<td>661485</td>
+<td>2026-08-06 15:02:40</td>
+<td>Business Partner Division - Pricing Manager</td>
+<td>Business Partner Division - Pricing Manager</td>
+<td>Agoda</td>
+<td>New, York City</td>
+<td>New</td>
+<td>NaN</td>
+<td>York City</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Advanced Information Techno...</td>
+<td>**About Agoda** At Agoda, we bridge the world ...</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>We are committed to providing equal employment...</td>
+<td>role would sit within the division that connec...</td>
+<td>Python, SQL, R, Tableau</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">13</th>
+<td>681724</td>
+<td>2026-08-06 14:57:21</td>
+<td>Staff Software Engineer, Data Engineering - Id...</td>
+<td>Staff Software Engineer, Data Engineering - Id...</td>
+<td>Pingidentity</td>
+<td>Austin, Texas</td>
+<td>Austin</td>
+<td>NaN</td>
+<td>Texas</td>
+<td>TX</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>**About Ping Identity:** At Ping Identity, we ...</td>
+<td>1687890.0</td>
+<td>148100.0</td>
+<td>135980.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements, modular design, observability, m...</td>
+<td>Duties (SoD)—by enhancing existing functionali...</td>
+<td>SQL, AWS, Azure, Kubernetes, Docker, Spark</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">14</th>
+<td>681882</td>
+<td>2026-08-06 13:52:00</td>
+<td>QA Lead, Business Applications</td>
+<td>QA Lead, Business Applications</td>
+<td>Payoneer</td>
+<td>Tel Aviv District, Israel</td>
+<td>Tel Aviv District</td>
+<td>NaN</td>
+<td>Israel</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Database Management &amp; Busin...</td>
+<td>**About Payoneer** Founded in 2005, Payoneer i...</td>
+<td>3780.0</td>
+<td>72800.0</td>
+<td>48470.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>**About Payoneer** Founded in 2005, Payoneer i...</td>
+<td>role helps ensure that quality remains a core ...</td>
+<td>SQL, MongoDB, Agile, Scrum</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">15</th>
+<td>681929</td>
+<td>2026-08-06 13:32:07</td>
+<td>Business Development Representative</td>
+<td>Business Development Representative</td>
+<td>Velir</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Advanced Information Techno...</td>
+<td>Velir is an established mid-sized agency with ...</td>
+<td>55000.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Frequent sitting at a desk performing work on ...</td>
+<td>Responsibilities:** **Outbound Prospecting &amp; C...</td>
+<td>Salesforce</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">16</th>
+<td>682071</td>
+<td>2026-08-06 12:14:58</td>
+<td>Student Data Consultant</td>
+<td>Student Data Consultant</td>
+<td>Map</td>
+<td>Copenhagen, Denmark</td>
+<td>Copenhagen</td>
+<td>NaN</td>
+<td>Denmark</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>#### **Who We Are** WPP Enterprise Solutions d...</td>
+<td>262440.0</td>
+<td>126800.0</td>
+<td>120230.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements, considering the client's busines...</td>
+<td>role with us, on how you can update your infor...</td>
+<td>AWS, Salesforce</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">17</th>
+<td>682197</td>
+<td>2026-08-06 09:48:41</td>
+<td>Senior Software Engineer - Data Solutions Team</td>
+<td>Senior Software Engineer - Data Solutions Team</td>
+<td>Teads1</td>
+<td>Ljubljana</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Ljubljana</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>**About Teads** Teads is a leading omnichannel...</td>
+<td>1687890.0</td>
+<td>148100.0</td>
+<td>135980.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>**About Teads** Teads is a leading omnichannel...</td>
+<td>Responsibilities** **Identity** Manage the ide...</td>
+<td>Python, SQL, TypeScript, Excel</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">18</th>
+<td>682319</td>
+<td>2026-08-06 06:21:02</td>
+<td>Staff Data Engineer</td>
+<td>Staff Data Engineer</td>
+<td>Coupang</td>
+<td>Z Test &amp;, Templates Only</td>
+<td>Z Test &amp;</td>
+<td>NaN</td>
+<td>Templates Only</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>We exist to wow our customers. We know we’re d...</td>
+<td>67140.0</td>
+<td>144440.0</td>
+<td>139500.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>8+ years of relevant industry experience as a ...</td>
+<td>Ideate, build, and manage analytics and produc...</td>
+<td>Python, SQL</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">19</th>
+<td>661494</td>
+<td>2026-08-06 04:25:30</td>
+<td>Lead Manager/Associate Director, Strategy &amp; An...</td>
+<td>Lead Manager/Associate Director, Strategy &amp; An...</td>
+<td>Agoda</td>
+<td>Bangkok</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Bangkok</td>
+<td>NaN</td>
+<td>...</td>
+<td>[]</td>
+<td>**About Agoda** At Agoda, we bridge the world ...</td>
+<td>262440.0</td>
+<td>126800.0</td>
+<td>120230.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>7+ years of total professional experience in a...</td>
+<td>Lead the design and implementation of a unifie...</td>
+<td>SQL, Tableau</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">20</th>
+<td>682388</td>
+<td>2026-08-06 03:57:02</td>
+<td>Senior Data Engineer</td>
+<td>Senior Data Engineer</td>
+<td>Fanaticscommerce</td>
+<td>Tampa, Florida</td>
+<td>Tampa</td>
+<td>NaN</td>
+<td>Florida</td>
+<td>FL</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>Fanatics Commerce is the global leader in lice...</td>
+<td>67140.0</td>
+<td>144440.0</td>
+<td>139500.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements, optimize analytical workflows, a...</td>
+<td>Fanatics Commerce is the global leader in lice...</td>
+<td>Python, SQL</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">21</th>
+<td>682670</td>
+<td>2026-08-05 22:27:00</td>
+<td>Staff Data Architect</td>
+<td>Staff Data Architect</td>
+<td>Fanduel</td>
+<td>New, York City</td>
+<td>New</td>
+<td>NaN</td>
+<td>York City</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Foundations of Health Commu...</td>
+<td>**THE POSITION**Our roster has an opening with...</td>
+<td>55000.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>required to perform other such duties as assig...</td>
+<td>responsibilities outlined above, employees may...</td>
+<td>Spark</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">22</th>
+<td>682674</td>
+<td>2026-08-05 22:22:03</td>
+<td>IT Director, Data Services and AI Enablement</td>
+<td>IT Director, Data Services and AI Enablement</td>
+<td>Heartflowinc</td>
+<td>Rohnert Park, California</td>
+<td>Rohnert Park</td>
+<td>NaN</td>
+<td>California</td>
+<td>CA</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>Heartflow is a medical technology company adva...</td>
+<td>67140.0</td>
+<td>144440.0</td>
+<td>139500.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Requirements &amp; Work Experience** Education: Ba...</td>
+<td>role leads a small team responsible for data i...</td>
+<td>AWS, Tableau, Salesforce</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">23</th>
+<td>682702</td>
+<td>2026-08-05 22:07:27</td>
+<td>Sr. Business Systems Analyst</td>
+<td>Sr. Business Systems Analyst</td>
+<td>Elastic</td>
+<td>United States</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>Elastic, the Search AI Company, enables everyo...</td>
+<td>898280.0</td>
+<td>113790.0</td>
+<td>101860.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements, and deliver solutions that refle...</td>
+<td>Role** We’re seeking a **Senior Business Syste...</td>
+<td>Salesforce, Agile</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">24</th>
+<td>682754</td>
+<td>2026-08-05 21:40:16</td>
+<td>Sr. Business Operations Manager — Hyperscale L...</td>
+<td>Sr. Business Operations Manager — Hyperscale L...</td>
+<td>Purestorage</td>
+<td>Santa Clara, California</td>
+<td>Santa Clara</td>
+<td>NaN</td>
+<td>California</td>
+<td>CA</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>We’re in an unbelievably exciting area of tech...</td>
+<td>67140.0</td>
+<td>144440.0</td>
+<td>139500.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Serve as the principal LoB liaison for Salesfo...</td>
+<td>ROLE Everpure is seeking a strategic and techn...</td>
+<td>SQL, Tableau, Excel, Salesforce</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">25</th>
+<td>682778</td>
+<td>2026-08-05 21:30:32</td>
+<td>Internal Audit Analytics Associate</td>
+<td>Internal Audit Analytics Associate</td>
+<td>Coinbase</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>Ready to do the most impactful work of your ca...</td>
+<td>262440.0</td>
+<td>126800.0</td>
+<td>120230.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements and outputs. Test data ETL proces...</td>
+<td>role translates complex audit data requests in...</td>
+<td>SQL, Snowflake</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">26</th>
+<td>683576</td>
+<td>2026-08-05 19:21:11</td>
+<td>Data Analyst</td>
+<td>Data Analyst</td>
+<td>Zestai</td>
+<td>United States</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>**About Zest AI:** Zest AI has been perfecting...</td>
+<td>262440.0</td>
+<td>126800.0</td>
+<td>120230.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>**About Zest AI:** Zest AI has been perfecting...</td>
+<td>Duties: Translate unstructured business proble...</td>
+<td>Python, R, Java</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">27</th>
+<td>683787</td>
+<td>2026-08-05 17:58:14</td>
+<td>Senior Business Development Manager (Full Cycl...</td>
+<td>Senior Business Development Manager</td>
+<td>Inovalon</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Database Management &amp; Busin...</td>
+<td>Inovalon was founded in 1998 on the belief tha...</td>
+<td>55000.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements as outlined within Inovalon’s Ope...</td>
+<td>Responsibilities: · Lead and executes all sale...</td>
+<td>Excel, Salesforce</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">28</th>
+<td>683788</td>
+<td>2026-08-05 17:58:11</td>
+<td>Senior Business Development Manager (Full Cycl...</td>
+<td>Senior Business Development Manager</td>
+<td>Inovalon</td>
+<td>Tampa, Florida</td>
+<td>Tampa</td>
+<td>NaN</td>
+<td>Florida</td>
+<td>FL</td>
+<td>...</td>
+<td>[{'program_name': 'Database Management &amp; Busin...</td>
+<td>Inovalon was founded in 1998 on the belief tha...</td>
+<td>55000.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements as outlined within Inovalon’s Ope...</td>
+<td>Responsibilities: · Lead and executes all sale...</td>
+<td>Excel, Salesforce</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">29</th>
+<td>683977</td>
+<td>2026-08-05 16:47:49</td>
+<td>Senior Analytics Consultant</td>
+<td>Senior Analytics Consultant</td>
+<td>Uniteus</td>
+<td>United States</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>**Job Title:**Senior Analytics Consultant **De...</td>
+<td>262440.0</td>
+<td>126800.0</td>
+<td>120230.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements for custom data solutions, includ...</td>
+<td>**What You'll Do**: **Analytics Consulting &amp; C...</td>
+<td>SQL, Tableau, Power BI, Excel, Jira</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">30</th>
+<td>683994</td>
+<td>2026-08-05 16:38:39</td>
+<td>Software Engineer III - Data Platform</td>
+<td>Software Engineer III - Data Platform</td>
+<td>Idme</td>
+<td>Mountain View, California</td>
+<td>Mountain View</td>
+<td>NaN</td>
+<td>California</td>
+<td>CA</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>## **Company Overview** &lt;ID.me&gt; is the next-ge...</td>
+<td>1687890.0</td>
+<td>148100.0</td>
+<td>135980.0</td>
+<td>2025.0</td>
+<td>Full Time</td>
+<td>Contribute to documentation, runbooks, and int...</td>
+<td>Build and maintain **automated reliability too...</td>
+<td>Python, Java, JavaScript, AWS, Azure, GCP, Kub...</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">31</th>
+<td>683997</td>
+<td>2026-08-05 16:36:15</td>
+<td>Business Operations Analyst</td>
+<td>Business Operations Analyst</td>
+<td>Numerix</td>
+<td>Remote, India</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>India</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>Since our founding in 1996, we have been at th...</td>
+<td>898280.0</td>
+<td>113790.0</td>
+<td>101860.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Triage and resolve technical issues related to...</td>
+<td>role involves incident management, technical s...</td>
+<td>Python, AWS</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">32</th>
+<td>684176</td>
+<td>2026-08-05 15:16:05</td>
+<td>Business Communication &amp; Cultural Change Manager</td>
+<td>Business Communication &amp; Cultural Change Manager</td>
+<td>Spektrum</td>
+<td>The Hague, Netherlands</td>
+<td>The Hague</td>
+<td>NaN</td>
+<td>Netherlands</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>Spektrum have a wide range of exciting opportu...</td>
+<td>898280.0</td>
+<td>113790.0</td>
+<td>101860.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Communication Leadership Design and deliver cl...</td>
+<td>Develop and execute change management strategi...</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">33</th>
+<td>684360</td>
+<td>2026-08-05 13:44:16</td>
+<td>Senior Data Governance and Tooling Manager</td>
+<td>Senior Data Governance and Tooling Manager</td>
+<td>Chainguard</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>Chainguard is the trusted source for open sour...</td>
+<td>1687890.0</td>
+<td>148100.0</td>
+<td>135980.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements into scalable data frameworks tha...</td>
+<td>What you will do:** ### **Data Strategy &amp; Gove...</td>
+<td>Salesforce, Spark, Snowflake</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">34</th>
+<td>684397</td>
+<td>2026-08-05 13:28:15</td>
+<td>Power BI Developer</td>
+<td>Power BI Developer</td>
+<td>Picoquantitativetrading</td>
+<td>Hyderabad</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Hyderabad</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>Pico fuels the global capital markets communit...</td>
+<td>67140.0</td>
+<td>144440.0</td>
+<td>139500.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements, define success measures, agree d...</td>
+<td>Responsibilities and Duties:** Experience work...</td>
+<td>SQL, Power BI, Salesforce</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">35</th>
+<td>684563</td>
+<td>2026-08-05 10:18:20</td>
+<td>Senior Data Scientist</td>
+<td>Senior Data Scientist</td>
+<td>Workato</td>
+<td>Sofia, Bulgaria</td>
+<td>Sofia</td>
+<td>NaN</td>
+<td>Bulgaria</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td># **About Workato** Workato delivers enterpris...</td>
+<td>262440.0</td>
+<td>126800.0</td>
+<td>120230.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Requirements** ### **Qualifications / Experien...</td>
+<td>Responsibilities** We are looking for an excep...</td>
+<td>Python, Snowflake</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">36</th>
+<td>684666</td>
+<td>2026-08-05 08:14:22</td>
+<td>Lead Business Analyst</td>
+<td>Lead Business Analyst</td>
+<td>Financialtimes33</td>
+<td>London;, Sofia</td>
+<td>London;</td>
+<td>NaN</td>
+<td>Sofia</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Financial Management', 'sco...</td>
+<td>## About Us The Financial Times is one of the ...</td>
+<td>898280.0</td>
+<td>113790.0</td>
+<td>101860.0</td>
+<td>2025.0</td>
+<td>Full Time</td>
+<td>Produce high-quality business, functional and ...</td>
+<td>Lead the assessment and triage of new change i...</td>
+<td>Agile</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">37</th>
+<td>684701</td>
+<td>2026-08-05 07:25:26</td>
+<td>Senior Data Scientist</td>
+<td>Senior Data Scientist</td>
+<td>Helloheart</td>
+<td>Tel Aviv, Israel</td>
+<td>Tel Aviv</td>
+<td>NaN</td>
+<td>Israel</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>**About Hello Heart:** Hello Heart is on a mis...</td>
+<td>262440.0</td>
+<td>126800.0</td>
+<td>120230.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>5+ years of hands-on experience developing, de...</td>
+<td>Lead end-to-end development of predictive ML m...</td>
+<td>Python, AWS, Kubernetes, Docker</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">38</th>
+<td>685732</td>
+<td>2026-08-04 21:38:10</td>
+<td>Principal Data Scientist</td>
+<td>Principal Data Scientist</td>
+<td>Gradientai</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>***This is a fully remote opportunity with hyb...</td>
+<td>262440.0</td>
+<td>126800.0</td>
+<td>120230.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Fluency with actuarial methods and working wit...</td>
+<td>We are an equal opportunity employer. Salary R...</td>
+<td>Python, R</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">39</th>
+<td>685736</td>
+<td>2026-08-04 21:36:48</td>
+<td>Staff Data Scientist</td>
+<td>Staff Data Scientist</td>
+<td>Gradientai</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>***This is a fully remote opportunity with hyb...</td>
+<td>262440.0</td>
+<td>126800.0</td>
+<td>120230.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Fluency with actuarial methods and working wit...</td>
+<td>We are an equal opportunity employer. Salary R...</td>
+<td>Python, R, Docker</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">40</th>
+<td>685748</td>
+<td>2026-08-04 21:29:09</td>
+<td>Senior Data Scientist</td>
+<td>Senior Data Scientist</td>
+<td>Gradientai</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>***This is a fully remote opportunity with hyb...</td>
+<td>262440.0</td>
+<td>126800.0</td>
+<td>120230.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Fluency with actuarial methods and working wit...</td>
+<td>We are an equal opportunity employer. Salary R...</td>
+<td>Python, SQL, R, AWS, Azure, Docker, Agile</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">41</th>
+<td>685842</td>
+<td>2026-08-04 20:43:36</td>
+<td>Sr Business Systems Analyst</td>
+<td>Sr Business Systems Analyst</td>
+<td>Nintendo</td>
+<td>Redmond, Washington</td>
+<td>Redmond</td>
+<td>NaN</td>
+<td>Washington</td>
+<td>WA</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>**Nintendo of America** **About Nintendo of Am...</td>
+<td>1687890.0</td>
+<td>148100.0</td>
+<td>135980.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements through technical documentation. ...</td>
+<td>Acts as liaison between business constituents ...</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">42</th>
+<td>685909</td>
+<td>2026-08-04 20:19:00</td>
+<td>Business Continuity Manager</td>
+<td>Business Continuity Manager</td>
+<td>Jamf</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Enterprise Risk Management'...</td>
+<td>At Jamf, we believe in an open, flexible cultu...</td>
+<td>55000.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Plan, design, coordinate, lead, and execute co...</td>
+<td>Responsibilities involve a strategic blend of ...</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">43</th>
+<td>685984</td>
+<td>2026-08-04 19:43:09</td>
+<td>Senior Manager/Associate Director, Business Sy...</td>
+<td>Senior Manager/Associate Director, Business Sy...</td>
+<td>Kuraoncology</td>
+<td>Boston, Massachusetts</td>
+<td>Boston</td>
+<td>NaN</td>
+<td>Massachusetts</td>
+<td>MA</td>
+<td>...</td>
+<td>[{'program_name': 'Business &amp; Management (Admi...</td>
+<td>Are you ready to join a team committed to maki...</td>
+<td>55000.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>requirements, measuring business outcomes, and...</td>
+<td>role is responsible for oversight of applicati...</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">44</th>
+<td>686082</td>
+<td>2026-08-04 18:47:56</td>
+<td>Data Platform &amp; Integration Engineer</td>
+<td>Data Platform &amp; Integration Engineer</td>
+<td>Mcneeswallacenurickllc</td>
+<td>Remote, Pennsylvania</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>Pennsylvania</td>
+<td>PA</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>Joining **McNees Wallace &amp; Nurick LLC** means ...</td>
+<td>67140.0</td>
+<td>144440.0</td>
+<td>139500.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Serve as the firm's subject matter expert for ...</td>
+<td>Own the firm's enterprise data platform and da...</td>
+<td>Python, SQL, Java, Azure, Snowflake</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">45</th>
+<td>686134</td>
+<td>2026-08-04 18:27:11</td>
+<td>Senior Staff DevOps Engineer — Data Discovery ...</td>
+<td>Senior Staff DevOps Engineer — Data Discovery ...</td>
+<td>Onetrust</td>
+<td>Atlanta, Georgia</td>
+<td>Atlanta</td>
+<td>NaN</td>
+<td>Georgia</td>
+<td>GA</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>### Strength in Trust OneTrust’s mission is to...</td>
+<td>1687890.0</td>
+<td>148100.0</td>
+<td>135980.0</td>
+<td>2025.0</td>
+<td>Part Time</td>
+<td>requirements or flexibility depending on the s...</td>
+<td>role, you will lead the infrastructure strateg...</td>
+<td>Python, R, AWS, Azure, GCP, Kubernetes, Docker...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">46</th>
+<td>686152</td>
+<td>2026-08-04 18:20:48</td>
+<td>Manager, AI Solutions &amp; Analytics - Battery St...</td>
+<td>Manager, AI Solutions &amp; Analytics - Battery St...</td>
+<td>Pluspower</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>Remote</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>**Company Overview** Plus Power is an energy s...</td>
+<td>262440.0</td>
+<td>126800.0</td>
+<td>120230.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Minimum BA/BS in economics, data science, comp...</td>
+<td>Drive implementation of Plus Power’s AI operat...</td>
+<td>Python, SQL, AWS, Azure, Excel, Snowflake</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">47</th>
+<td>686219</td>
+<td>2026-08-04 17:49:51</td>
+<td>Senior Manager, Data Engineering</td>
+<td>Senior Manager, Data Engineering</td>
+<td>Dropbox</td>
+<td>Remote Canada:, Select Locations</td>
+<td>Remote Canada:</td>
+<td>NaN</td>
+<td>Select Locations</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>## Role Description We are seeking a Senior Ma...</td>
+<td>67140.0</td>
+<td>144440.0</td>
+<td>139500.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>8+ years of data engineering or backend/data i...</td>
+<td>Data Quality &amp; Observability: Establish and en...</td>
+<td>Spark, Snowflake</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">48</th>
+<td>686584</td>
+<td>2026-08-04 15:09:07</td>
+<td>Data Analysis Engineer</td>
+<td>Data Analysis Engineer</td>
+<td>Toshibaglobalcommercesolutions</td>
+<td>Guadalajara, Office</td>
+<td>Guadalajara</td>
+<td>NaN</td>
+<td>Office</td>
+<td>NaN</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>**The company.** Toshiba is a provider of tech...</td>
+<td>262440.0</td>
+<td>126800.0</td>
+<td>120230.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>role also focuses on producing accurate, repea...</td>
+<td>Python, SQL, R, Tableau, Power BI, Excel, Jira</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">49</th>
+<td>686585</td>
+<td>2026-08-04 15:07:18</td>
+<td>Director, Data Engineering</td>
+<td>Director, Data Engineering</td>
+<td>Sharkninjaoperatingllc</td>
+<td>Needham, Massachusetts</td>
+<td>Needham</td>
+<td>NaN</td>
+<td>Massachusetts</td>
+<td>MA</td>
+<td>...</td>
+<td>[{'program_name': 'Applied Business Analytics'...</td>
+<td>**About Us** SharkNinja is a global product de...</td>
+<td>67140.0</td>
+<td>144440.0</td>
+<td>139500.0</td>
+<td>2025.0</td>
+<td>NaN</td>
+<td>Evaluate emerging technologies and identify op...</td>
+<td>Define and execute the enterprise Data Enginee...</td>
+<td>Python, SQL, AWS, Azure, Spark, Snowflake</td>
+</tr>
+</tbody>
+</table>
+
+<p>50 rows × 37 columns</p>
+</div>
+</div>
+</div>
+
+
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

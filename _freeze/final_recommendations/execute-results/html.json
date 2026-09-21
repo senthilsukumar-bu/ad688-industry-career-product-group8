@@ -1,0 +1,12 @@
+{
+  "hash": "31ff1a7ea9841510092a434fad4bc805",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: Final Recommendations\nbibliography: references.bib\ncsl: csl/apa.csl\nformat: html\nexecute:\n  freeze: auto\n---\n\n",
+    "supporting": [
+      "final_recommendations_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}
