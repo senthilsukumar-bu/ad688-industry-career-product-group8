@@ -206,7 +206,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="load-data-from-met-api-and-initailize-pyspark-dataframe" class="level2">
 <h2 class="anchored" data-anchor-id="load-data-from-met-api-and-initailize-pyspark-dataframe">Load Data from MET API and Initailize pyspark DataFrame</h2>
-<div id="b9c023d8" class="cell" data-execution_count="1">
+<div id="ab33acb1" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -214,112 +214,134 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>load_dotenv(<span class="st">"M01_A/m01_data/.env"</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>load_dotenv()</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>API_KEY <span class="op">=</span> os.getenv(<span class="st">"EMPLOYABILITY_API_KEY"</span>, <span class="st">""</span>).strip()</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>BASE_URL <span class="op">=</span> os.getenv(<span class="st">"EMPLOYABILITY_API_BASE_URL"</span>, <span class="st">"https://met-employability-services.azurewebsites.net"</span>).strip().rstrip(<span class="st">"/"</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>STUDENT_API_BASE_URL <span class="op">=</span> os.getenv(<span class="st">"STUDENT_API_BASE_URL"</span>, <span class="st">""</span>).strip().rstrip(<span class="st">"/"</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> API_KEY:</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">RuntimeError</span>(<span class="st">"EMPLOYABILITY_API_KEY is missing. Add it to .env before rendering this assignment."</span>)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> BASE_URL:</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">RuntimeError</span>(<span class="st">"EMPLOYABILITY_API_BASE_URL is missing. Add it to .env before rendering this assignment."</span>)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> STUDENT_API_BASE_URL:</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> BASE_URL.endswith(<span class="st">"/api/v1/student"</span>):</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>        STUDENT_API_BASE_URL <span class="op">=</span> BASE_URL</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> BASE_URL.endswith(<span class="st">"/met-career-match"</span>):</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        STUDENT_API_BASE_URL <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>BASE_URL<span class="sc">}</span><span class="ss">/api/v1"</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        STUDENT_API_BASE_URL <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>BASE_URL<span class="sc">}</span><span class="ss">/api/v1/student"</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">#load_dotenv("M01_A/m01_data/.env")</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#load_dotenv()</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Working directory: </span><span class="sc">{</span>os<span class="sc">.</span>getcwd()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>_env_candidates <span class="op">=</span> [</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"M01_A/m01_data/.env"</span>,   <span class="co"># original relative path</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">".env"</span>,                   <span class="co"># project root</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"../.env"</span>,                <span class="co"># one level up</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    find_dotenv(usecwd<span class="op">=</span><span class="va">True</span>), <span class="co"># dotenv's own upward search</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>_loaded <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _p <span class="kw">in</span> _env_candidates:</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> _p <span class="kw">and</span> Path(_p).exists():</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>        load_dotenv(_p, override<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f".env loaded from: </span><span class="sc">{</span>Path(_p)<span class="sc">.</span>resolve()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        _loaded <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> api_url(path):</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span>STUDENT_API_BASE_URL<span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>path<span class="sc">.</span>strip(<span class="st">'/'</span>)<span class="sc">}</span><span class="ss">/"</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> _loaded:</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"No .env file found — relying on shell environment variables."</span>)</span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>headers <span class="op">=</span> {<span class="st">"X-API-Key"</span>: API_KEY, <span class="st">"Accept"</span>: <span class="st">"application/json"</span>}</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>schema_response <span class="op">=</span> requests.get(api_url(<span class="st">"schema"</span>), timeout<span class="op">=</span><span class="dv">30</span>)</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>schema_response.raise_for_status()</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Schema keys:"</span>, <span class="bu">list</span>(schema_response.json().keys())[:<span class="dv">10</span>])</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co">#comment out to include all data</span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>MAX_RECORDS <span class="op">=</span> <span class="dv">1_000</span></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>all_rows <span class="op">=</span> []</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>pull_log <span class="op">=</span> []</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> {<span class="st">"naics"</span>: <span class="st">"5415"</span>, <span class="st">"limit"</span>: <span class="dv">200</span>, <span class="st">"offset"</span>: <span class="dv">0</span>}</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> requests.get(api_url(<span class="st">"jobs"</span>), headers<span class="op">=</span>headers, params<span class="op">=</span>params, timeout<span class="op">=</span><span class="dv">60</span>)</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> response.status_code <span class="op">==</span> <span class="dv">429</span>:</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">RuntimeError</span>(<span class="st">"Rate limited. Rerun later."</span>)</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    response.raise_for_status()</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    payload <span class="op">=</span> response.json()</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    page <span class="op">=</span> payload[<span class="st">"results"</span>]</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> page:</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>    all_rows.extend(page)</span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>    pull_log.append({</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>        <span class="st">"offset"</span>: params[<span class="st">"offset"</span>],</span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>        <span class="st">"limit"</span>: params[<span class="st">"limit"</span>],</span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>        <span class="st">"status_code"</span>: response.status_code,</span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>        <span class="st">"rows_returned"</span>: <span class="bu">len</span>(page),</span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"offset=</span><span class="sc">{</span>params[<span class="st">'offset'</span>]<span class="sc">}</span><span class="ss"> | page=</span><span class="sc">{</span><span class="bu">len</span>(page)<span class="sc">}</span><span class="ss"> | total=</span><span class="sc">{</span><span class="bu">len</span>(all_rows)<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>    <span class="co">#comment out to include all data</span></span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(all_rows) <span class="op">&gt;=</span> MAX_RECORDS:</span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>    params[<span class="st">"offset"</span>] <span class="op">+=</span> params[<span class="st">"limit"</span>]</span>
-<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>jobs_raw <span class="op">=</span> pd.json_normalize(all_rows)</span>
-<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>jobs_raw[<span class="st">"posted_at"</span>] <span class="op">=</span> pd.to_datetime(jobs_raw[<span class="st">"posted_at"</span>], errors<span class="op">=</span><span class="st">"coerce"</span>, utc<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>jobs_raw <span class="op">=</span> jobs_raw[jobs_raw[<span class="st">"posted_at"</span>] <span class="op">&gt;=</span> pd.Timestamp(<span class="st">"2026-01-01"</span>, tz<span class="op">=</span><span class="st">"UTC"</span>)].copy()</span>
-<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Raw pull (after date filter): </span><span class="sc">{</span>jobs_raw<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(jobs_raw.columns.tolist())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>API_KEY <span class="op">=</span> os.getenv(<span class="st">"EMPLOYABILITY_API_KEY"</span>, <span class="st">""</span>).strip()</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>BASE_URL <span class="op">=</span> os.getenv(<span class="st">"EMPLOYABILITY_API_BASE_URL"</span>, <span class="st">"https://met-employability-services.azurewebsites.net"</span>).strip().rstrip(<span class="st">"/"</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>STUDENT_API_BASE_URL <span class="op">=</span> os.getenv(<span class="st">"STUDENT_API_BASE_URL"</span>, <span class="st">""</span>).strip().rstrip(<span class="st">"/"</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> API_KEY:</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">RuntimeError</span>(<span class="st">"EMPLOYABILITY_API_KEY is missing. Add it to .env before rendering this assignment."</span>)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> BASE_URL:</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">RuntimeError</span>(<span class="st">"EMPLOYABILITY_API_BASE_URL is missing. Add it to .env before rendering this assignment."</span>)</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> STUDENT_API_BASE_URL:</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> BASE_URL.endswith(<span class="st">"/api/v1/student"</span>):</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>        STUDENT_API_BASE_URL <span class="op">=</span> BASE_URL</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> BASE_URL.endswith(<span class="st">"/met-career-match"</span>):</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>        STUDENT_API_BASE_URL <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>BASE_URL<span class="sc">}</span><span class="ss">/api/v1"</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>        STUDENT_API_BASE_URL <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>BASE_URL<span class="sc">}</span><span class="ss">/api/v1/student"</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> api_url(path):</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span>STUDENT_API_BASE_URL<span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>path<span class="sc">.</span>strip(<span class="st">'/'</span>)<span class="sc">}</span><span class="ss">/"</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>headers <span class="op">=</span> {<span class="st">"X-API-Key"</span>: API_KEY, <span class="st">"Accept"</span>: <span class="st">"application/json"</span>}</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>schema_response <span class="op">=</span> requests.get(api_url(<span class="st">"schema"</span>), timeout<span class="op">=</span><span class="dv">30</span>)</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>schema_response.raise_for_status()</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Schema keys:"</span>, <span class="bu">list</span>(schema_response.json().keys())[:<span class="dv">10</span>])</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co">#comment out to include all data</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>MAX_RECORDS <span class="op">=</span> <span class="dv">1_000</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>all_rows <span class="op">=</span> []</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>pull_log <span class="op">=</span> []</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> {<span class="st">"naics"</span>: <span class="st">"5415"</span>, <span class="st">"limit"</span>: <span class="dv">200</span>, <span class="st">"offset"</span>: <span class="dv">0</span>}</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> requests.get(api_url(<span class="st">"jobs"</span>), headers<span class="op">=</span>headers, params<span class="op">=</span>params, timeout<span class="op">=</span><span class="dv">60</span>)</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> response.status_code <span class="op">==</span> <span class="dv">429</span>:</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">RuntimeError</span>(<span class="st">"Rate limited. Rerun later."</span>)</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>    response.raise_for_status()</span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>    payload <span class="op">=</span> response.json()</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>    page <span class="op">=</span> payload[<span class="st">"results"</span>]</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> page:</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>    all_rows.extend(page)</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>    pull_log.append({</span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>        <span class="st">"offset"</span>: params[<span class="st">"offset"</span>],</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>        <span class="st">"limit"</span>: params[<span class="st">"limit"</span>],</span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>        <span class="st">"status_code"</span>: response.status_code,</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>        <span class="st">"rows_returned"</span>: <span class="bu">len</span>(page),</span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"offset=</span><span class="sc">{</span>params[<span class="st">'offset'</span>]<span class="sc">}</span><span class="ss"> | page=</span><span class="sc">{</span><span class="bu">len</span>(page)<span class="sc">}</span><span class="ss"> | total=</span><span class="sc">{</span><span class="bu">len</span>(all_rows)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>    <span class="co">#comment out to include all data</span></span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(all_rows) <span class="op">&gt;=</span> MAX_RECORDS:</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>    params[<span class="st">"offset"</span>] <span class="op">+=</span> params[<span class="st">"limit"</span>]</span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>jobs_raw <span class="op">=</span> pd.json_normalize(all_rows)</span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>jobs_raw[<span class="st">"posted_at"</span>] <span class="op">=</span> pd.to_datetime(jobs_raw[<span class="st">"posted_at"</span>], errors<span class="op">=</span><span class="st">"coerce"</span>, utc<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>jobs_raw <span class="op">=</span> jobs_raw[jobs_raw[<span class="st">"posted_at"</span>] <span class="op">&gt;=</span> pd.Timestamp(<span class="st">"2026-01-01"</span>, tz<span class="op">=</span><span class="st">"UTC"</span>)].copy()</span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Raw pull (after date filter): </span><span class="sc">{</span>jobs_raw<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(jobs_raw.columns.tolist())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Working directory: /home/runner/work/ad688-industry-career-product-group8/ad688-industry-career-product-group8</code></pre>
+</div>
 <div class="cell-output cell-output-error">
 <div class="ansi-escaped-output">
 <pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">RuntimeError</span>                              Traceback (most recent call last)
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
 <span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[1]</span><span class="ansi-green-fg">, line 17</span>
-<span class="ansi-green-fg">     13</span> BASE_URL = os.getenv(<span class="ansi-yellow-fg">"EMPLOYABILITY_API_BASE_URL"</span>, <span class="ansi-yellow-fg">"https://met-employability-services.azurewebsites.net"</span>).strip().rstrip(<span class="ansi-yellow-fg">"/"</span>)
-<span class="ansi-green-fg">     14</span> STUDENT_API_BASE_URL = os.getenv(<span class="ansi-yellow-fg">"STUDENT_API_BASE_URL"</span>, <span class="ansi-yellow-fg">""</span>).strip().rstrip(<span class="ansi-yellow-fg">"/"</span>)
-<span class="ansi-green-fg">     15</span> 
-<span class="ansi-green-fg">     16</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> <span style="font-weight:bold;color:rgb(0,135,0)">not</span> API_KEY:
-<span class="ansi-green-fg">---&gt; </span><span class="ansi-green-fg">17</span>     <span style="font-weight:bold;color:rgb(0,135,0)">raise</span> RuntimeError(<span class="ansi-yellow-fg">"EMPLOYABILITY_API_KEY is missing. Add it to .env before rendering this assignment."</span>)
-<span class="ansi-green-fg">     18</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> <span style="font-weight:bold;color:rgb(0,135,0)">not</span> BASE_URL:
-<span class="ansi-green-fg">     19</span>     <span style="font-weight:bold;color:rgb(0,135,0)">raise</span> RuntimeError(<span class="ansi-yellow-fg">"EMPLOYABILITY_API_BASE_URL is missing. Add it to .env before rendering this assignment."</span>)
-<span class="ansi-green-fg">     20</span> <span style="font-weight:bold;color:rgb(0,135,0)">if</span> <span style="font-weight:bold;color:rgb(0,135,0)">not</span> STUDENT_API_BASE_URL:
+<span class="ansi-green-fg">     13</span> _env_candidates = [
+<span class="ansi-green-fg">     14</span>     <span class="ansi-yellow-fg">"M01_A/m01_data/.env"</span>,   <span style="font-style:italic;color:rgb(95,135,135)"># original relative path</span>
+<span class="ansi-green-fg">     15</span>     <span class="ansi-yellow-fg">".env"</span>,                   <span style="font-style:italic;color:rgb(95,135,135)"># project root</span>
+<span class="ansi-green-fg">     16</span>     <span class="ansi-yellow-fg">"../.env"</span>,                <span style="font-style:italic;color:rgb(95,135,135)"># one level up</span>
+<span class="ansi-green-fg">---&gt; </span><span class="ansi-green-fg">17</span>     find_dotenv(usecwd=<span style="font-weight:bold;color:rgb(0,135,0)">True</span>), <span style="font-style:italic;color:rgb(95,135,135)"># dotenv's own upward search</span>
+<span class="ansi-green-fg">     18</span> ]
+<span class="ansi-green-fg">     19</span> 
+<span class="ansi-green-fg">     20</span> _loaded = <span style="font-weight:bold;color:rgb(0,135,0)">False</span>
 
-<span class="ansi-red-fg">RuntimeError</span>: EMPLOYABILITY_API_KEY is missing. Add it to .env before rendering this assignment.</pre>
+<span class="ansi-red-fg">NameError</span>: name 'find_dotenv' is not defined</pre>
 </div>
 </div>
 </div>
-<div id="918c1c4a" class="cell" data-execution_count="2">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>TARGET_TITLES <span class="op">=</span> [</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bi "</span>,</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"data "</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"analytics "</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"business intelligence "</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"reporting "</span>,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"business "</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the title column (adjust if the name differs from what prints above)</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>title_col <span class="op">=</span> <span class="bu">next</span>((c <span class="cf">for</span> c <span class="kw">in</span> jobs_raw.columns <span class="cf">if</span> <span class="st">"title"</span> <span class="kw">in</span> c.lower()), <span class="va">None</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Using column: </span><span class="sc">{</span>title_col<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>pattern <span class="op">=</span> <span class="st">"|"</span>.join(TARGET_TITLES)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>jobs <span class="op">=</span> jobs_raw[jobs_raw[title_col].<span class="bu">str</span>.lower().<span class="bu">str</span>.contains(pattern, na<span class="op">=</span><span class="va">False</span>)].copy()</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Filtered rows: </span><span class="sc">{</span>jobs<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Save</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>os.makedirs(<span class="st">"./outputs"</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>jobs.to_csv(<span class="st">"./outputs/api_job_facts.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved to ./outputs/api_job_facts.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="e2240810" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>TARGET_TITLES <span class="op">=</span> [</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bi "</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"data "</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"analytics "</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"business intelligence "</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"reporting "</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"business "</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the title column (adjust if the name differs from what prints above)</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>title_col <span class="op">=</span> <span class="bu">next</span>((c <span class="cf">for</span> c <span class="kw">in</span> jobs_raw.columns <span class="cf">if</span> <span class="st">"title"</span> <span class="kw">in</span> c.lower()), <span class="va">None</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Using column: </span><span class="sc">{</span>title_col<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>pattern <span class="op">=</span> <span class="st">"|"</span>.join(TARGET_TITLES)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>jobs <span class="op">=</span> jobs_raw[jobs_raw[title_col].<span class="bu">str</span>.lower().<span class="bu">str</span>.contains(pattern, na<span class="op">=</span><span class="va">False</span>)].copy()</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Filtered rows: </span><span class="sc">{</span>jobs<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Save</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>os.makedirs(<span class="st">"./outputs"</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>jobs.to_csv(<span class="st">"./outputs/api_job_facts.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved to ./outputs/api_job_facts.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <div class="ansi-escaped-output">
 <pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
@@ -338,245 +360,245 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="163f27c1" class="cell" data-execution_count="3">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> functions <span class="im">as</span> F</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder <span class="op">\</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    .appName(<span class="st">"AD688_JobFacts"</span>) <span class="op">\</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    .config(<span class="st">"spark.sql.session.timeZone"</span>, <span class="st">"UTC"</span>) <span class="op">\</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    .getOrCreate()</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>spark.sparkContext.setLogLevel(<span class="st">"ERROR"</span>)</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Load from raw API CSV </span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>jobs_raw_spark <span class="op">=</span> spark.read.csv(</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"./outputs/api_job_facts.csv"</span>,</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    header<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    inferSchema<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    multiLine<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    escape<span class="op">=</span><span class="st">'"'</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>FIELD_MAP <span class="op">=</span> {</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"job_id"</span>:                                        <span class="st">"job_id"</span>,</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"posted_at"</span>:                                     <span class="st">"posted_at"</span>,</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">"title"</span>:                                         <span class="st">"title"</span>,</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">"normalized_title"</span>:                              <span class="st">"normalized_title"</span>,</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">"company_name"</span>:                                  <span class="st">"company_name"</span>,</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"location_text"</span>:                                 <span class="st">"location_text"</span>,</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"city"</span>:                                          <span class="st">"city"</span>,</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"city_code"</span>:                                     <span class="st">"city_code"</span>,</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"state"</span>:                                         <span class="st">"state"</span>,</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"state_code"</span>:                                    <span class="st">"state_code"</span>,</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"remote_status"</span>:                                 <span class="st">"remote_status"</span>,</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"employment_type"</span>:                               <span class="st">"employment_type"</span>,</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"salary_text"</span>:                                   <span class="st">"salary_text"</span>,</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"annual_salary_min"</span>:                             <span class="st">"annual_salary_min"</span>,</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"annual_salary_max"</span>:                             <span class="st">"annual_salary_max"</span>,</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hourly_salary_min"</span>:                             <span class="st">"hourly_salary_min"</span>,</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hourly_salary_max"</span>:                             <span class="st">"hourly_salary_max"</span>,</span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"soc_code"</span>:                                      <span class="st">"soc_code"</span>,</span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"soc_name"</span>:                                      <span class="st">"soc_name"</span>,</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">"occupation_family"</span>:                             <span class="st">"occupation_family"</span>,</span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"naics_code"</span>:                                    <span class="st">"naics_code"</span>,</span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    <span class="st">"naics_name"</span>:                                    <span class="st">"naics_name"</span>,</span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    <span class="st">"onet_code"</span>:                                     <span class="st">"onet_code"</span>,</span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    <span class="st">"onet_name"</span>:                                     <span class="st">"onet_name"</span>,</span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cip_code"</span>:                                      <span class="st">"cip_code"</span>,</span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cip_name"</span>:                                      <span class="st">"cip_name"</span>,</span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">"skills"</span>:                                        <span class="st">"skills"</span>,</span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    <span class="st">"program_matches"</span>:                               <span class="st">"program_matches"</span>,</span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    <span class="st">"description"</span>:                                   <span class="st">"description"</span>,</span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.employment"</span>:                                <span class="st">"bls_employment"</span>,</span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.annual_mean_wage"</span>:                          <span class="st">"bls_annual_mean_wage"</span>,</span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.annual_median_wage"</span>:                        <span class="st">"bls_annual_median_wage"</span>,</span>
-<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.source_year"</span>:                               <span class="st">"bls_source_year"</span>,</span>
-<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.work_type"</span>:                     <span class="st">"student_signals_work_type"</span>,</span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.requirements_summary"</span>:          <span class="st">"student_signals_requirements_summary"</span>,</span>
-<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.responsibilities_summary"</span>:      <span class="st">"student_signals_responsibilities_summary"</span>,</span>
-<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.technical_tools_summary"</span>:       <span class="st">"student_signals_technical_tools_summary"</span>,</span>
-<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>select_exprs <span class="op">=</span> []</span>
-<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>skipped <span class="op">=</span> []</span>
-<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> src, alias <span class="kw">in</span> FIELD_MAP.items():</span>
-<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> src <span class="kw">in</span> jobs_raw_spark.columns:</span>
-<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Backtick-quote any column name containing a dot (flat CSV column, not a struct)</span></span>
-<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>        col_ref <span class="op">=</span> F.col(<span class="ss">f"`</span><span class="sc">{</span>src<span class="sc">}</span><span class="ss">`"</span>) <span class="cf">if</span> <span class="st">"."</span> <span class="kw">in</span> src <span class="cf">else</span> F.col(src)</span>
-<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>        select_exprs.append(col_ref.alias(alias))</span>
-<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>        skipped.append(src)</span>
-<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> skipped:</span>
-<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Columns not found (skipped): </span><span class="sc">{</span>skipped<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>jobs_selected <span class="op">=</span> jobs_raw_spark.select(select_exprs)</span>
-<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>jobs_selected.createOrReplaceTempView(<span class="st">"job_facts_raw"</span>)</span>
-<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Selected </span><span class="sc">{</span><span class="bu">len</span>(select_exprs)<span class="sc">}</span><span class="ss"> columns — raw view registered as: job_facts_raw"</span>)</span>
-<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>jobs_selected.printSchema()</span>
-<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>jobs_clean <span class="op">=</span> spark.sql(<span class="st">"""</span></span>
-<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH</span></span>
-<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── STEP 1: Remove noisy data ──────────────────────────────────────────</span></span>
-<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Rows with null job_id are dropped; they cannot be keyed or joined.</span></span>
-<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Rows with null title are dropped; they are unusable for downstream analysis.</span></span>
-<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
-<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a><span class="st">    base AS (</span></span>
-<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT *</span></span>
-<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM job_facts_raw</span></span>
-<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a><span class="st">        WHERE job_id IS NOT NULL</span></span>
-<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a><span class="st">          AND title IS NOT NULL</span></span>
-<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
-<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── STEP 2: Normalize categorical labels ─────────────────────────</span></span>
-<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a><span class="st">    -- remote_status and employment_type arrive with inconsistent casing</span></span>
-<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a><span class="st">    -- and freeform strings (e.g. "REMOTE", "Remote Work", "wfh").</span></span>
-<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Map to four canonical values. </span></span>
-<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Any unrecognized value defaults to 'Unknown' rather than NULL so aggregations are more meaningful.</span></span>
-<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a><span class="st">    labeled AS (</span></span>
-<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT *,</span></span>
-<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a><span class="st">        CASE</span></span>
-<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(remote_status)) IN ('remote', 'fully remote', 'work from home', 'wfh', 'remote work')</span></span>
-<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%r</span><span class="st">emote%' AND LOWER(TRIM(remote_status)) NOT LIKE '%partial%'</span></span>
-<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '%wfh%'</span></span>
-<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%ho</span><span class="st">me%'</span></span>
-<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Remote'</span></span>
-<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(remote_status)) IN ('hybrid', 'hybrid remote', 'partial remote', 'hybrid/remote')</span></span>
-<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '%hybrid%'</span></span>
-<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '%partial%'</span></span>
-<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Hybrid'</span></span>
-<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(remote_status)) IN ('on-site', 'onsite', 'in-office', 'in office', 'on site', 'office')</span></span>
-<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%o</span><span class="st">ffice%'</span></span>
-<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%s</span><span class="st">ite%'</span></span>
-<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'On-site'</span></span>
-<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a><span class="st">            ELSE 'Unknown'</span></span>
-<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a><span class="st">        END AS remote_status_clean,</span></span>
-<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a><span class="st">        CASE</span></span>
-<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('full-time', 'full time', 'fulltime', 'ft', 'permanent')</span></span>
-<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '%permanent%'</span></span>
-<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%f</span><span class="st">ull%'</span></span>
-<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Full-time'</span></span>
-<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('part-time', 'part time', 'parttime', 'pt')</span></span>
-<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '%part%'</span></span>
-<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Part-time'</span></span>
-<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('contract', 'contractor', 'temp', 'temporary', 'freelance', 'c2c')</span></span>
-<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%c</span><span class="st">ontract%'</span></span>
-<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '%temp%'</span></span>
-<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%f</span><span class="st">reelance%'</span></span>
-<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Contract'</span></span>
-<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('internship', 'intern', 'co-op', 'coop')</span></span>
-<span id="cb3-131"><a href="#cb3-131" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%i</span><span class="st">ntern%'</span></span>
-<span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Internship'</span></span>
-<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a><span class="st">            ELSE 'Unknown'</span></span>
-<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a><span class="st">        END AS employment_type_clean</span></span>
-<span id="cb3-135"><a href="#cb3-135" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-136"><a href="#cb3-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-137"><a href="#cb3-137" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM base</span></span>
-<span id="cb3-138"><a href="#cb3-138" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
-<span id="cb3-139"><a href="#cb3-139" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-140"><a href="#cb3-140" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── STEP 3: Salary outlier handling ─────────────────────────────</span></span>
-<span id="cb3-141"><a href="#cb3-141" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Salary fields contain a few data errors: $0, $1, implausibly high values from mis-parsed hourly-to-annual conversions, or potentially test records. </span></span>
-<span id="cb3-142"><a href="#cb3-142" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Values outside plausible BI/analytics bands are set to NULL (even without salary data, the post itself e.g. skills are useful)</span></span>
-<span id="cb3-143"><a href="#cb3-143" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE Annual band:  $20,000 – $500,000</span></span>
-<span id="cb3-144"><a href="#cb3-144" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE Hourly band:  $10  – $250</span></span>
-<span id="cb3-145"><a href="#cb3-145" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE NOT min &gt; max (data entry error)</span></span>
-<span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE NOT both are set to NULL.</span></span>
-<span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a><span class="st">    salaries AS (</span></span>
-<span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT *,</span></span>
-<span id="cb3-149"><a href="#cb3-149" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-150"><a href="#cb3-150" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
-<span id="cb3-151"><a href="#cb3-151" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(annual_salary_min AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
-<span id="cb3-152"><a href="#cb3-152" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_max AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
-<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_min AS DOUBLE) &lt;= CAST(annual_salary_max AS DOUBLE)</span></span>
-<span id="cb3-154"><a href="#cb3-154" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(annual_salary_min AS DOUBLE)</span></span>
-<span id="cb3-155"><a href="#cb3-155" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
-<span id="cb3-156"><a href="#cb3-156" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS annual_salary_min_clean,</span></span>
-<span id="cb3-157"><a href="#cb3-157" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-158"><a href="#cb3-158" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
-<span id="cb3-159"><a href="#cb3-159" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(annual_salary_min AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
-<span id="cb3-160"><a href="#cb3-160" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_max AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
-<span id="cb3-161"><a href="#cb3-161" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_min AS DOUBLE) &lt;= CAST(annual_salary_max AS DOUBLE)</span></span>
-<span id="cb3-162"><a href="#cb3-162" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(annual_salary_max AS DOUBLE)</span></span>
-<span id="cb3-163"><a href="#cb3-163" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
-<span id="cb3-164"><a href="#cb3-164" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS annual_salary_max_clean,</span></span>
-<span id="cb3-165"><a href="#cb3-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-166"><a href="#cb3-166" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
-<span id="cb3-167"><a href="#cb3-167" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(hourly_salary_min AS DOUBLE) BETWEEN 10 AND 250</span></span>
-<span id="cb3-168"><a href="#cb3-168" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_max AS DOUBLE) BETWEEN 10 AND 250</span></span>
-<span id="cb3-169"><a href="#cb3-169" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_min AS DOUBLE) &lt;= CAST(hourly_salary_max AS DOUBLE)</span></span>
-<span id="cb3-170"><a href="#cb3-170" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(hourly_salary_min AS DOUBLE)</span></span>
-<span id="cb3-171"><a href="#cb3-171" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
-<span id="cb3-172"><a href="#cb3-172" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS hourly_salary_min_clean,</span></span>
-<span id="cb3-173"><a href="#cb3-173" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-174"><a href="#cb3-174" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
-<span id="cb3-175"><a href="#cb3-175" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(hourly_salary_min AS DOUBLE) BETWEEN 10 AND 250</span></span>
-<span id="cb3-176"><a href="#cb3-176" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_max AS DOUBLE) BETWEEN 10 AND 250</span></span>
-<span id="cb3-177"><a href="#cb3-177" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_min AS DOUBLE) &lt;= CAST(hourly_salary_max AS DOUBLE)</span></span>
-<span id="cb3-178"><a href="#cb3-178" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(hourly_salary_max AS DOUBLE)</span></span>
-<span id="cb3-179"><a href="#cb3-179" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
-<span id="cb3-180"><a href="#cb3-180" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS hourly_salary_max_clean</span></span>
-<span id="cb3-181"><a href="#cb3-181" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-182"><a href="#cb3-182" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM labeled</span></span>
-<span id="cb3-183"><a href="#cb3-183" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
-<span id="cb3-184"><a href="#cb3-184" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-185"><a href="#cb3-185" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── FINAL SELECT ─────────────────────────────────────────────────</span></span>
-<span id="cb3-186"><a href="#cb3-186" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Replace raw categorical and salary columns with cleaned versions.</span></span>
-<span id="cb3-187"><a href="#cb3-187" aria-hidden="true" tabindex="-1"></a><span class="st">    -- All other optional fields (city, soc_code, bls_*, skills, etc.)</span></span>
-<span id="cb3-188"><a href="#cb3-188" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
-<span id="cb3-189"><a href="#cb3-189" aria-hidden="true" tabindex="-1"></a><span class="st">        job_id,</span></span>
-<span id="cb3-190"><a href="#cb3-190" aria-hidden="true" tabindex="-1"></a><span class="st">        posted_at,</span></span>
-<span id="cb3-191"><a href="#cb3-191" aria-hidden="true" tabindex="-1"></a><span class="st">        title,</span></span>
-<span id="cb3-192"><a href="#cb3-192" aria-hidden="true" tabindex="-1"></a><span class="st">        normalized_title,</span></span>
-<span id="cb3-193"><a href="#cb3-193" aria-hidden="true" tabindex="-1"></a><span class="st">        company_name,</span></span>
-<span id="cb3-194"><a href="#cb3-194" aria-hidden="true" tabindex="-1"></a><span class="st">        location_text,</span></span>
-<span id="cb3-195"><a href="#cb3-195" aria-hidden="true" tabindex="-1"></a><span class="st">        city,</span></span>
-<span id="cb3-196"><a href="#cb3-196" aria-hidden="true" tabindex="-1"></a><span class="st">        city_code,</span></span>
-<span id="cb3-197"><a href="#cb3-197" aria-hidden="true" tabindex="-1"></a><span class="st">        state,</span></span>
-<span id="cb3-198"><a href="#cb3-198" aria-hidden="true" tabindex="-1"></a><span class="st">        state_code,</span></span>
-<span id="cb3-199"><a href="#cb3-199" aria-hidden="true" tabindex="-1"></a><span class="st">        remote_status_clean                          AS remote_status,</span></span>
-<span id="cb3-200"><a href="#cb3-200" aria-hidden="true" tabindex="-1"></a><span class="st">        employment_type_clean                        AS employment_type,</span></span>
-<span id="cb3-201"><a href="#cb3-201" aria-hidden="true" tabindex="-1"></a><span class="st">        salary_text,</span></span>
-<span id="cb3-202"><a href="#cb3-202" aria-hidden="true" tabindex="-1"></a><span class="st">        annual_salary_min_clean                      AS annual_salary_min,</span></span>
-<span id="cb3-203"><a href="#cb3-203" aria-hidden="true" tabindex="-1"></a><span class="st">        annual_salary_max_clean                      AS annual_salary_max,</span></span>
-<span id="cb3-204"><a href="#cb3-204" aria-hidden="true" tabindex="-1"></a><span class="st">        hourly_salary_min_clean                      AS hourly_salary_min,</span></span>
-<span id="cb3-205"><a href="#cb3-205" aria-hidden="true" tabindex="-1"></a><span class="st">        hourly_salary_max_clean                      AS hourly_salary_max,</span></span>
-<span id="cb3-206"><a href="#cb3-206" aria-hidden="true" tabindex="-1"></a><span class="st">        soc_code,</span></span>
-<span id="cb3-207"><a href="#cb3-207" aria-hidden="true" tabindex="-1"></a><span class="st">        soc_name,</span></span>
-<span id="cb3-208"><a href="#cb3-208" aria-hidden="true" tabindex="-1"></a><span class="st">        occupation_family,</span></span>
-<span id="cb3-209"><a href="#cb3-209" aria-hidden="true" tabindex="-1"></a><span class="st">        naics_code,</span></span>
-<span id="cb3-210"><a href="#cb3-210" aria-hidden="true" tabindex="-1"></a><span class="st">        naics_name,</span></span>
-<span id="cb3-211"><a href="#cb3-211" aria-hidden="true" tabindex="-1"></a><span class="st">        onet_code,</span></span>
-<span id="cb3-212"><a href="#cb3-212" aria-hidden="true" tabindex="-1"></a><span class="st">        onet_name,</span></span>
-<span id="cb3-213"><a href="#cb3-213" aria-hidden="true" tabindex="-1"></a><span class="st">        cip_code,</span></span>
-<span id="cb3-214"><a href="#cb3-214" aria-hidden="true" tabindex="-1"></a><span class="st">        cip_name,</span></span>
-<span id="cb3-215"><a href="#cb3-215" aria-hidden="true" tabindex="-1"></a><span class="st">        skills,</span></span>
-<span id="cb3-216"><a href="#cb3-216" aria-hidden="true" tabindex="-1"></a><span class="st">        program_matches,</span></span>
-<span id="cb3-217"><a href="#cb3-217" aria-hidden="true" tabindex="-1"></a><span class="st">        description,</span></span>
-<span id="cb3-218"><a href="#cb3-218" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_employment,</span></span>
-<span id="cb3-219"><a href="#cb3-219" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_annual_mean_wage,</span></span>
-<span id="cb3-220"><a href="#cb3-220" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_annual_median_wage,</span></span>
-<span id="cb3-221"><a href="#cb3-221" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_source_year,</span></span>
-<span id="cb3-222"><a href="#cb3-222" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_work_type,</span></span>
-<span id="cb3-223"><a href="#cb3-223" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_requirements_summary,</span></span>
-<span id="cb3-224"><a href="#cb3-224" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_responsibilities_summary,</span></span>
-<span id="cb3-225"><a href="#cb3-225" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_technical_tools_summary</span></span>
-<span id="cb3-226"><a href="#cb3-226" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-227"><a href="#cb3-227" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM salaries</span></span>
-<span id="cb3-228"><a href="#cb3-228" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-229"><a href="#cb3-229" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span>
-<span id="cb3-230"><a href="#cb3-230" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-231"><a href="#cb3-231" aria-hidden="true" tabindex="-1"></a><span class="co"># Register as the canonical SQL view for all downstream analysis</span></span>
-<span id="cb3-232"><a href="#cb3-232" aria-hidden="true" tabindex="-1"></a>jobs_clean.createOrReplaceTempView(<span class="st">"job_facts"</span>)</span>
-<span id="cb3-233"><a href="#cb3-233" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Clean rows: </span><span class="sc">{</span>jobs_clean<span class="sc">.</span>count()<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb3-234"><a href="#cb3-234" aria-hidden="true" tabindex="-1"></a>jobs_clean.show(<span class="dv">5</span>, truncate<span class="op">=</span><span class="dv">60</span>)</span>
-<span id="cb3-235"><a href="#cb3-235" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-236"><a href="#cb3-236" aria-hidden="true" tabindex="-1"></a>jobs_clean.toPandas().to_csv(<span class="st">"./outputs/api_job_facts_cleaned.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb3-237"><a href="#cb3-237" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved ./outputs/api_job_facts_cleaned.csv"</span>)</span>
-<span id="cb3-238"><a href="#cb3-238" aria-hidden="true" tabindex="-1"></a>spark.sql(<span class="st">"SELECT * FROM job_facts LIMIT 10"</span>).toPandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="51bf7930" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> functions <span class="im">as</span> F</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>spark <span class="op">=</span> SparkSession.builder <span class="op">\</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    .appName(<span class="st">"AD688_JobFacts"</span>) <span class="op">\</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    .config(<span class="st">"spark.sql.session.timeZone"</span>, <span class="st">"UTC"</span>) <span class="op">\</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    .getOrCreate()</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>spark.sparkContext.setLogLevel(<span class="st">"ERROR"</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Load from raw API CSV </span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>jobs_raw_spark <span class="op">=</span> spark.read.csv(</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"./outputs/api_job_facts.csv"</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    header<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    inferSchema<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    multiLine<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    escape<span class="op">=</span><span class="st">'"'</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>FIELD_MAP <span class="op">=</span> {</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"job_id"</span>:                                        <span class="st">"job_id"</span>,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"posted_at"</span>:                                     <span class="st">"posted_at"</span>,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">"title"</span>:                                         <span class="st">"title"</span>,</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">"normalized_title"</span>:                              <span class="st">"normalized_title"</span>,</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">"company_name"</span>:                                  <span class="st">"company_name"</span>,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"location_text"</span>:                                 <span class="st">"location_text"</span>,</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"city"</span>:                                          <span class="st">"city"</span>,</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"city_code"</span>:                                     <span class="st">"city_code"</span>,</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"state"</span>:                                         <span class="st">"state"</span>,</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"state_code"</span>:                                    <span class="st">"state_code"</span>,</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"remote_status"</span>:                                 <span class="st">"remote_status"</span>,</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"employment_type"</span>:                               <span class="st">"employment_type"</span>,</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"salary_text"</span>:                                   <span class="st">"salary_text"</span>,</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"annual_salary_min"</span>:                             <span class="st">"annual_salary_min"</span>,</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"annual_salary_max"</span>:                             <span class="st">"annual_salary_max"</span>,</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hourly_salary_min"</span>:                             <span class="st">"hourly_salary_min"</span>,</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"hourly_salary_max"</span>:                             <span class="st">"hourly_salary_max"</span>,</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"soc_code"</span>:                                      <span class="st">"soc_code"</span>,</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"soc_name"</span>:                                      <span class="st">"soc_name"</span>,</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">"occupation_family"</span>:                             <span class="st">"occupation_family"</span>,</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"naics_code"</span>:                                    <span class="st">"naics_code"</span>,</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="st">"naics_name"</span>:                                    <span class="st">"naics_name"</span>,</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    <span class="st">"onet_code"</span>:                                     <span class="st">"onet_code"</span>,</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    <span class="st">"onet_name"</span>:                                     <span class="st">"onet_name"</span>,</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cip_code"</span>:                                      <span class="st">"cip_code"</span>,</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    <span class="st">"cip_name"</span>:                                      <span class="st">"cip_name"</span>,</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">"skills"</span>:                                        <span class="st">"skills"</span>,</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    <span class="st">"program_matches"</span>:                               <span class="st">"program_matches"</span>,</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    <span class="st">"description"</span>:                                   <span class="st">"description"</span>,</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.employment"</span>:                                <span class="st">"bls_employment"</span>,</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.annual_mean_wage"</span>:                          <span class="st">"bls_annual_mean_wage"</span>,</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.annual_median_wage"</span>:                        <span class="st">"bls_annual_median_wage"</span>,</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bls.source_year"</span>:                               <span class="st">"bls_source_year"</span>,</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.work_type"</span>:                     <span class="st">"student_signals_work_type"</span>,</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.requirements_summary"</span>:          <span class="st">"student_signals_requirements_summary"</span>,</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.responsibilities_summary"</span>:      <span class="st">"student_signals_responsibilities_summary"</span>,</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    <span class="st">"student_signals.technical_tools_summary"</span>:       <span class="st">"student_signals_technical_tools_summary"</span>,</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>select_exprs <span class="op">=</span> []</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>skipped <span class="op">=</span> []</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> src, alias <span class="kw">in</span> FIELD_MAP.items():</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> src <span class="kw">in</span> jobs_raw_spark.columns:</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Backtick-quote any column name containing a dot (flat CSV column, not a struct)</span></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>        col_ref <span class="op">=</span> F.col(<span class="ss">f"`</span><span class="sc">{</span>src<span class="sc">}</span><span class="ss">`"</span>) <span class="cf">if</span> <span class="st">"."</span> <span class="kw">in</span> src <span class="cf">else</span> F.col(src)</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>        select_exprs.append(col_ref.alias(alias))</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>        skipped.append(src)</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> skipped:</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Columns not found (skipped): </span><span class="sc">{</span>skipped<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>jobs_selected <span class="op">=</span> jobs_raw_spark.select(select_exprs)</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>jobs_selected.createOrReplaceTempView(<span class="st">"job_facts_raw"</span>)</span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Selected </span><span class="sc">{</span><span class="bu">len</span>(select_exprs)<span class="sc">}</span><span class="ss"> columns — raw view registered as: job_facts_raw"</span>)</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>jobs_selected.printSchema()</span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>jobs_clean <span class="op">=</span> spark.sql(<span class="st">"""</span></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH</span></span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── STEP 1: Remove noisy data ──────────────────────────────────────────</span></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Rows with null job_id are dropped; they cannot be keyed or joined.</span></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Rows with null title are dropped; they are unusable for downstream analysis.</span></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a><span class="st">    base AS (</span></span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT *</span></span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM job_facts_raw</span></span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a><span class="st">        WHERE job_id IS NOT NULL</span></span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a><span class="st">          AND title IS NOT NULL</span></span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── STEP 2: Normalize categorical labels ─────────────────────────</span></span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a><span class="st">    -- remote_status and employment_type arrive with inconsistent casing</span></span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a><span class="st">    -- and freeform strings (e.g. "REMOTE", "Remote Work", "wfh").</span></span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Map to four canonical values. </span></span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Any unrecognized value defaults to 'Unknown' rather than NULL so aggregations are more meaningful.</span></span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a><span class="st">    labeled AS (</span></span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT *,</span></span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a><span class="st">        CASE</span></span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(remote_status)) IN ('remote', 'fully remote', 'work from home', 'wfh', 'remote work')</span></span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%r</span><span class="st">emote%' AND LOWER(TRIM(remote_status)) NOT LIKE '%partial%'</span></span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '%wfh%'</span></span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%ho</span><span class="st">me%'</span></span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Remote'</span></span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(remote_status)) IN ('hybrid', 'hybrid remote', 'partial remote', 'hybrid/remote')</span></span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '%hybrid%'</span></span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '%partial%'</span></span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Hybrid'</span></span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(remote_status)) IN ('on-site', 'onsite', 'in-office', 'in office', 'on site', 'office')</span></span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%o</span><span class="st">ffice%'</span></span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(remote_status)) LIKE '</span><span class="sc">%s</span><span class="st">ite%'</span></span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'On-site'</span></span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a><span class="st">            ELSE 'Unknown'</span></span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a><span class="st">        END AS remote_status_clean,</span></span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a><span class="st">        CASE</span></span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('full-time', 'full time', 'fulltime', 'ft', 'permanent')</span></span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '%permanent%'</span></span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%f</span><span class="st">ull%'</span></span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Full-time'</span></span>
+<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('part-time', 'part time', 'parttime', 'pt')</span></span>
+<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '%part%'</span></span>
+<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Part-time'</span></span>
+<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('contract', 'contractor', 'temp', 'temporary', 'freelance', 'c2c')</span></span>
+<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%c</span><span class="st">ontract%'</span></span>
+<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '%temp%'</span></span>
+<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%f</span><span class="st">reelance%'</span></span>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Contract'</span></span>
+<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN LOWER(TRIM(employment_type)) IN ('internship', 'intern', 'co-op', 'coop')</span></span>
+<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a><span class="st">                OR LOWER(TRIM(employment_type)) LIKE '</span><span class="sc">%i</span><span class="st">ntern%'</span></span>
+<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a><span class="st">                THEN 'Internship'</span></span>
+<span id="cb4-133"><a href="#cb4-133" aria-hidden="true" tabindex="-1"></a><span class="st">            ELSE 'Unknown'</span></span>
+<span id="cb4-134"><a href="#cb4-134" aria-hidden="true" tabindex="-1"></a><span class="st">        END AS employment_type_clean</span></span>
+<span id="cb4-135"><a href="#cb4-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-136"><a href="#cb4-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-137"><a href="#cb4-137" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM base</span></span>
+<span id="cb4-138"><a href="#cb4-138" aria-hidden="true" tabindex="-1"></a><span class="st">    ),</span></span>
+<span id="cb4-139"><a href="#cb4-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-140"><a href="#cb4-140" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── STEP 3: Salary outlier handling ─────────────────────────────</span></span>
+<span id="cb4-141"><a href="#cb4-141" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Salary fields contain a few data errors: $0, $1, implausibly high values from mis-parsed hourly-to-annual conversions, or potentially test records. </span></span>
+<span id="cb4-142"><a href="#cb4-142" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Values outside plausible BI/analytics bands are set to NULL (even without salary data, the post itself e.g. skills are useful)</span></span>
+<span id="cb4-143"><a href="#cb4-143" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE Annual band:  $20,000 – $500,000</span></span>
+<span id="cb4-144"><a href="#cb4-144" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE Hourly band:  $10  – $250</span></span>
+<span id="cb4-145"><a href="#cb4-145" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE NOT min &gt; max (data entry error)</span></span>
+<span id="cb4-146"><a href="#cb4-146" aria-hidden="true" tabindex="-1"></a><span class="st">    -- WHERE NOT both are set to NULL.</span></span>
+<span id="cb4-147"><a href="#cb4-147" aria-hidden="true" tabindex="-1"></a><span class="st">    salaries AS (</span></span>
+<span id="cb4-148"><a href="#cb4-148" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT *,</span></span>
+<span id="cb4-149"><a href="#cb4-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-150"><a href="#cb4-150" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
+<span id="cb4-151"><a href="#cb4-151" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(annual_salary_min AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
+<span id="cb4-152"><a href="#cb4-152" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_max AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
+<span id="cb4-153"><a href="#cb4-153" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_min AS DOUBLE) &lt;= CAST(annual_salary_max AS DOUBLE)</span></span>
+<span id="cb4-154"><a href="#cb4-154" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(annual_salary_min AS DOUBLE)</span></span>
+<span id="cb4-155"><a href="#cb4-155" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
+<span id="cb4-156"><a href="#cb4-156" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS annual_salary_min_clean,</span></span>
+<span id="cb4-157"><a href="#cb4-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-158"><a href="#cb4-158" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
+<span id="cb4-159"><a href="#cb4-159" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(annual_salary_min AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
+<span id="cb4-160"><a href="#cb4-160" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_max AS DOUBLE) BETWEEN 20000 AND 500000</span></span>
+<span id="cb4-161"><a href="#cb4-161" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(annual_salary_min AS DOUBLE) &lt;= CAST(annual_salary_max AS DOUBLE)</span></span>
+<span id="cb4-162"><a href="#cb4-162" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(annual_salary_max AS DOUBLE)</span></span>
+<span id="cb4-163"><a href="#cb4-163" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
+<span id="cb4-164"><a href="#cb4-164" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS annual_salary_max_clean,</span></span>
+<span id="cb4-165"><a href="#cb4-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-166"><a href="#cb4-166" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
+<span id="cb4-167"><a href="#cb4-167" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(hourly_salary_min AS DOUBLE) BETWEEN 10 AND 250</span></span>
+<span id="cb4-168"><a href="#cb4-168" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_max AS DOUBLE) BETWEEN 10 AND 250</span></span>
+<span id="cb4-169"><a href="#cb4-169" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_min AS DOUBLE) &lt;= CAST(hourly_salary_max AS DOUBLE)</span></span>
+<span id="cb4-170"><a href="#cb4-170" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(hourly_salary_min AS DOUBLE)</span></span>
+<span id="cb4-171"><a href="#cb4-171" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
+<span id="cb4-172"><a href="#cb4-172" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS hourly_salary_min_clean,</span></span>
+<span id="cb4-173"><a href="#cb4-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-174"><a href="#cb4-174" aria-hidden="true" tabindex="-1"></a><span class="st">            CASE</span></span>
+<span id="cb4-175"><a href="#cb4-175" aria-hidden="true" tabindex="-1"></a><span class="st">                WHEN CAST(hourly_salary_min AS DOUBLE) BETWEEN 10 AND 250</span></span>
+<span id="cb4-176"><a href="#cb4-176" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_max AS DOUBLE) BETWEEN 10 AND 250</span></span>
+<span id="cb4-177"><a href="#cb4-177" aria-hidden="true" tabindex="-1"></a><span class="st">                 AND CAST(hourly_salary_min AS DOUBLE) &lt;= CAST(hourly_salary_max AS DOUBLE)</span></span>
+<span id="cb4-178"><a href="#cb4-178" aria-hidden="true" tabindex="-1"></a><span class="st">                    THEN CAST(hourly_salary_max AS DOUBLE)</span></span>
+<span id="cb4-179"><a href="#cb4-179" aria-hidden="true" tabindex="-1"></a><span class="st">                ELSE NULL</span></span>
+<span id="cb4-180"><a href="#cb4-180" aria-hidden="true" tabindex="-1"></a><span class="st">            END AS hourly_salary_max_clean</span></span>
+<span id="cb4-181"><a href="#cb4-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-182"><a href="#cb4-182" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM labeled</span></span>
+<span id="cb4-183"><a href="#cb4-183" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb4-184"><a href="#cb4-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-185"><a href="#cb4-185" aria-hidden="true" tabindex="-1"></a><span class="st">    -- ── FINAL SELECT ─────────────────────────────────────────────────</span></span>
+<span id="cb4-186"><a href="#cb4-186" aria-hidden="true" tabindex="-1"></a><span class="st">    -- Replace raw categorical and salary columns with cleaned versions.</span></span>
+<span id="cb4-187"><a href="#cb4-187" aria-hidden="true" tabindex="-1"></a><span class="st">    -- All other optional fields (city, soc_code, bls_*, skills, etc.)</span></span>
+<span id="cb4-188"><a href="#cb4-188" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb4-189"><a href="#cb4-189" aria-hidden="true" tabindex="-1"></a><span class="st">        job_id,</span></span>
+<span id="cb4-190"><a href="#cb4-190" aria-hidden="true" tabindex="-1"></a><span class="st">        posted_at,</span></span>
+<span id="cb4-191"><a href="#cb4-191" aria-hidden="true" tabindex="-1"></a><span class="st">        title,</span></span>
+<span id="cb4-192"><a href="#cb4-192" aria-hidden="true" tabindex="-1"></a><span class="st">        normalized_title,</span></span>
+<span id="cb4-193"><a href="#cb4-193" aria-hidden="true" tabindex="-1"></a><span class="st">        company_name,</span></span>
+<span id="cb4-194"><a href="#cb4-194" aria-hidden="true" tabindex="-1"></a><span class="st">        location_text,</span></span>
+<span id="cb4-195"><a href="#cb4-195" aria-hidden="true" tabindex="-1"></a><span class="st">        city,</span></span>
+<span id="cb4-196"><a href="#cb4-196" aria-hidden="true" tabindex="-1"></a><span class="st">        city_code,</span></span>
+<span id="cb4-197"><a href="#cb4-197" aria-hidden="true" tabindex="-1"></a><span class="st">        state,</span></span>
+<span id="cb4-198"><a href="#cb4-198" aria-hidden="true" tabindex="-1"></a><span class="st">        state_code,</span></span>
+<span id="cb4-199"><a href="#cb4-199" aria-hidden="true" tabindex="-1"></a><span class="st">        remote_status_clean                          AS remote_status,</span></span>
+<span id="cb4-200"><a href="#cb4-200" aria-hidden="true" tabindex="-1"></a><span class="st">        employment_type_clean                        AS employment_type,</span></span>
+<span id="cb4-201"><a href="#cb4-201" aria-hidden="true" tabindex="-1"></a><span class="st">        salary_text,</span></span>
+<span id="cb4-202"><a href="#cb4-202" aria-hidden="true" tabindex="-1"></a><span class="st">        annual_salary_min_clean                      AS annual_salary_min,</span></span>
+<span id="cb4-203"><a href="#cb4-203" aria-hidden="true" tabindex="-1"></a><span class="st">        annual_salary_max_clean                      AS annual_salary_max,</span></span>
+<span id="cb4-204"><a href="#cb4-204" aria-hidden="true" tabindex="-1"></a><span class="st">        hourly_salary_min_clean                      AS hourly_salary_min,</span></span>
+<span id="cb4-205"><a href="#cb4-205" aria-hidden="true" tabindex="-1"></a><span class="st">        hourly_salary_max_clean                      AS hourly_salary_max,</span></span>
+<span id="cb4-206"><a href="#cb4-206" aria-hidden="true" tabindex="-1"></a><span class="st">        soc_code,</span></span>
+<span id="cb4-207"><a href="#cb4-207" aria-hidden="true" tabindex="-1"></a><span class="st">        soc_name,</span></span>
+<span id="cb4-208"><a href="#cb4-208" aria-hidden="true" tabindex="-1"></a><span class="st">        occupation_family,</span></span>
+<span id="cb4-209"><a href="#cb4-209" aria-hidden="true" tabindex="-1"></a><span class="st">        naics_code,</span></span>
+<span id="cb4-210"><a href="#cb4-210" aria-hidden="true" tabindex="-1"></a><span class="st">        naics_name,</span></span>
+<span id="cb4-211"><a href="#cb4-211" aria-hidden="true" tabindex="-1"></a><span class="st">        onet_code,</span></span>
+<span id="cb4-212"><a href="#cb4-212" aria-hidden="true" tabindex="-1"></a><span class="st">        onet_name,</span></span>
+<span id="cb4-213"><a href="#cb4-213" aria-hidden="true" tabindex="-1"></a><span class="st">        cip_code,</span></span>
+<span id="cb4-214"><a href="#cb4-214" aria-hidden="true" tabindex="-1"></a><span class="st">        cip_name,</span></span>
+<span id="cb4-215"><a href="#cb4-215" aria-hidden="true" tabindex="-1"></a><span class="st">        skills,</span></span>
+<span id="cb4-216"><a href="#cb4-216" aria-hidden="true" tabindex="-1"></a><span class="st">        program_matches,</span></span>
+<span id="cb4-217"><a href="#cb4-217" aria-hidden="true" tabindex="-1"></a><span class="st">        description,</span></span>
+<span id="cb4-218"><a href="#cb4-218" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_employment,</span></span>
+<span id="cb4-219"><a href="#cb4-219" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_annual_mean_wage,</span></span>
+<span id="cb4-220"><a href="#cb4-220" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_annual_median_wage,</span></span>
+<span id="cb4-221"><a href="#cb4-221" aria-hidden="true" tabindex="-1"></a><span class="st">        bls_source_year,</span></span>
+<span id="cb4-222"><a href="#cb4-222" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_work_type,</span></span>
+<span id="cb4-223"><a href="#cb4-223" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_requirements_summary,</span></span>
+<span id="cb4-224"><a href="#cb4-224" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_responsibilities_summary,</span></span>
+<span id="cb4-225"><a href="#cb4-225" aria-hidden="true" tabindex="-1"></a><span class="st">        student_signals_technical_tools_summary</span></span>
+<span id="cb4-226"><a href="#cb4-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-227"><a href="#cb4-227" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM salaries</span></span>
+<span id="cb4-228"><a href="#cb4-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-229"><a href="#cb4-229" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span>
+<span id="cb4-230"><a href="#cb4-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-231"><a href="#cb4-231" aria-hidden="true" tabindex="-1"></a><span class="co"># Register as the canonical SQL view for all downstream analysis</span></span>
+<span id="cb4-232"><a href="#cb4-232" aria-hidden="true" tabindex="-1"></a>jobs_clean.createOrReplaceTempView(<span class="st">"job_facts"</span>)</span>
+<span id="cb4-233"><a href="#cb4-233" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Clean rows: </span><span class="sc">{</span>jobs_clean<span class="sc">.</span>count()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-234"><a href="#cb4-234" aria-hidden="true" tabindex="-1"></a>jobs_clean.show(<span class="dv">5</span>, truncate<span class="op">=</span><span class="dv">60</span>)</span>
+<span id="cb4-235"><a href="#cb4-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-236"><a href="#cb4-236" aria-hidden="true" tabindex="-1"></a>jobs_clean.toPandas().to_csv(<span class="st">"./outputs/api_job_facts_cleaned.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb4-237"><a href="#cb4-237" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Saved ./outputs/api_job_facts_cleaned.csv"</span>)</span>
+<span id="cb4-238"><a href="#cb4-238" aria-hidden="true" tabindex="-1"></a>spark.sql(<span class="st">"SELECT * FROM job_facts LIMIT 10"</span>).toPandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>WARNING: Using incubator modules: jdk.incubator.vector
 Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
@@ -584,7 +606,7 @@ Setting default log level to "WARN".
 To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pyspark/testing/utils.py:127: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
   require_minimum_pandas_version()
-26/09/21 01:32:58 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable</code></pre>
+26/09/21 01:48:17 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable</code></pre>
 </div>
 <div class="cell-output cell-output-error">
 <div class="ansi-escaped-output">
