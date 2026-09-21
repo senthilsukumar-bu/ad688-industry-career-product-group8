@@ -206,11 +206,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="load-data-from-met-api-and-initailize-pyspark-dataframe" class="level2">
 <h2 class="anchored" data-anchor-id="load-data-from-met-api-and-initailize-pyspark-dataframe">Load Data from MET API and Initailize pyspark DataFrame</h2>
-<div id="ab33acb1" class="cell" data-execution_count="1">
+<div id="a68392c3" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dotenv <span class="im">import</span> load_dotenv</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dotenv <span class="im">import</span> load_dotenv, find_dotenv</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
@@ -305,21 +305,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="ansi-escaped-output">
 <pre><span class="ansi-red-fg">---------------------------------------------------------------------------</span>
 <span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
-<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[1]</span><span class="ansi-green-fg">, line 17</span>
-<span class="ansi-green-fg">     13</span> _env_candidates = [
-<span class="ansi-green-fg">     14</span>     <span class="ansi-yellow-fg">"M01_A/m01_data/.env"</span>,   <span style="font-style:italic;color:rgb(95,135,135)"># original relative path</span>
-<span class="ansi-green-fg">     15</span>     <span class="ansi-yellow-fg">".env"</span>,                   <span style="font-style:italic;color:rgb(95,135,135)"># project root</span>
-<span class="ansi-green-fg">     16</span>     <span class="ansi-yellow-fg">"../.env"</span>,                <span style="font-style:italic;color:rgb(95,135,135)"># one level up</span>
-<span class="ansi-green-fg">---&gt; </span><span class="ansi-green-fg">17</span>     find_dotenv(usecwd=<span style="font-weight:bold;color:rgb(0,135,0)">True</span>), <span style="font-style:italic;color:rgb(95,135,135)"># dotenv's own upward search</span>
+<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[1]</span><span class="ansi-green-fg">, line 22</span>
 <span class="ansi-green-fg">     18</span> ]
 <span class="ansi-green-fg">     19</span> 
 <span class="ansi-green-fg">     20</span> _loaded = <span style="font-weight:bold;color:rgb(0,135,0)">False</span>
+<span class="ansi-green-fg">     21</span> <span style="font-weight:bold;color:rgb(0,135,0)">for</span> _p <span style="font-weight:bold;color:rgb(0,135,0)">in</span> _env_candidates:
+<span class="ansi-green-fg">---&gt; </span><span class="ansi-green-fg">22</span>     <span style="font-weight:bold;color:rgb(0,135,0)">if</span> _p <span style="font-weight:bold;color:rgb(0,135,0)">and</span> Path(_p).exists():
+<span class="ansi-green-fg">     23</span>         load_dotenv(_p, override=<span style="font-weight:bold;color:rgb(0,135,0)">True</span>)
+<span class="ansi-green-fg">     24</span>         print(f".env loaded from: {Path(_p).resolve()}")
+<span class="ansi-green-fg">     25</span>         _loaded = <span style="font-weight:bold;color:rgb(0,135,0)">True</span>
 
-<span class="ansi-red-fg">NameError</span>: name 'find_dotenv' is not defined</pre>
+<span class="ansi-red-fg">NameError</span>: name 'Path' is not defined</pre>
 </div>
 </div>
 </div>
-<div id="e2240810" class="cell" data-execution_count="2">
+<div id="e76af9d5" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>TARGET_TITLES <span class="op">=</span> [</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"bi "</span>,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"data "</span>,</span>
@@ -360,7 +360,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<div id="51bf7930" class="cell" data-execution_count="3">
+<div id="e52dbb67" class="cell" data-execution_count="3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> functions <span class="im">as</span> F</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -606,7 +606,7 @@ Setting default log level to "WARN".
 To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
 /opt/hostedtoolcache/Python/3.12.14/x64/lib/python3.12/site-packages/pyspark/testing/utils.py:127: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
   require_minimum_pandas_version()
-26/09/21 01:48:17 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable</code></pre>
+26/09/21 01:53:02 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable</code></pre>
 </div>
 <div class="cell-output cell-output-error">
 <div class="ansi-escaped-output">
