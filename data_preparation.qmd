@@ -110,28 +110,43 @@ print(jobs_raw.columns.tolist())
 
 ```{python}
 
+import os, re
+
+# 
+title_col = next((c for c in jobs_raw.columns if "title" in c.lower()), None)
+print(f"Title column: {title_col}")
+print(f"\nSample titles:")
+print(jobs_raw[title_col].dropna().head(20).tolist())
+
+# Per-pattern row counts 
 TARGET_TITLES = [
-    "bi ",
-    "data ",
-    "analytics ",
-    "business intelligence ",
-    "reporting ",
-    "business ",
+    r"\banalyst\b",
+    r"\bdata\b",
+    r"\banalytics\b",
+    r"\bbusiness intelligence\b",
+    r"\breporting\b",
+    r"\bbusiness\b",
+    r"\bbi\b",
+    r"\binsights?\b",        
+    r"\bvisuali[sz]ation\b", 
+    r"\bdashboard\b",
+    r"\bforecast\b",
+    r"\bmetrics\b",
+    r"\bquant\b",       
 ]
 
-# Find the title column (adjust if the name differs from what prints above)
-title_col = next((c for c in jobs_raw.columns if "title" in c.lower()), None)
-print(f"Using column: {title_col}")
+for term in TARGET_TITLES:
+    n = jobs_raw[title_col].str.lower().str.contains(term, na=False, regex=True).sum()
+    print(f"  '{term}' → {n} rows")
 
+# Filter and save
 pattern = "|".join(TARGET_TITLES)
-jobs = jobs_raw[jobs_raw[title_col].str.lower().str.contains(pattern, na=False)].copy()
-print(f"Filtered rows: {jobs.shape}")
+jobs = jobs_raw[jobs_raw[title_col].str.lower().str.contains(pattern, na=False, regex=True)].copy()
+print(f"\nFiltered rows: {jobs.shape}")
 
-# Save
-import os
-os.makedirs("./outputs", exist_ok=True)
-jobs.to_csv("./outputs/api_job_facts.csv", index=False)
-print("Saved to ./outputs/api_job_facts.csv")
+#os.makedirs("./outputs", exist_ok=True)
+#jobs.to_csv("./outputs/api_job_facts.csv", index=False)
+#print("Saved to ./outputs/api_job_facts.csv")
 ```
 
 ```{python}
@@ -144,14 +159,16 @@ spark = SparkSession.builder \
     .getOrCreate()
 spark.sparkContext.setLogLevel("ERROR")
 
-# Load from raw API CSV 
-jobs_raw_spark = spark.read.csv(
-    "./outputs/api_job_facts.csv",
-    header=True,
-    inferSchema=True,
-    multiLine=True,
-    escape='"'
-)
+import json
+
+# Serialize any list/dict cells → JSON strings so Spark sees a consistent type
+jobs_for_spark = jobs.copy()
+for col in jobs_for_spark.select_dtypes(include="object").columns:
+    jobs_for_spark[col] = jobs_for_spark[col].apply(
+        lambda x: json.dumps(x) if isinstance(x, (list, dict)) else x
+    )
+
+jobs_raw_spark = spark.createDataFrame(jobs_for_spark)
 
 FIELD_MAP = {
     "job_id":                                        "job_id",
