@@ -34,3 +34,8 @@ spark.sql("SELECT * FROM job_facts LIMIT 50").toPandas()
 
 
 ```
+
+```{python}
+jobs_clean.printSchema()
+jobs_clean.groupBy("normalized_title").count().orderBy(F.desc("count")).show(30, truncate=False)
+```
