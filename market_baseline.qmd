@@ -39,3 +39,276 @@ spark.sql("SELECT * FROM job_facts LIMIT 50").toPandas()
 jobs_clean.printSchema()
 jobs_clean.groupBy("normalized_title").count().orderBy(F.desc("count")).show(30, truncate=False)
 ```
+
+```{python}
+baseline_summary = spark.sql("""
+    SELECT
+        COUNT(*) AS total_postings,
+        COUNT(DISTINCT job_id) AS unique_job_ids,
+        COUNT(DISTINCT company_name) AS distinct_employers,
+        MIN(posted_at) AS earliest_posting,
+        MAX(posted_at) AS latest_posting
+    FROM job_facts
+""")
+
+baseline_summary.show(truncate=False)
+```
+
+```{python}
+top_employers = spark.sql("""
+    SELECT
+        company_name,
+        COUNT(*) AS postings
+    FROM job_facts
+    WHERE company_name IS NOT NULL
+      AND TRIM(company_name) <> ''
+    GROUP BY company_name
+    ORDER BY postings DESC, company_name
+    LIMIT 15
+""")
+
+top_employers.show(truncate=False)
+```
+
+```{python}
+top_roles = spark.sql("""
+    SELECT
+        COALESCE(
+            NULLIF(TRIM(normalized_title), ''),
+            TRIM(title)
+        ) AS role_title,
+        COUNT(*) AS postings
+    FROM job_facts
+    GROUP BY 1
+    ORDER BY postings DESC, role_title
+    LIMIT 20
+""")
+
+top_roles.show(20, truncate=False)
+```
+
+```{python}
+top_locations = spark.sql("""
+    SELECT
+        COALESCE(
+            NULLIF(TRIM(location_text), ''),
+            'Unknown'
+        ) AS location,
+        COUNT(*) AS postings
+    FROM job_facts
+    GROUP BY 1
+    ORDER BY postings DESC, location
+    LIMIT 20
+""")
+
+top_locations.show(20, truncate=False)
+```
+
+
+```{python}
+location_check = spark.sql("""
+    SELECT
+        location_text,
+        city,
+        state,
+        state_code
+    FROM job_facts
+    WHERE location_text IS NULL
+       OR TRIM(location_text) = ''
+       OR LOWER(TRIM(location_text)) = 'unknown'
+    LIMIT 20
+""")
+
+location_check.show(20, truncate=False)
+```
+
+```{python}
+spark.sql("""
+    SELECT
+        COUNT(*) AS unknown_location_postings,
+        COUNT(NULLIF(TRIM(city), '')) AS with_city,
+        COUNT(NULLIF(TRIM(state), '')) AS with_state,
+        COUNT(NULLIF(TRIM(state_code), '')) AS with_state_code
+    FROM job_facts
+    WHERE location_text IS NULL
+       OR TRIM(location_text) = ''
+       OR LOWER(TRIM(location_text)) = 'unknown'
+""").show(truncate=False)
+```
+
+```{python}
+work_arrangements = spark.sql("""
+    WITH counts AS (
+        SELECT
+            COALESCE(
+                NULLIF(TRIM(remote_status), ''),
+                'Unknown'
+            ) AS work_arrangement,
+            COUNT(*) AS postings
+        FROM job_facts
+        GROUP BY 1
+    )
+    SELECT
+        work_arrangement,
+        postings,
+        ROUND(
+            100.0 * postings / SUM(postings) OVER (),
+            1
+        ) AS percent_of_postings
+    FROM counts
+    ORDER BY postings DESC
+""")
+
+work_arrangements.show(truncate=False)
+```
+
+```{python}
+salary_coverage = spark.sql("""
+    SELECT
+        COUNT(*) AS total_postings,
+        SUM(CASE
+            WHEN annual_salary_min IS NOT NULL
+             AND annual_salary_max IS NOT NULL
+            THEN 1 ELSE 0
+        END) AS with_annual_range,
+        SUM(CASE
+            WHEN hourly_salary_min IS NOT NULL
+             AND hourly_salary_max IS NOT NULL
+            THEN 1 ELSE 0
+        END) AS with_hourly_range,
+        SUM(CASE
+            WHEN annual_salary_min IS NULL
+             AND annual_salary_max IS NULL
+             AND hourly_salary_min IS NULL
+             AND hourly_salary_max IS NULL
+            THEN 1 ELSE 0
+        END) AS without_numeric_salary
+    FROM job_facts
+""")
+
+salary_coverage.show(truncate=False)
+```
+
+```{python}
+spark.sql("""
+    SELECT
+        title,
+        location_text,
+        salary_text,
+        annual_salary_min,
+        annual_salary_max
+    FROM job_facts
+    WHERE annual_salary_min IS NOT NULL
+      AND annual_salary_max IS NOT NULL
+    ORDER BY location_text, job_id
+    LIMIT 20
+""").show(20, truncate=100)
+```
+
+```{python}
+from pyspark.sql import functions as F
+
+has_annual = (
+    F.col("annual_salary_min").isNotNull()
+    & F.col("annual_salary_max").isNotNull()
+)
+
+has_hourly = (
+    F.col("hourly_salary_min").isNotNull()
+    & F.col("hourly_salary_max").isNotNull()
+)
+
+currency_code = F.regexp_extract(
+    F.upper(F.coalesce(F.col("salary_text"), F.lit(""))),
+    r"\b(USD|CAD|EUR|GBP|AUD|NZD|INR|SGD|JPY|CHF|CNY|AED)\b",
+    1
+)
+
+jobs_pay = (
+    jobs_clean
+    .withColumn(
+        "annualized_min",
+        F.when(has_annual, F.col("annual_salary_min"))
+         .when(has_hourly, F.col("hourly_salary_min") * 2080)
+    )
+    .withColumn(
+        "annualized_max",
+        F.when(has_annual, F.col("annual_salary_max"))
+         .when(has_hourly, F.col("hourly_salary_max") * 2080)
+    )
+    .withColumn(
+        "salary_basis",
+        F.when(has_annual, "Reported annual")
+         .when(has_hourly, "Hourly converted × 2080")
+         .otherwise("No complete range")
+    )
+    .withColumn(
+        "salary_currency",
+        F.when(currency_code != "", currency_code)
+         .otherwise("Unconfirmed")
+    )
+)
+
+jobs_pay.filter(F.col("annualized_min").isNotNull()) \
+    .groupBy("salary_currency", "salary_basis").count() \
+    .orderBy(F.desc("count")) \
+    .show(truncate=False)
+```
+
+ ```{python}
+# Identify US locations from country labels or state abbreviations.
+us_states = (
+    "AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|"
+    "ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|"
+    "OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC"
+)
+
+location = F.upper(F.coalesce(F.col("location_text"), F.lit("")))
+
+us_location = (
+    location.rlike(r"\bUNITED STATES\b|\bUSA\b|\bU\.S\.A?\.")
+    | location.rlike(r",\s*(" + us_states + r")\b")
+)
+
+assume_usd = (
+    (F.col("salary_currency") == "Unconfirmed")
+    & us_location
+)
+
+jobs_pay = (
+    jobs_pay
+    .withColumn(
+        "currency_basis",
+        F.when(assume_usd, "Assumed from US location")
+        .when(
+            F.col("salary_currency") != "Unconfirmed",
+            "Explicit currency in salary text"
+        )
+        .otherwise("Unconfirmed")
+    )
+    .withColumn(
+        "salary_currency",
+        F.when(assume_usd, "USD")
+        .otherwise(F.col("salary_currency"))
+    )
+)
+
+jobs_pay.filter(
+    F.col("annualized_min").isNotNull()
+).groupBy(
+    "salary_currency", "currency_basis"
+).count().orderBy(F.desc("count")).show(truncate=False)
+```
+
+```{python}
+jobs_pay.filter(
+    (F.col("annualized_min").isNotNull())
+    & (F.col("salary_currency") == "Unconfirmed")
+).select(
+    "location_text",
+    "salary_text",
+    "salary_basis"
+).orderBy(
+    "location_text", "salary_text"
+).show(30, truncate=100)
+```
