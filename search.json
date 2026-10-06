@@ -7,6 +7,62 @@
     "text": "About this site"
   },
   {
+    "objectID": "skill_gap_analysis.html",
+    "href": "skill_gap_analysis.html",
+    "title": "Skill Gap Analysis",
+    "section": "",
+    "text": "This section compares the tools mentioned in our job-posting data with our team’s current skills and experience. We use this comparison to identify where we already have relevant skills, where we need more practice, and what we should prioritize learning next."
+  },
+  {
+    "objectID": "skill_gap_analysis.html#purpose",
+    "href": "skill_gap_analysis.html#purpose",
+    "title": "Skill Gap Analysis",
+    "section": "",
+    "text": "This section compares the tools mentioned in our job-posting data with our team’s current skills and experience. We use this comparison to identify where we already have relevant skills, where we need more practice, and what we should prioritize learning next."
+  },
+  {
+    "objectID": "skill_gap_analysis.html#how-we-made-the-comparison",
+    "href": "skill_gap_analysis.html#how-we-made-the-comparison",
+    "title": "Skill Gap Analysis",
+    "section": "How we made the comparison",
+    "text": "How we made the comparison\nWe use the tool-mention results from our market baseline and the skill information provided by each team member. Because the structured skills field appeared incomplete, we counted selected tools directly in the job descriptions, counting each tool once per posting.\nWe keep each person’s reported skill level and supporting experience visible. Information that was not provided is marked as “Not reported” rather than treated as no experience. Our learning priorities consider both how often a tool appears in the current sample and each member’s experience with it.\nThese results remain provisional while the initial job filtering is reviewed. A tool appearing in a description does not necessarily mean it is required, and our comparison does not measure overall job readiness."
+  },
+  {
+    "objectID": "skill_gap_analysis.html#current-team-skills",
+    "href": "skill_gap_analysis.html#current-team-skills",
+    "title": "Skill Gap Analysis",
+    "section": "Current team skills",
+    "text": "Current team skills\nThe table below summarizes our current experience with selected analytics tools. These levels are self-reported and have not been tested. “Not reported” means we still need clarification.\n\n\n\n\n\n\n\n\n\nTool\nEqueen Thendersz\nSenthil Sukumar\nLuxan Shanthakkumar\n\n\n\n\nSQL\nNo experience\nComfortable using\nBeginner\n\n\nPython\nBeginner; using Python, PySpark, and Pandas\nComfortable using\nBeginner; learning through coursework with guidance\n\n\nExcel\nAdvanced\nComfortable using\nBeginner; comfortable with basic use\n\n\nTableau\nNo experience\nComfortable using\nBeginner\n\n\nPower BI\nNo experience\nSome familiarity; less experience\nBeginner; not comfortable using"
+  },
+  {
+    "objectID": "skill_gap_analysis.html#experience-supporting-our-profiles",
+    "href": "skill_gap_analysis.html#experience-supporting-our-profiles",
+    "title": "Skill Gap Analysis",
+    "section": "Experience supporting our profiles",
+    "text": "Experience supporting our profiles\n\n\n\n\n\n\n\nTeam member\nRelevant experience and evidence\n\n\n\n\nEqueen Thendersz\nSupply chain coursework; data cleaning, regression, clustering, and forecasting projects using Python, PySpark, and R; advanced Excel experience reported in financial modeling and operations analysis; manufacturing quality control and Lean Six Sigma Green Belt.\n\n\nSenthil Sukumar\nTwelve years in professional BI and analytics roles. Reports working capability in Python, SQL, Excel, and Tableau, familiarity with Power BI, and experience with Superset and Google Data Studio. Specific work examples would strengthen this profile.\n\n\nLuxan Shanthakkumar\nBusiness analytics coursework involving SQL, Python, PySpark, and Plotly; basic familiarity with EC2, GitHub, VS Code, and Quarto. Previous experience includes project coordination and reporting during the BMO–Bank of the West integration, business operations and estimating at Delta Mechanical, and SAFe Product Owner/Product Manager certification.\n\n\n\nOur team brings different strengths. Senthil has experience with SQL and Tableau, Equeen has strong Excel and process-improvement experience, and Luxan brings project and business experience while developing technical skills. These strengths can support shared learning, but each person still needs to develop and demonstrate their own abilities."
+  },
+  {
+    "objectID": "skill_gap_analysis.html#comparing-market-mentions-with-our-skills",
+    "href": "skill_gap_analysis.html#comparing-market-mentions-with-our-skills",
+    "title": "Skill Gap Analysis",
+    "section": "Comparing market mentions with our skills",
+    "text": "Comparing market mentions with our skills\nThis benchmark uses selected tool mentions from the 2,353 job descriptions examined in our market baseline. The percentages describe our current sample, and a mention does not necessarily mean a required skill.\n\n\n\n\n\n\n\n\n\nTool\nPostings mentioning tool\nPercentage of descriptions\nWhat this means for our team\n\n\n\n\nSQL\n901\n38.3%\nEqueen needs to build a foundation, while Luxan needs more practice. Senthil reports being comfortable using SQL.\n\n\nPython\n843\n35.8%\nEqueen and Luxan are beginners, so developing independent use is a priority. Senthil’s has working experience with python\n\n\nExcel\n286\n12.2%\nEqueen reports advanced proficiency and Senthil is comfortable using it. Luxan can strengthen his analysis and reporting skills.\n\n\nPower BI\n261\n11.1%\nEqueen has no experience, Luxan is not comfortable using it, and Senthil has some familiarity. Dashboard development is an area to consider.\n\n\nTableau\n232\n9.9%\nSenthil reports being comfortable using it, while Equeen has no experience. Luxan has beginner experience and would benefit from further dashboard practice.\n\n\n\nSQL and Python were mentioned most frequently among the tools we checked. Combined with the beginner or no-experience levels reported by Equeen and Luxan, this makes them our clearest initial learning priorities. Power BI and Tableau provide another area for development, but members can begin with one dashboard tool rather than learning both at once.\nTools not included here may still matter for particular roles."
+  },
+  {
+    "objectID": "skill_gap_analysis.html#learning-priorities-and-next-steps",
+    "href": "skill_gap_analysis.html#learning-priorities-and-next-steps",
+    "title": "Skill Gap Analysis",
+    "section": "Learning priorities and next steps",
+    "text": "Learning priorities and next steps\nWe prioritize skills by considering their frequency in our sample alongside each person’s reported experience. These are proposed learning actions, rather than tested measures of employability.\n\n\n\n\n\n\n\n\n\nTeam member\nPriority\nReason\nProposed action and evidence of progress\n\n\n\n\nEqueen\nBuild SQL foundations\nSQL appeared in 38.3% of descriptions, and she reports no experience.\nPractice filtering, joins, and grouping. Complete a small SQL analysis and explain how the results were checked.\n\n\nEqueen\nStrengthen independent Python use\nPython appeared in 35.8% of descriptions, and she reports beginner proficiency.\nIndependently clean and summarize a dataset using Pandas, documenting missing values and validating the results.\n\n\nEqueen\nLearn one dashboard tool\nShe reports no Tableau or Power BI experience.\nBuild a dashboard using one tool, drawing on her Excel and operations-analysis experience.\n\n\nSenthil\nDocument existing SQL and Tableau strengths\nHe reports being comfortable with both and has substantial BI experience.\nAdd a nonconfidential project example explaining the business question, his contribution, and the outcome.\n\n\nSenthil\nConsider further Power BI practice\nHe reports less experience with Power BI than Tableau.\nIf relevant to his target postings, recreate a familiar dashboard in Power BI and compare the workflow.\n\n\nLuxan\nStrengthen SQL foundations\nSQL appeared most frequently among the selected tools, and he reports beginner proficiency.\nComplete a small analysis using joins and grouping, then explain and verify the results independently.\n\n\nLuxan\nDevelop independent Python use\nPython was frequently mentioned, and his current experience involves guided coursework.\nRebuild a small data-cleaning and visualization task, explaining each step and checking the output.\n\n\nLuxan\nBuild confidence in Power BI\nHe reports beginner proficiency and is not comfortable using it.\nCreate a simple dashboard with filters and clear measures, then check its totals against the source data.\n\n\nLuxan\nImprove Excel analysis skills\nHe is comfortable with basic use but still reports beginner proficiency.\nBuild a workbook using formulas, pivot tables, and a chart to answer a business question."
+  },
+  {
+    "objectID": "skill_gap_analysis.html#applying-the-findings",
+    "href": "skill_gap_analysis.html#applying-the-findings",
+    "title": "Skill Gap Analysis",
+    "section": "Applying the findings",
+    "text": "Applying the findings\nOur main initial priorities are SQL and Python for members who report limited experience. Dashboard practice can follow, with each member choosing a tool relevant to the roles they are considering.\nSenthil’s SQL and Tableau experience can support peer review, while Equeen’s Excel and process-improvement experience can help with checking calculations and interpreting operational results. Each member should produce their own work and be able to explain it.\nFor job applications, we should compare our evidence with the requirements of individual postings. Existing business, operations, and project experience can support our profiles, but the tool-mention percentages alone cannot establish whether someone is ready for a particular role."
+  },
+  {
     "objectID": "data_preparation.html",
     "href": "data_preparation.html",
     "title": "Data Preparation",
