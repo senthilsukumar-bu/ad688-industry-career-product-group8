@@ -2,13 +2,25 @@
 title: "Market Baseline"
 bibliography: references.bib
 csl: csl/apa.csl
-format: html
-jupyter: python3
+format:
+  html:
+    code-fold: true
+    code-summary: "Show my code"
 execute:
-  freeze: auto 
+  freeze: auto
+  warning: false
+jupyter: python3
 ---
+## Introduction
+
+For this market baseline, we are using job-posting data from Computer Systems Design and Related Services industry (NAICS 5415). We look at job titles, locations, work arrangements, salaries, and analytics tools mentioned in the job descriptions. This will help us understand the opportunities shown in our data and give us a starting point for comparing them with our team’s skills.
+
+We began by checking how much data we have and what information is available. We then looked at missing values, converted usable salary ranges into annual amounts, and created charts to make the patterns easier to understand. We found some limitations along the way, including missing location information, unknown work arrangements, and roles outside our intended analytics focus. 
+
+## Dataset overview
 
 ```{python}
+#| output: false
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
@@ -36,6 +48,7 @@ spark.sql("SELECT * FROM job_facts LIMIT 50").toPandas()
 ```
 
 ```{python}
+#| output: false
 jobs_clean.printSchema()
 jobs_clean.groupBy("normalized_title").count().orderBy(F.desc("count")).show(30, truncate=False)
 ```
@@ -51,10 +64,11 @@ baseline_summary = spark.sql("""
     FROM job_facts
 """)
 
-baseline_summary.show(truncate=False)
+baseline_summary.toPandas().T.rename(columns={0: "Value"})
 ```
 
 ```{python}
+#| output: false
 top_employers = spark.sql("""
     SELECT
         company_name,
@@ -71,6 +85,7 @@ top_employers.show(truncate=False)
 ```
 
 ```{python}
+#| output: false
 top_roles = spark.sql("""
     SELECT
         COALESCE(
@@ -87,6 +102,8 @@ top_roles = spark.sql("""
 top_roles.show(20, truncate=False)
 ```
 
+## Location coverage
+
 ```{python}
 top_locations = spark.sql("""
     SELECT
@@ -101,11 +118,12 @@ top_locations = spark.sql("""
     LIMIT 20
 """)
 
-top_locations.show(20, truncate=False)
+top_locations.toPandas()
 ```
 
 
 ```{python}
+#| output: false
 location_check = spark.sql("""
     SELECT
         location_text,
@@ -133,10 +151,11 @@ spark.sql("""
     WHERE location_text IS NULL
        OR TRIM(location_text) = ''
        OR LOWER(TRIM(location_text)) = 'unknown'
-""").show(truncate=False)
+""").toPandas().T.rename(columns={0: "Value"})
 ```
 
 ```{python}
+#| output: false
 work_arrangements = spark.sql("""
     WITH counts AS (
         SELECT
@@ -162,6 +181,8 @@ work_arrangements = spark.sql("""
 work_arrangements.show(truncate=False)
 ```
 
+## Salary coverage and currency checks
+
 ```{python}
 salary_coverage = spark.sql("""
     SELECT
@@ -186,10 +207,11 @@ salary_coverage = spark.sql("""
     FROM job_facts
 """)
 
-salary_coverage.show(truncate=False)
+salary_coverage.toPandas().T.rename(columns={0: "Value"})
 ```
 
 ```{python}
+#| output: false
 spark.sql("""
     SELECT
         title,
@@ -206,6 +228,7 @@ spark.sql("""
 ```
 
 ```{python}
+#| output: false
 from pyspark.sql import functions as F
 
 has_annual = (
@@ -255,7 +278,7 @@ jobs_pay.filter(F.col("annualized_min").isNotNull()) \
     .show(truncate=False)
 ```
 
- ```{python}
+```{python}
 # Identify US locations from country labels or state abbreviations.
 us_states = (
     "AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|"
@@ -302,11 +325,12 @@ jobs_pay.filter(
     F.col("annualized_min").isNotNull()
 ).groupBy(
     "salary_currency", "currency_basis"
-).count().orderBy(F.desc("count")).show(truncate=False)
+).count().orderBy(F.desc("count")).toPandas()
 ```
 
 
 ```{python}
+#| output: false
 usd_pay = (
     jobs_pay
     .filter(
@@ -331,6 +355,7 @@ usd_pay.agg(
 ).show(truncate=False)
 ```
 ```{python}
+#| output: false
 jobs_pay.filter(
     (F.col("annualized_min").isNotNull())
     & (F.col("salary_currency") == "Unconfirmed")
@@ -344,6 +369,7 @@ jobs_pay.filter(
 ```
 
 ```{python}
+#| output: false
 usd_role_pay = (
     usd_pay
     .withColumn(
@@ -370,7 +396,10 @@ usd_role_pay = (
 usd_role_pay.show(20, truncate=False)
 ```
 
+## Checking the structured skills data
+
 ```{python}
+#| output: false
 jobs_clean.filter(
     F.col("skills").isNotNull()
     & (F.trim(F.col("skills")) != "")
@@ -382,6 +411,7 @@ jobs_clean.filter(
 ```
 
 ```{python}
+#| output: false
 skills_parsed = jobs_clean.withColumn(
     "skills_array",
     F.from_json(
@@ -421,6 +451,7 @@ skill_demand.show(20, truncate=False)
 ```
 
 ```{python}
+#| output: false
 # Check how many skills the source stored per posting.
 skills_parsed.groupBy(
     F.size("skills_array").alias("skills_per_posting")
@@ -444,10 +475,11 @@ job_skills.withColumn(
 ).agg(
     F.countDistinct("skill").alias("distinct_skills"),
     F.count("*").alias("posting_skill_pairs")
-).orderBy("first_character").show(40, truncate=False)
+).orderBy("first_character").toPandas()
 ```
 
 ```{python}
+#| output: false
 has_description = (
     F.col("description").isNotNull()
     & (F.length(F.trim(F.col("description"))) > 0)
@@ -467,10 +499,11 @@ jobs_clean.filter(has_description).select(
 ```
 
 ```{python}
+#| output: false
 tool_patterns = [
     ("SQL", r"\bsql\b"),
     ("Python", r"\bpython\b"),
-    ("Excel", r"\bexcel\b"),
+  ("Excel", r"\bexcel\b(?!\s+(?:in|at|as|within)\b)"),
     ("Tableau", r"\btableau\b"),
     ("Power BI", r"\bpower[\s-]*bi\b"),
     ("Apache Spark / PySpark", r"\b(?:apache\s+spark|pyspark)\b"),
@@ -513,3 +546,217 @@ tool_mentions = (
 
 tool_mentions.show(truncate=False)
 ```
+
+```{python}
+#| output: false
+description_jobs.filter(
+    F.col("description_lower").rlike(r"\bexcel\b")
+).select(
+    "title",
+    F.regexp_extract(
+        F.col("description_lower"),
+        r"(?s)(.{0,80}\bexcel\b.{0,80})",
+        1
+    ).alias("excel_context")
+).show(10, truncate=False)
+```
+
+## Tools mentioned in job descriptions
+
+```{python}
+import plotly.express as px
+
+tool_chart_data = tool_mentions.toPandas().sort_values(
+    "postings_mentioning_tool",
+    ascending=False
+)
+
+fig_tools = px.bar(
+    tool_chart_data,
+    x="postings_mentioning_tool",
+    y="tool",
+    orientation="h",
+    text="postings_mentioning_tool",
+    hover_data={"percent_of_descriptions": ":.1f"},
+    labels={
+        "postings_mentioning_tool": "Postings mentioning tool",
+        "tool": "Tool",
+        "percent_of_descriptions": "Descriptions (%)"
+    },
+    title="Selected Analytics Tools Mentioned in Job Descriptions",
+    template="plotly_white"
+)
+
+fig_tools.update_yaxes(
+    categoryorder="array",
+    categoryarray=tool_chart_data["tool"].tolist(),
+    autorange="reversed"
+)
+
+fig_tools.update_traces(
+    marker_color="#2563EB",
+    textposition="outside",
+    cliponaxis=False
+)
+
+fig_tools.update_layout(
+    height=450,
+    margin=dict(l=30, r=70, t=80, b=50),
+    xaxis=dict(
+        range=[0, tool_chart_data["postings_mentioning_tool"].max() * 1.15]
+    )
+)
+
+fig_tools.show()
+```
+
+SQL and Python were the most frequently mentioned tools among the seven we checked, appearing in 38.3% and 35.8% of job descriptions. This gives us a starting point for comparing employer mentions with our team’s skills. We used descriptions because the structured skills field appeared incomplete. A mention does not always mean the tool is required.
+
+```{python}
+#| output: false
+%pip install plotly nbformat
+```
+
+## Work arrangements
+
+```{python}
+work_chart_data = (
+    jobs_clean
+    .groupBy("remote_status")
+    .count()
+    .toPandas()
+    .sort_values("count", ascending=False)
+)
+
+work_chart_data["percent"] = (
+    work_chart_data["count"] / work_chart_data["count"].sum() * 100
+).round(1)
+
+fig_work = px.bar(
+    work_chart_data,
+    x="remote_status",
+    y="count",
+    text="count",
+    color="remote_status",
+    color_discrete_map={
+        "Unknown": "#9CA3AF",
+        "Hybrid": "#2563EB",
+        "Remote": "#059669",
+        "On-site": "#D97706"
+    },
+    hover_data={"percent": ":.1f"},
+    labels={
+        "remote_status": "Work arrangement",
+        "count": "Postings",
+        "percent": "Postings (%)"
+    },
+    title="Recorded Work Arrangements",
+    template="plotly_white"
+)
+
+fig_work.update_traces(textposition="outside", cliponaxis=False)
+fig_work.update_layout(
+    showlegend=False,
+    height=420,
+    yaxis=dict(range=[0, work_chart_data["count"].max() * 1.15])
+)
+
+fig_work.show()
+```
+
+Hybrid and remote postings were almost equal, with 518 hybrid and 510 remote roles, compared with 254 on-site roles. However, 1,071 postings, or 45.5%, had an unknown work arrangement. This limits how much we can conclude about work arrangements across the full sample.
+
+## Most common job titles
+
+```{python}
+role_chart_data = (
+    jobs_clean
+    .withColumn(
+        "role",
+        F.coalesce(
+            F.when(
+                F.trim(F.col("normalized_title")) != "",
+                F.trim(F.col("normalized_title"))
+            ),
+            F.trim(F.col("title"))
+        )
+    )
+    .filter(F.col("role").isNotNull() & (F.col("role") != ""))
+    .groupBy("role")
+    .agg(F.countDistinct("job_id").alias("postings"))
+    .orderBy(F.desc("postings"), "role")
+    .limit(15)
+    .toPandas()
+)
+
+fig_roles = px.bar(
+    role_chart_data,
+    x="postings",
+    y="role",
+    orientation="h",
+    text="postings",
+    labels={"postings": "Postings", "role": "Recorded job title"},
+    title="Top 15 Recorded Job Titles",
+    template="plotly_white"
+)
+
+fig_roles.update_yaxes(
+    categoryorder="array",
+    categoryarray=role_chart_data["role"].tolist(),
+    autorange="reversed"
+)
+
+fig_roles.update_traces(
+    marker_color="#2563EB",
+    textposition="outside",
+    cliponaxis=False
+)
+
+fig_roles.update_layout(
+    height=650,
+    margin=dict(l=30, r=60, t=80, b=50),
+    xaxis=dict(range=[0, role_chart_data["postings"].max() * 1.15])
+)
+
+fig_roles.show()
+```
+
+This graph shows the most common recorded job titles in our current sample. We also found attorney and HR titles outside our intended analytics focus, which showed that the initial filter needs further review. The chart helps us understand what was collected, but we need a more focused sample before drawing conclusions about analytics opportunities.
+
+## Annualized salary distribution
+
+```{python}
+salary_chart_data = usd_pay.select("annual_midpoint").toPandas()
+salary_median = salary_chart_data["annual_midpoint"].median()
+
+fig_salary = px.histogram(
+    salary_chart_data,
+    x="annual_midpoint",
+    nbins=30,
+    labels={"annual_midpoint": "Annualized salary midpoint (USD)"},
+    title=f"Annualized Salary Midpoints ({len(salary_chart_data):,} Postings)",
+    template="plotly_white"
+)
+
+fig_salary.update_traces(marker_color="#2563EB")
+
+fig_salary.add_vline(
+    x=salary_median,
+    line_dash="dash",
+    line_color="#D97706",
+    annotation_text=f"Median: ${salary_median:,.0f}",
+    annotation_position="top right"
+)
+
+fig_salary.update_layout(
+    height=450,
+    xaxis_tickprefix="$",
+    xaxis_tickformat=",",
+    yaxis_title="Number of postings",
+    bargap=0.05
+)
+
+fig_salary.show()
+```
+
+For the 441 postings included in this salary analysis, the median annualized salary midpoint was $134,250. The distribution has a tail toward higher salaries, showing that some advertised ranges were much higher than others. These are advertised range midpoints rather than actual earnings, and the sample combines different roles and experience levels. Hourly salaries were converted using 2,080 hours per year, and some currencies were assumed to be USD.

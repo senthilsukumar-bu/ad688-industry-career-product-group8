@@ -1,0 +1,12 @@
+{
+  "hash": "32c54f5b35093877bb2e74110c208809",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: Career Evaluation\nbibliography: references.bib\ncsl: csl/apa.csl\nformat: html\nexecute:\n  freeze: auto\n---\n\n",
+    "supporting": [
+      "career_evaluation_files"
+    ],
+    "filters": [],
+    "includes": {}
+  }
+}
