@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-3e9b1289f5f353c49b617ce48ad2bc38.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-55617497126496852ff9f5a59253c640.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -111,6 +111,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
 
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script>
+window.PlotlyConfig = {MathJaxConfig: 'local'};
+if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}
+</script>
+<script type="module">import "https://cdn.plot.ly/plotly-4.1.1.min"</script>
+
 
 
 <link rel="stylesheet" href="styles.css">
@@ -176,8 +182,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#dataset-overview" id="toc-dataset-overview" class="nav-link" data-scroll-target="#dataset-overview">Dataset overview</a></li>
+  <li><a href="#location-coverage" id="toc-location-coverage" class="nav-link" data-scroll-target="#location-coverage">Location coverage</a></li>
+  <li><a href="#salary-coverage-and-currency-checks" id="toc-salary-coverage-and-currency-checks" class="nav-link" data-scroll-target="#salary-coverage-and-currency-checks">Salary coverage and currency checks</a></li>
+  <li><a href="#checking-the-structured-skills-data" id="toc-checking-the-structured-skills-data" class="nav-link" data-scroll-target="#checking-the-structured-skills-data">Checking the structured skills data</a></li>
+  <li><a href="#tools-mentioned-in-job-descriptions" id="toc-tools-mentioned-in-job-descriptions" class="nav-link" data-scroll-target="#tools-mentioned-in-job-descriptions">Tools mentioned in job descriptions</a></li>
+  <li><a href="#work-arrangements" id="toc-work-arrangements" class="nav-link" data-scroll-target="#work-arrangements">Work arrangements</a></li>
+  <li><a href="#most-common-job-titles" id="toc-most-common-job-titles" class="nav-link" data-scroll-target="#most-common-job-titles">Most common job titles</a></li>
+  <li><a href="#annualized-salary-distribution" id="toc-annualized-salary-distribution" class="nav-link" data-scroll-target="#annualized-salary-distribution">Annualized salary distribution</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -201,7 +221,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="4770d7e4" class="cell" data-execution_count="1">
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>For this market baseline, we are using job-posting data from Computer Systems Design and Related Services industry (NAICS 5415). We look at job titles, locations, work arrangements, salaries, and analytics tools mentioned in the job descriptions. This will help us understand the opportunities shown in our data and give us a starting point for comparing them with our team’s skills.</p>
+<p>We began by checking how much data we have and what information is available. We then looked at missing values, converted usable salary ranges into annual amounts, and created charts to make the patterns easier to understand. We found some limitations along the way, including missing location information, unknown work arrangements, and roles outside our intended analytics focus.</p>
+</section>
+<section id="dataset-overview" class="level2">
+<h2 class="anchored" data-anchor-id="dataset-overview">Dataset overview</h2>
+<div id="042ad08f" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Show my code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> SparkSession</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> functions <span class="im">as</span> F</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -221,31 +250,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># use this clean table for all downstream analysis</span></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>jobs_clean.createOrReplaceTempView(<span class="st">"job_facts"</span>)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>spark.sql(<span class="st">"SELECT * FROM job_facts LIMIT 50"</span>).toPandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>WARNING: Using incubator modules: jdk.incubator.vector
-WARNING: package sun.security.action not in java.base
-Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
-Setting default log level to "WARN".
-To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
-/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/testing/utils.py:127: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
-  require_minimum_pandas_version()
-26/09/21 10:16:21 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-26/09/21 10:16:22 WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.
-
-[Stage 1:&gt;                                                          (0 + 1) / 1]
-
-                                                                                
-/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/conversion.py:298: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
-  require_minimum_pandas_version()
-
-[Stage 2:&gt;                                                          (0 + 1) / 1]
-
-                                                                                
-/home/ubuntu/.venv/lib/python3.12/site-packages/pyspark/sql/pandas/types.py:778: FutureWarning: PySpark does not yet fully support pandas &gt;= 3.0.0. Some features may not work correctly. It is recommended to use pandas &lt; 3.0.0 for now.
-  require_minimum_pandas_version()</code></pre>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>spark.sql(<span class="st">"SELECT COUNT(*) AS row_count FROM job_facts"</span>).show()</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>spark.sql(<span class="st">"SELECT * FROM job_facts LIMIT 50"</span>).toPandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="1">
+<div id="9c5db403" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>jobs_clean.printSchema()</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>jobs_clean.groupBy(<span class="st">"normalized_title"</span>).count().orderBy(F.desc(<span class="st">"count"</span>)).show(<span class="dv">30</span>, truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="72811a69" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>baseline_summary <span class="op">=</span> spark.sql(<span class="st">"""</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">        COUNT(*) AS total_postings,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">        COUNT(DISTINCT job_id) AS unique_job_ids,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="st">        COUNT(DISTINCT company_name) AS distinct_employers,</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="st">        MIN(posted_at) AS earliest_posting,</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">        MAX(posted_at) AS latest_posting</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM job_facts</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>baseline_summary.toPandas().T.rename(columns<span class="op">=</span>{<span class="dv">0</span>: <span class="st">"Value"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
 
@@ -253,1239 +284,1169 @@ To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLeve
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">job_id</th>
-<th data-quarto-table-cell-role="th">posted_at</th>
-<th data-quarto-table-cell-role="th">title</th>
-<th data-quarto-table-cell-role="th">normalized_title</th>
-<th data-quarto-table-cell-role="th">company_name</th>
-<th data-quarto-table-cell-role="th">location_text</th>
-<th data-quarto-table-cell-role="th">city</th>
-<th data-quarto-table-cell-role="th">city_code</th>
-<th data-quarto-table-cell-role="th">state</th>
-<th data-quarto-table-cell-role="th">state_code</th>
-<th data-quarto-table-cell-role="th">...</th>
-<th data-quarto-table-cell-role="th">program_matches</th>
-<th data-quarto-table-cell-role="th">description</th>
-<th data-quarto-table-cell-role="th">bls_employment</th>
-<th data-quarto-table-cell-role="th">bls_annual_mean_wage</th>
-<th data-quarto-table-cell-role="th">bls_annual_median_wage</th>
-<th data-quarto-table-cell-role="th">bls_source_year</th>
-<th data-quarto-table-cell-role="th">student_signals_work_type</th>
-<th data-quarto-table-cell-role="th">student_signals_requirements_summary</th>
-<th data-quarto-table-cell-role="th">student_signals_responsibilities_summary</th>
-<th data-quarto-table-cell-role="th">student_signals_technical_tools_summary</th>
+<th data-quarto-table-cell-role="th">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">total_postings</th>
+<td>2353</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">unique_job_ids</th>
+<td>2353</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">distinct_employers</th>
+<td>1506</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">earliest_posting</th>
+<td>2026-05-25 00:00:00</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">latest_posting</th>
+<td>2026-08-07 00:00:00</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="7e828790" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>top_employers <span class="op">=</span> spark.sql(<span class="st">"""</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="st">        company_name,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="st">        COUNT(*) AS postings</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM job_facts</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE company_name IS NOT NULL</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="st">      AND TRIM(company_name) &lt;&gt; ''</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY company_name</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY postings DESC, company_name</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 15</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>top_employers.show(truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="825200e7" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>top_roles <span class="op">=</span> spark.sql(<span class="st">"""</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="st">        COALESCE(</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="st">            NULLIF(TRIM(normalized_title), ''),</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="st">            TRIM(title)</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="st">        ) AS role_title,</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="st">        COUNT(*) AS postings</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM job_facts</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY 1</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY postings DESC, role_title</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 20</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>top_roles.show(<span class="dv">20</span>, truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="location-coverage" class="level2">
+<h2 class="anchored" data-anchor-id="location-coverage">Location coverage</h2>
+<div id="d7944286" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>top_locations <span class="op">=</span> spark.sql(<span class="st">"""</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="st">        COALESCE(</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="st">            NULLIF(TRIM(location_text), ''),</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="st">            'Unknown'</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="st">        ) AS location,</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="st">        COUNT(*) AS postings</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM job_facts</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY 1</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY postings DESC, location</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 20</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>top_locations.toPandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">location</th>
+<th data-quarto-table-cell-role="th">postings</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">0</th>
-<td>680685</td>
-<td>2026-08-07 00:00:00</td>
-<td>Management and Program Analyst</td>
-<td>Management and Program Analyst</td>
-<td>Office Of The Secretary Of Health And Human Se...</td>
-<td>Multiple, Locations</td>
-<td>Multiple</td>
-<td>NaN</td>
-<td>Locations</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>Summary: This position is located in the Depar...</td>
-<td>898280.0</td>
-<td>113790.0</td>
-<td>101860.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements.'] How to apply: To apply for thi...</td>
-<td>Duties: ['As a Management and Program Analyst,...</td>
-<td>NaN</td>
+<td>Unknown</td>
+<td>220</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">1</th>
-<td>680788</td>
-<td>2026-08-06 22:58:08</td>
-<td>Senior Incentives Systems Analyst</td>
-<td>Senior Incentives Systems Analyst</td>
-<td>Hootsuite</td>
-<td>Pune, Maharashtra</td>
-<td>Pune</td>
-<td>NaN</td>
-<td>Maharashtra</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Computer Information System...</td>
-<td>We’re looking for a Senior Revenue Incentive C...</td>
-<td>3780.0</td>
-<td>72800.0</td>
-<td>48470.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements needed to implement and calculate...</td>
-<td>responsibilities to understand how your team’s...</td>
-<td>SQL, Excel, Salesforce, Agile</td>
+<td>United States</td>
+<td>105</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">2</th>
-<td>680799</td>
-<td>2026-08-06 22:47:26</td>
-<td>Software Engineer, Data Platform Team</td>
-<td>Software Engineer, Data Platform Team</td>
-<td>Coinbase</td>
 <td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>Ready to do the most impactful work of your ca...</td>
-<td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Required Skills and Experience 3+ years of rel...</td>
-<td>roles within the Data Platform team, each with...</td>
-<td>Python, SQL, Java, Docker, Snowflake</td>
+<td>82</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">3</th>
-<td>680849</td>
-<td>2026-08-06 22:11:41</td>
-<td>Freelance Senior Data Engineer</td>
-<td>Freelance Senior Data Engineer</td>
-<td>Hugeinc</td>
-<td>United States</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>**Location: This position is remote within the...</td>
-<td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
-<td>2025.0</td>
-<td>Contract</td>
-<td>requirements and measurement solutions. Suppor...</td>
-<td>role is currently not available for hire or wo...</td>
-<td>JavaScript, Agile</td>
+<td>Toronto, Ontario</td>
+<td>59</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">4</th>
-<td>680864</td>
-<td>2026-08-06 22:02:28</td>
-<td>Business Applications Specialist (Brazilian Po...</td>
-<td>Business Applications Specialist</td>
-<td>Capco</td>
-<td>Orlando</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Orlando</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Advanced Information Techno...</td>
-<td>**Business Applications Specialist (Brazilian ...</td>
-<td>55000.0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Experience supporting **SAP SuccessFactors**, ...</td>
-<td>Role** Join Capco's Global Internal Applicatio...</td>
-<td>NaN</td>
+<td>New York, New York</td>
+<td>38</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">5</th>
-<td>680977</td>
-<td>2026-08-06 21:00:00</td>
-<td>IT Enterprise Data Architect</td>
-<td>IT Enterprise Data Architect</td>
-<td>Connectwise</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>*ConnectWise is an industry and Global leading...</td>
-<td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements are met. Performs hands-on data a...</td>
-<td>Owns and continuously evolves the enterprise d...</td>
-<td>SQL, Salesforce, Snowflake</td>
+<td>New York, NY</td>
+<td>27</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">6</th>
-<td>680996</td>
-<td>2026-08-06 20:47:22</td>
-<td>Principal Data Engineer</td>
-<td>Principal Data Engineer</td>
-<td>Energyhub</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>**As a Principal Data Engineer, you will:** - ...</td>
-<td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements and Company policies. By submitti...</td>
-<td>The base salary offered is part of a total com...</td>
-<td>Python, SQL, Java, AWS, Tableau, Snowflake, Mo...</td>
+<td>Washington, District of Columbia</td>
+<td>27</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">7</th>
-<td>681099</td>
-<td>2026-08-06 19:59:09</td>
-<td>Technical IT Support - Analyst (Job 1418)</td>
-<td>Technical IT Support - Analyst</td>
-<td>Dlhcorporation</td>
-<td>Bethesda, Maryland</td>
-<td>Bethesda</td>
-<td>NaN</td>
-<td>Maryland</td>
-<td>MD</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>**About Us** DLH delivers improved health and ...</td>
-<td>898280.0</td>
-<td>113790.0</td>
-<td>101860.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements, translate business needs into te...</td>
-<td>Collaborate with business stakeholders to gath...</td>
-<td>Agile</td>
+<td>Austin, TX</td>
+<td>24</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">8</th>
-<td>681317</td>
-<td>2026-08-06 18:01:13</td>
-<td>Senior Data Engineer (R13923)</td>
-<td>Senior Data Engineer</td>
-<td>Oportun</td>
-<td>Remote, Mx</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>Mx</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>### **ABOUT OPORTUN** Oportun (Nasdaq: OPRT) i...</td>
-<td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements gathering to final successful del...</td>
-<td>role where you will have the opportunity to ta...</td>
-<td>Python, SQL, Java, AWS, Azure, GCP, Spark, Pos...</td>
+<td>San Francisco, California</td>
+<td>19</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">9</th>
-<td>681325</td>
-<td>2026-08-06 17:58:22</td>
-<td>Staff Data Scientist, Imaging</td>
-<td>Staff Data Scientist, Imaging</td>
-<td>Biohub</td>
-<td>Redwood City, Ca (Hybrid)</td>
-<td>Redwood City</td>
-<td>NaN</td>
-<td>Ca (Hybrid)</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>Biohub is the first large-scale initiative bri...</td>
-<td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Biohub is the first large-scale initiative bri...</td>
-<td>role is part of the Data team, which focuses o...</td>
-<td>Python</td>
+<td>McLean, VA</td>
+<td>17</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">10</th>
-<td>681334</td>
-<td>2026-08-06 17:55:10</td>
-<td>IT Services Analyst I</td>
-<td>IT Services Analyst I</td>
-<td>Thetradedesk</td>
-<td>New York, New York</td>
-<td>New York</td>
-<td>NaN</td>
-<td>New York</td>
-<td>NY</td>
-<td>...</td>
-<td>[{"program_name": "Administrative Sciences", "...</td>
-<td>The Trade Desk is a global technology company ...</td>
-<td>55000.0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>2025.0</td>
-<td>Full Time, Contract</td>
-<td>requirements of the Los Angeles Fair Chance In...</td>
-<td>responsibilities with strategic project work. ...</td>
-<td>NaN</td>
+<td>Toronto, Ontario, Canada</td>
+<td>16</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">11</th>
-<td>681341</td>
-<td>2026-08-06 17:53:21</td>
-<td>Regulatory Quant &amp; Intelligence Specialist (Re...</td>
-<td>Regulatory Quant &amp; Intelligence Specialist</td>
-<td>Bybit</td>
-<td>Abu Dhabi, Uae; Hong Kong Sar</td>
-<td>Abu Dhabi</td>
-<td>NaN</td>
-<td>Uae; Hong Kong Sar</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Database Management &amp; Busin...</td>
-<td>**About Us** Established in 2018, Bybit is one...</td>
-<td>3780.0</td>
-<td>72800.0</td>
-<td>48470.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements into product design and internal ...</td>
-<td>Responsibilities ### Regulatory Decision Model...</td>
-<td>Python</td>
+<td>Pittsburgh, Pennsylvania</td>
+<td>14</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">12</th>
-<td>681458</td>
-<td>2026-08-06 16:55:53</td>
-<td>Senior Software Engineer, Business Systems - D...</td>
-<td>Senior Software Engineer, Business Systems - D...</td>
-<td>Verkada</td>
-<td>San Mateo, California</td>
-<td>San Mateo</td>
-<td>NaN</td>
-<td>California</td>
-<td>CA</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>### **Who We Are** Verkada is transforming how...</td>
-<td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
-<td>2025.0</td>
-<td>Full Time</td>
-<td>### **Who We Are** Verkada is transforming how...</td>
-<td>Role** As a member of our Business Systems Eng...</td>
-<td>Python, SQL</td>
+<td>Chicago, IL</td>
+<td>13</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">13</th>
-<td>681546</td>
-<td>2026-08-06 16:10:40</td>
-<td>Business Process Analyst 752</td>
-<td>Business Process Analyst 752</td>
-<td>Freedomconsulting</td>
-<td>Springfield, Virginia</td>
-<td>Springfield</td>
-<td>NaN</td>
-<td>Virginia</td>
-<td>VA</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>Freedom Technology Solutions Group is seeking ...</td>
-<td>898280.0</td>
-<td>113790.0</td>
-<td>101860.0</td>
-<td>2025.0</td>
-<td>Contract</td>
-<td>requirements documents. They also serve as int...</td>
-<td>Reports to a manager or head of a unit/departm...</td>
-<td>AWS, Azure, Excel, Kubernetes, Docker, Jira, A...</td>
+<td>Los Angeles, CA</td>
+<td>13</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">14</th>
-<td>681697</td>
-<td>2026-08-06 15:13:55</td>
-<td>Data Product Manager</td>
-<td>Data Product Manager</td>
-<td>Bybit</td>
-<td>Kuala Lumpur, Malaysia</td>
-<td>Kuala Lumpur</td>
-<td>NaN</td>
-<td>Malaysia</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Construction Management &amp; T...</td>
-<td>**About Us** Established in 2018, Bybit is one...</td>
-<td>395240.0</td>
-<td>177770.0</td>
-<td>166790.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements design through resource coordinat...</td>
-<td>Own the overall planning and strategic directi...</td>
-<td>SQL</td>
+<td>San Jose, CA</td>
+<td>13</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">15</th>
-<td>681707</td>
-<td>2026-08-06 15:06:55</td>
-<td>Big Data Development Engineer</td>
-<td>Big Data Development Engineer</td>
-<td>Bybit</td>
-<td>Kuala Lumpur, Malaysia</td>
-<td>Kuala Lumpur</td>
-<td>NaN</td>
-<td>Malaysia</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>**About Us** Established in 2018, Bybit is one...</td>
-<td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Bachelor's degree or above in Computer Science...</td>
-<td>Lead the architecture design and development o...</td>
-<td>Java, Spark</td>
+<td>Seattle, WA</td>
+<td>13</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">16</th>
-<td>681717</td>
-<td>2026-08-06 15:02:41</td>
-<td>Business Partner Division - Pricing Manager</td>
-<td>Business Partner Division - Pricing Manager</td>
-<td>Rocketmiles</td>
-<td>New, York City</td>
-<td>New</td>
-<td>NaN</td>
-<td>York City</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Advanced Information Techno...</td>
-<td>**Our Company** Booking Holdings (NASDAQ: BKNG...</td>
-<td>55000.0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements Candidates should be authorized t...</td>
-<td>role would sit within the division that connec...</td>
-<td>Python, SQL, R, Tableau</td>
+<td>Atlanta, GA</td>
+<td>12</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">17</th>
-<td>661485</td>
-<td>2026-08-06 15:02:40</td>
-<td>Business Partner Division - Pricing Manager</td>
-<td>Business Partner Division - Pricing Manager</td>
-<td>Agoda</td>
-<td>New, York City</td>
-<td>New</td>
-<td>NaN</td>
-<td>York City</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Advanced Information Techno...</td>
-<td>**About Agoda** At Agoda, we bridge the world ...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>We are committed to providing equal employment...</td>
-<td>role would sit within the division that connec...</td>
-<td>Python, SQL, R, Tableau</td>
+<td>Canada</td>
+<td>12</td>
 </tr>
 <tr class="odd">
 <th data-quarto-table-cell-role="th">18</th>
-<td>681724</td>
-<td>2026-08-06 14:57:21</td>
-<td>Staff Software Engineer, Data Engineering - Id...</td>
-<td>Staff Software Engineer, Data Engineering - Id...</td>
-<td>Pingidentity</td>
-<td>Austin, Texas</td>
-<td>Austin</td>
-<td>NaN</td>
-<td>Texas</td>
-<td>TX</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>**About Ping Identity:** At Ping Identity, we ...</td>
-<td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements, modular design, observability, m...</td>
-<td>Duties (SoD)—by enhancing existing functionali...</td>
-<td>SQL, AWS, Azure, Kubernetes, Docker, Spark</td>
+<td>Houston, TX</td>
+<td>12</td>
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">19</th>
-<td>681755</td>
-<td>2026-08-06 14:39:04</td>
-<td>Planning/Experimentation Database Management A...</td>
-<td>Planning/Experimentation Database Management A...</td>
-<td>Coreone</td>
-<td>Tampa, Florida</td>
-<td>Tampa</td>
-<td>NaN</td>
-<td>Florida</td>
-<td>FL</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>Join our team at Core One! Our mission is to b...</td>
-<td>898280.0</td>
-<td>113790.0</td>
-<td>101860.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Enter, validate, and maintain USSOCOM operatio...</td>
-<td>Utilize automated information management syste...</td>
-<td>Excel</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">20</th>
-<td>681882</td>
-<td>2026-08-06 13:52:00</td>
-<td>QA Lead, Business Applications</td>
-<td>QA Lead, Business Applications</td>
-<td>Payoneer</td>
-<td>Tel Aviv District, Israel</td>
-<td>Tel Aviv District</td>
-<td>NaN</td>
-<td>Israel</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Database Management &amp; Busin...</td>
-<td>**About Payoneer** Founded in 2005, Payoneer i...</td>
-<td>3780.0</td>
-<td>72800.0</td>
-<td>48470.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>**About Payoneer** Founded in 2005, Payoneer i...</td>
-<td>role helps ensure that quality remains a core ...</td>
-<td>SQL, MongoDB, Agile, Scrum</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">21</th>
-<td>681929</td>
-<td>2026-08-06 13:32:07</td>
-<td>Business Development Representative</td>
-<td>Business Development Representative</td>
-<td>Velir</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Advanced Information Techno...</td>
-<td>Velir is an established mid-sized agency with ...</td>
-<td>55000.0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Frequent sitting at a desk performing work on ...</td>
-<td>Responsibilities:** **Outbound Prospecting &amp; C...</td>
-<td>Salesforce</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">22</th>
-<td>681970</td>
-<td>2026-08-06 13:20:42</td>
-<td>Professional Services Operations Analyst</td>
-<td>Professional Services Operations Analyst</td>
-<td>Tenableinc</td>
-<td>Ma Boston Office, Headquarters Maryland Columbia</td>
-<td>Ma Boston Office</td>
-<td>NaN</td>
-<td>Headquarters Maryland Columbia</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>**Who is Tenable?** Tenable® is the Exposure M...</td>
-<td>898280.0</td>
-<td>113790.0</td>
-<td>101860.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>qualifications, skills, competencies, location...</td>
-<td>responsibilities that management may deem nece...</td>
-<td>SQL, Tableau, Excel, Salesforce</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">23</th>
-<td>682046</td>
-<td>2026-08-06 12:43:18</td>
-<td>Application Support Analyst</td>
-<td>Application Support Analyst</td>
-<td>Amdaris</td>
-<td>Timiș, Romania</td>
-<td>Timiș</td>
-<td>NaN</td>
-<td>Romania</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>We fuse together exceptional talent who delive...</td>
-<td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Typically requires a Bachelor’s degree or equi...</td>
-<td>responsibilities are to ensure that the design...</td>
-<td>SQL, Java, Azure</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">24</th>
-<td>682071</td>
-<td>2026-08-06 12:14:58</td>
-<td>Student Data Consultant</td>
-<td>Student Data Consultant</td>
-<td>Map</td>
-<td>Copenhagen, Denmark</td>
-<td>Copenhagen</td>
-<td>NaN</td>
-<td>Denmark</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>#### **Who We Are** WPP Enterprise Solutions d...</td>
-<td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements, considering the client's busines...</td>
-<td>role with us, on how you can update your infor...</td>
-<td>AWS, Salesforce</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">25</th>
-<td>682105</td>
-<td>2026-08-06 11:26:26</td>
-<td>Application Analyst</td>
-<td>Application Analyst</td>
-<td>Gibsondunn</td>
-<td>London</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>London</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>**Summary:** Gibson Dunn is a leading global l...</td>
-<td>190650.0</td>
-<td>132510.0</td>
-<td>129180.0</td>
-<td>2025.0</td>
-<td>Contract</td>
-<td>requirements into scalable, secure technical s...</td>
-<td>Responsibilities include:** Application Manage...</td>
-<td>SQL, Agile</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">26</th>
-<td>682124</td>
-<td>2026-08-06 11:00:40</td>
-<td>Quant Developer (C++)</td>
-<td>Quant Developer</td>
-<td>Squarepointcapital</td>
-<td>Montreal, Quebec</td>
-<td>Montreal</td>
-<td>NaN</td>
-<td>Quebec</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>**Position Overview** As a member of collabora...</td>
-<td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements into concrete trading implementat...</td>
-<td>role is $120,000 if located in New York. This ...</td>
-<td>Python, R, Jira</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">27</th>
-<td>682197</td>
-<td>2026-08-06 09:48:41</td>
-<td>Senior Software Engineer - Data Solutions Team</td>
-<td>Senior Software Engineer - Data Solutions Team</td>
-<td>Teads1</td>
-<td>Ljubljana</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Ljubljana</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>**About Teads** Teads is a leading omnichannel...</td>
-<td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>**About Teads** Teads is a leading omnichannel...</td>
-<td>Responsibilities** **Identity** Manage the ide...</td>
-<td>Python, SQL, TypeScript, Excel</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">28</th>
-<td>682319</td>
-<td>2026-08-06 06:21:02</td>
-<td>Staff Data Engineer</td>
-<td>Staff Data Engineer</td>
-<td>Coupang</td>
-<td>Z Test &amp;, Templates Only</td>
-<td>Z Test &amp;</td>
-<td>NaN</td>
-<td>Templates Only</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>We exist to wow our customers. We know we’re d...</td>
-<td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>8+ years of relevant industry experience as a ...</td>
-<td>Ideate, build, and manage analytics and produc...</td>
-<td>Python, SQL</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">29</th>
-<td>661494</td>
-<td>2026-08-06 04:25:30</td>
-<td>Lead Manager/Associate Director, Strategy &amp; An...</td>
-<td>Lead Manager/Associate Director, Strategy &amp; An...</td>
-<td>Agoda</td>
-<td>Bangkok</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Bangkok</td>
-<td>NaN</td>
-<td>...</td>
-<td>[]</td>
-<td>**About Agoda** At Agoda, we bridge the world ...</td>
-<td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>7+ years of total professional experience in a...</td>
-<td>Lead the design and implementation of a unifie...</td>
-<td>SQL, Tableau</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">30</th>
-<td>682388</td>
-<td>2026-08-06 03:57:02</td>
-<td>Senior Data Engineer</td>
-<td>Senior Data Engineer</td>
-<td>Fanaticscommerce</td>
-<td>Tampa, Florida</td>
-<td>Tampa</td>
-<td>NaN</td>
-<td>Florida</td>
-<td>FL</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>Fanatics Commerce is the global leader in lice...</td>
-<td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements, optimize analytical workflows, a...</td>
-<td>Fanatics Commerce is the global leader in lice...</td>
-<td>Python, SQL</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">31</th>
-<td>682643</td>
-<td>2026-08-05 22:58:36</td>
-<td>Software Engineer, II - Autonomy Data</td>
-<td>Software Engineer, II - Autonomy Data</td>
-<td>Torcrobotics</td>
-<td>Blacksburg, Virginia</td>
-<td>Blacksburg</td>
-<td>NaN</td>
-<td>Virginia</td>
-<td>VA</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>**About The Company:** At Torc, we have always...</td>
-<td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
-<td>2025.0</td>
-<td>Full Time</td>
-<td>qualifications listed for this opportunity, we...</td>
-<td>Moving large scale sensor data reliably from v...</td>
-<td>Python, SQL, R, AWS</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">32</th>
-<td>682670</td>
-<td>2026-08-05 22:27:00</td>
-<td>Staff Data Architect</td>
-<td>Staff Data Architect</td>
-<td>Fanduel</td>
-<td>New, York City</td>
-<td>New</td>
-<td>NaN</td>
-<td>York City</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Foundations of Health Commu...</td>
-<td>**THE POSITION**Our roster has an opening with...</td>
-<td>55000.0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>required to perform other such duties as assig...</td>
-<td>responsibilities outlined above, employees may...</td>
-<td>Spark</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">33</th>
-<td>682674</td>
-<td>2026-08-05 22:22:03</td>
-<td>IT Director, Data Services and AI Enablement</td>
-<td>IT Director, Data Services and AI Enablement</td>
-<td>Heartflowinc</td>
-<td>Rohnert Park, California</td>
-<td>Rohnert Park</td>
-<td>NaN</td>
-<td>California</td>
-<td>CA</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>Heartflow is a medical technology company adva...</td>
-<td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Requirements &amp; Work Experience** Education: Ba...</td>
-<td>role leads a small team responsible for data i...</td>
-<td>AWS, Tableau, Salesforce</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">34</th>
-<td>682702</td>
-<td>2026-08-05 22:07:27</td>
-<td>Sr. Business Systems Analyst</td>
-<td>Sr. Business Systems Analyst</td>
-<td>Elastic</td>
-<td>United States</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>Elastic, the Search AI Company, enables everyo...</td>
-<td>898280.0</td>
-<td>113790.0</td>
-<td>101860.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements, and deliver solutions that refle...</td>
-<td>Role** We’re seeking a **Senior Business Syste...</td>
-<td>Salesforce, Agile</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">35</th>
-<td>682754</td>
-<td>2026-08-05 21:40:16</td>
-<td>Sr. Business Operations Manager — Hyperscale L...</td>
-<td>Sr. Business Operations Manager — Hyperscale L...</td>
-<td>Purestorage</td>
-<td>Santa Clara, California</td>
-<td>Santa Clara</td>
-<td>NaN</td>
-<td>California</td>
-<td>CA</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>We’re in an unbelievably exciting area of tech...</td>
-<td>67140.0</td>
-<td>144440.0</td>
-<td>139500.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Serve as the principal LoB liaison for Salesfo...</td>
-<td>ROLE Everpure is seeking a strategic and techn...</td>
-<td>SQL, Tableau, Excel, Salesforce</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">36</th>
-<td>682778</td>
-<td>2026-08-05 21:30:32</td>
-<td>Internal Audit Analytics Associate</td>
-<td>Internal Audit Analytics Associate</td>
-<td>Coinbase</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>Ready to do the most impactful work of your ca...</td>
-<td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements and outputs. Test data ETL proces...</td>
-<td>role translates complex audit data requests in...</td>
-<td>SQL, Snowflake</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">37</th>
-<td>682919</td>
-<td>2026-08-05 20:33:20</td>
-<td>Service Desk Level 1 Analyst</td>
-<td>Service Desk Level 1 Analyst</td>
-<td>Dyopath</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Project Management", "score...</td>
-<td># Join DYOPATH as a Service Desk Level 1 Analy...</td>
-<td>1066670.0</td>
-<td>110740.0</td>
-<td>102320.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>qualifications required of the employee assign...</td>
-<td>Respond to incoming phone calls, emails, and c...</td>
-<td>NaN</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">38</th>
-<td>682937</td>
-<td>2026-08-05 20:25:39</td>
-<td>Operations Engineer - Human Data</td>
-<td>Operations Engineer - Human Data</td>
-<td>Xai</td>
-<td>Palo Alto, California</td>
-<td>Palo Alto</td>
-<td>NaN</td>
-<td>California</td>
-<td>CA</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>SpaceXAI’s mission is to create AI systems tha...</td>
-<td>898280.0</td>
-<td>113790.0</td>
-<td>101860.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Weekend work may be required. Travel to other ...</td>
-<td>Partner with model and engineering teams to un...</td>
-<td>Python, SQL</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">39</th>
-<td>683002</td>
-<td>2026-08-05 20:02:49</td>
-<td>Build Analyst</td>
-<td>Build Analyst</td>
-<td>Unlimitedtechnology</td>
-<td>Rochester, New York</td>
-<td>Rochester</td>
-<td>NaN</td>
-<td>New York</td>
-<td>NY</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>Come join our team! At Unlimited Technology, w...</td>
-<td>898280.0</td>
-<td>113790.0</td>
-<td>101860.0</td>
-<td>2025.0</td>
-<td>Contract</td>
-<td>requirements for both internal and external cl...</td>
-<td>Responsibilities: Works closely with Infrastru...</td>
-<td>Excel</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">40</th>
-<td>683576</td>
-<td>2026-08-05 19:21:11</td>
-<td>Data Analyst</td>
-<td>Data Analyst</td>
-<td>Zestai</td>
-<td>United States</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>**About Zest AI:** Zest AI has been perfecting...</td>
-<td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>**About Zest AI:** Zest AI has been perfecting...</td>
-<td>Duties: Translate unstructured business proble...</td>
-<td>Python, R, Java</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">41</th>
-<td>683725</td>
-<td>2026-08-05 18:23:07</td>
-<td>Technical Success Analyst - EU / UK</td>
-<td>Technical Success Analyst - EU / UK</td>
-<td>Marqeta</td>
-<td>London, Uk</td>
-<td>London</td>
-<td>NaN</td>
-<td>Uk</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Administrative Sciences", "...</td>
-<td>Marqeta is looking for a **Technical Success S...</td>
-<td>395240.0</td>
-<td>177770.0</td>
-<td>166790.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Marqeta endeavors to make reasonable accommoda...</td>
-<td>role in delivering Marqeta’s cutting-edge card...</td>
-<td>SQL</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">42</th>
-<td>683726</td>
-<td>2026-08-05 18:23:05</td>
-<td>Technical Success Analyst - EU / UK</td>
-<td>Technical Success Analyst - EU / UK</td>
-<td>Mqreferrals</td>
-<td>London, Uk</td>
-<td>London</td>
-<td>NaN</td>
-<td>Uk</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Administrative Sciences", "...</td>
-<td>Marqeta is looking for a **Technical Success S...</td>
-<td>395240.0</td>
-<td>177770.0</td>
-<td>166790.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Marqeta is looking for a **Technical Success S...</td>
-<td>role in delivering Marqeta’s cutting-edge card...</td>
-<td>SQL</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">43</th>
-<td>661504</td>
-<td>2026-08-05 17:58:56</td>
-<td>Staff Advanced Analytics, Digital &amp; AI Products</td>
-<td>Staff Advanced Analytics, Digital &amp; AI Products</td>
-<td>Airbnb</td>
-<td>Bangalore, India</td>
-<td>Bangalore</td>
-<td>NaN</td>
-<td>India</td>
-<td>NaN</td>
-<td>...</td>
-<td>[]</td>
-<td>Airbnb was born in 2007 when two hosts welcome...</td>
-<td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Airbnb was born in 2007 when two hosts welcome...</td>
-<td>role will sit under the Advanced Analytics fam...</td>
-<td>Python, SQL</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">44</th>
-<td>683787</td>
-<td>2026-08-05 17:58:14</td>
-<td>Senior Business Development Manager (Full Cycl...</td>
-<td>Senior Business Development Manager</td>
-<td>Inovalon</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Database Management &amp; Busin...</td>
-<td>Inovalon was founded in 1998 on the belief tha...</td>
-<td>55000.0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements as outlined within Inovalon’s Ope...</td>
-<td>Responsibilities: · Lead and executes all sale...</td>
-<td>Excel, Salesforce</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">45</th>
-<td>683788</td>
-<td>2026-08-05 17:58:11</td>
-<td>Senior Business Development Manager (Full Cycl...</td>
-<td>Senior Business Development Manager</td>
-<td>Inovalon</td>
-<td>Tampa, Florida</td>
-<td>Tampa</td>
-<td>NaN</td>
-<td>Florida</td>
-<td>FL</td>
-<td>...</td>
-<td>[{"program_name": "Database Management &amp; Busin...</td>
-<td>Inovalon was founded in 1998 on the belief tha...</td>
-<td>55000.0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements as outlined within Inovalon’s Ope...</td>
-<td>Responsibilities: · Lead and executes all sale...</td>
-<td>Excel, Salesforce</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">46</th>
-<td>683977</td>
-<td>2026-08-05 16:47:49</td>
-<td>Senior Analytics Consultant</td>
-<td>Senior Analytics Consultant</td>
-<td>Uniteus</td>
-<td>United States</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>**Job Title:**Senior Analytics Consultant **De...</td>
-<td>262440.0</td>
-<td>126800.0</td>
-<td>120230.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>requirements for custom data solutions, includ...</td>
-<td>**What You'll Do**: **Analytics Consulting &amp; C...</td>
-<td>SQL, Tableau, Power BI, Excel, Jira</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">47</th>
-<td>683994</td>
-<td>2026-08-05 16:38:39</td>
-<td>Software Engineer III - Data Platform</td>
-<td>Software Engineer III - Data Platform</td>
-<td>Idme</td>
-<td>Mountain View, California</td>
-<td>Mountain View</td>
-<td>NaN</td>
-<td>California</td>
-<td>CA</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>## **Company Overview** &lt;ID.me&gt; is the next-ge...</td>
-<td>1687890.0</td>
-<td>148100.0</td>
-<td>135980.0</td>
-<td>2025.0</td>
-<td>Full Time</td>
-<td>Contribute to documentation, runbooks, and int...</td>
-<td>Build and maintain **automated reliability too...</td>
-<td>Python, Java, JavaScript, AWS, Azure, GCP, Kub...</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">48</th>
-<td>683997</td>
-<td>2026-08-05 16:36:15</td>
-<td>Business Operations Analyst</td>
-<td>Business Operations Analyst</td>
-<td>Numerix</td>
-<td>Remote, India</td>
-<td>Remote</td>
-<td>NaN</td>
-<td>India</td>
-<td>NaN</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>Since our founding in 1996, we have been at th...</td>
-<td>898280.0</td>
-<td>113790.0</td>
-<td>101860.0</td>
-<td>2025.0</td>
-<td>NaN</td>
-<td>Triage and resolve technical issues related to...</td>
-<td>role involves incident management, technical s...</td>
-<td>Python, AWS</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">49</th>
-<td>684150</td>
-<td>2026-08-05 15:28:55</td>
-<td>Cloud Security Analyst II</td>
-<td>Cloud Security Analyst II</td>
-<td>Conga</td>
-<td>Ma ; Houston, Texas</td>
-<td>Ma ; Houston</td>
-<td>NaN</td>
-<td>Texas</td>
-<td>TX</td>
-<td>...</td>
-<td>[{"program_name": "Applied Business Analytics"...</td>
-<td>**A career that’s the whole package!** At Cong...</td>
-<td>190650.0</td>
-<td>132510.0</td>
-<td>129180.0</td>
-<td>2025.0</td>
-<td>Internship, Full Time</td>
-<td>requirements for new infrastructure and servic...</td>
-<td>responsibilities up or down should we select a...</td>
-<td>Python, AWS, Azure, GCP, Kubernetes</td>
+<td>San, Francisco</td>
+<td>12</td>
 </tr>
 </tbody>
 </table>
 
-<p>50 rows × 37 columns</p>
 </div>
 </div>
 </div>
+<div id="4054b44d" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>location_check <span class="op">=</span> spark.sql(<span class="st">"""</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="st">        location_text,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="st">        city,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="st">        state,</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="st">        state_code</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM job_facts</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE location_text IS NULL</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="st">       OR TRIM(location_text) = ''</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="st">       OR LOWER(TRIM(location_text)) = 'unknown'</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 20</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>location_check.show(<span class="dv">20</span>, truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="6188b82a" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>spark.sql(<span class="st">"""</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="st">        COUNT(*) AS unknown_location_postings,</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="st">        COUNT(NULLIF(TRIM(city), '')) AS with_city,</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="st">        COUNT(NULLIF(TRIM(state), '')) AS with_state,</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="st">        COUNT(NULLIF(TRIM(state_code), '')) AS with_state_code</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM job_facts</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE location_text IS NULL</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="st">       OR TRIM(location_text) = ''</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="st">       OR LOWER(TRIM(location_text)) = 'unknown'</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>).toPandas().T.rename(columns<span class="op">=</span>{<span class="dv">0</span>: <span class="st">"Value"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
 
 
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">unknown_location_postings</th>
+<td>220</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">with_city</th>
+<td>0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">with_state</th>
+<td>0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">with_state_code</th>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="adec4d66" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>work_arrangements <span class="op">=</span> spark.sql(<span class="st">"""</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="st">    WITH counts AS (</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st">        SELECT</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="st">            COALESCE(</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="st">                NULLIF(TRIM(remote_status), ''),</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="st">                'Unknown'</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="st">            ) AS work_arrangement,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="st">            COUNT(*) AS postings</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="st">        FROM job_facts</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="st">        GROUP BY 1</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="st">    )</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="st">        work_arrangement,</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="st">        postings,</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="st">        ROUND(</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="st">            100.0 * postings / SUM(postings) OVER (),</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="st">            1</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="st">        ) AS percent_of_postings</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM counts</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY postings DESC</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>work_arrangements.show(truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="salary-coverage-and-currency-checks" class="level2">
+<h2 class="anchored" data-anchor-id="salary-coverage-and-currency-checks">Salary coverage and currency checks</h2>
+<div id="03233571" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>salary_coverage <span class="op">=</span> spark.sql(<span class="st">"""</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="st">        COUNT(*) AS total_postings,</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(CASE</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN annual_salary_min IS NOT NULL</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="st">             AND annual_salary_max IS NOT NULL</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="st">            THEN 1 ELSE 0</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="st">        END) AS with_annual_range,</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(CASE</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN hourly_salary_min IS NOT NULL</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="st">             AND hourly_salary_max IS NOT NULL</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="st">            THEN 1 ELSE 0</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="st">        END) AS with_hourly_range,</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="st">        SUM(CASE</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="st">            WHEN annual_salary_min IS NULL</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="st">             AND annual_salary_max IS NULL</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="st">             AND hourly_salary_min IS NULL</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="st">             AND hourly_salary_max IS NULL</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="st">            THEN 1 ELSE 0</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="st">        END) AS without_numeric_salary</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM job_facts</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>salary_coverage.toPandas().T.rename(columns<span class="op">=</span>{<span class="dv">0</span>: <span class="st">"Value"</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">total_postings</th>
+<td>2353</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">with_annual_range</th>
+<td>458</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">with_hourly_range</th>
+<td>45</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">without_numeric_salary</th>
+<td>1850</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="bc010ea4" class="cell" data-execution_count="11">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>spark.sql(<span class="st">"""</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="st">        title,</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="st">        location_text,</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="st">        salary_text,</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="st">        annual_salary_min,</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="st">        annual_salary_max</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM job_facts</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE annual_salary_min IS NOT NULL</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="st">      AND annual_salary_max IS NOT NULL</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY location_text, job_id</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 20</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>).show(<span class="dv">20</span>, truncate<span class="op">=</span><span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="fee42eae" class="cell" data-execution_count="12">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyspark.sql <span class="im">import</span> functions <span class="im">as</span> F</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>has_annual <span class="op">=</span> (</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    F.col(<span class="st">"annual_salary_min"</span>).isNotNull()</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> F.col(<span class="st">"annual_salary_max"</span>).isNotNull()</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>has_hourly <span class="op">=</span> (</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    F.col(<span class="st">"hourly_salary_min"</span>).isNotNull()</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> F.col(<span class="st">"hourly_salary_max"</span>).isNotNull()</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>currency_code <span class="op">=</span> F.regexp_extract(</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    F.upper(F.coalesce(F.col(<span class="st">"salary_text"</span>), F.lit(<span class="st">""</span>))),</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="vs">r"</span><span class="dv">\b</span><span class="kw">(</span><span class="vs">USD</span><span class="cf">|</span><span class="vs">CAD</span><span class="cf">|</span><span class="vs">EUR</span><span class="cf">|</span><span class="vs">GBP</span><span class="cf">|</span><span class="vs">AUD</span><span class="cf">|</span><span class="vs">NZD</span><span class="cf">|</span><span class="vs">INR</span><span class="cf">|</span><span class="vs">SGD</span><span class="cf">|</span><span class="vs">JPY</span><span class="cf">|</span><span class="vs">CHF</span><span class="cf">|</span><span class="vs">CNY</span><span class="cf">|</span><span class="vs">AED</span><span class="kw">)</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>jobs_pay <span class="op">=</span> (</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    jobs_clean</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    .withColumn(</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">"annualized_min"</span>,</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>        F.when(has_annual, F.col(<span class="st">"annual_salary_min"</span>))</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>         .when(has_hourly, F.col(<span class="st">"hourly_salary_min"</span>) <span class="op">*</span> <span class="dv">2080</span>)</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    .withColumn(</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>        <span class="st">"annualized_max"</span>,</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>        F.when(has_annual, F.col(<span class="st">"annual_salary_max"</span>))</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>         .when(has_hourly, F.col(<span class="st">"hourly_salary_max"</span>) <span class="op">*</span> <span class="dv">2080</span>)</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>    .withColumn(</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>        <span class="st">"salary_basis"</span>,</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>        F.when(has_annual, <span class="st">"Reported annual"</span>)</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>         .when(has_hourly, <span class="st">"Hourly converted × 2080"</span>)</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>         .otherwise(<span class="st">"No complete range"</span>)</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>    .withColumn(</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>        <span class="st">"salary_currency"</span>,</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>        F.when(currency_code <span class="op">!=</span> <span class="st">""</span>, currency_code)</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>         .otherwise(<span class="st">"Unconfirmed"</span>)</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>jobs_pay.<span class="bu">filter</span>(F.col(<span class="st">"annualized_min"</span>).isNotNull()) <span class="op">\</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>    .groupBy(<span class="st">"salary_currency"</span>, <span class="st">"salary_basis"</span>).count() <span class="op">\</span></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>    .orderBy(F.desc(<span class="st">"count"</span>)) <span class="op">\</span></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>    .show(truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="1ae6b271" class="cell" data-execution_count="13">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Identify US locations from country labels or state abbreviations.</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>us_states <span class="op">=</span> (</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|"</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|"</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC"</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>location <span class="op">=</span> F.upper(F.coalesce(F.col(<span class="st">"location_text"</span>), F.lit(<span class="st">""</span>)))</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>us_location <span class="op">=</span> (</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    location.rlike(<span class="vs">r"</span><span class="dv">\b</span><span class="vs">UNITED STATES</span><span class="dv">\b</span><span class="cf">|</span><span class="dv">\b</span><span class="vs">USA</span><span class="dv">\b</span><span class="cf">|</span><span class="dv">\b</span><span class="vs">U</span><span class="ch">\.</span><span class="vs">S</span><span class="ch">\.</span><span class="vs">A</span><span class="op">?</span><span class="ch">\.</span><span class="vs">"</span>)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> location.rlike(<span class="vs">r",</span><span class="dv">\s</span><span class="op">*</span><span class="kw">(</span><span class="vs">"</span> <span class="op">+</span> us_states <span class="op">+</span> <span class="vs">r"</span><span class="er">)</span><span class="dv">\b</span><span class="vs">"</span>)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> location.rlike(</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>        <span class="vs">r"</span><span class="dv">\b</span><span class="kw">(</span><span class="vs">ARIZONA</span><span class="cf">|</span><span class="vs">TEXAS</span><span class="cf">|</span><span class="vs">CALIFORNIA</span><span class="cf">|</span><span class="vs">FLORIDA</span><span class="cf">|</span><span class="vs">MARYLAND</span><span class="cf">|</span><span class="vs">"</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>        <span class="vs">r"MICHIGAN</span><span class="cf">|</span><span class="vs">MISSOURI</span><span class="cf">|</span><span class="vs">NEW YORK</span><span class="er">)</span><span class="dv">\b</span><span class="vs">"</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> location.rlike(<span class="vs">r"</span><span class="dv">\b</span><span class="vs">LOS ANGELES METROPOLITAN AREA</span><span class="dv">\b</span><span class="vs">"</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>assume_usd <span class="op">=</span> (</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    (F.col(<span class="st">"salary_currency"</span>) <span class="op">==</span> <span class="st">"Unconfirmed"</span>)</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> us_location</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>jobs_pay <span class="op">=</span> (</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    jobs_pay</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>    .withColumn(</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>        <span class="st">"currency_basis"</span>,</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>        F.when(assume_usd, <span class="st">"Assumed from US location"</span>)</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>        .when(</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>            F.col(<span class="st">"salary_currency"</span>) <span class="op">!=</span> <span class="st">"Unconfirmed"</span>,</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Explicit currency in salary text"</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>        .otherwise(<span class="st">"Unconfirmed"</span>)</span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>    .withColumn(</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>        <span class="st">"salary_currency"</span>,</span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>        F.when(assume_usd, <span class="st">"USD"</span>)</span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>        .otherwise(F.col(<span class="st">"salary_currency"</span>))</span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>jobs_pay.<span class="bu">filter</span>(</span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>    F.col(<span class="st">"annualized_min"</span>).isNotNull()</span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>).groupBy(</span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>    <span class="st">"salary_currency"</span>, <span class="st">"currency_basis"</span></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>).count().orderBy(F.desc(<span class="st">"count"</span>)).toPandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">salary_currency</th>
+<th data-quarto-table-cell-role="th">currency_basis</th>
+<th data-quarto-table-cell-role="th">count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>USD</td>
+<td>Assumed from US location</td>
+<td>238</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>USD</td>
+<td>Explicit currency in salary text</td>
+<td>203</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>Unconfirmed</td>
+<td>Unconfirmed</td>
+<td>39</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>CAD</td>
+<td>Explicit currency in salary text</td>
+<td>20</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>EUR</td>
+<td>Explicit currency in salary text</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">5</th>
+<td>GBP</td>
+<td>Explicit currency in salary text</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="b5a041d9" class="cell" data-execution_count="14">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>usd_pay <span class="op">=</span> (</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    jobs_pay</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">filter</span>(</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>        (F.col(<span class="st">"salary_currency"</span>) <span class="op">==</span> <span class="st">"USD"</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">&amp;</span> F.col(<span class="st">"annualized_min"</span>).isNotNull()</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">&amp;</span> F.col(<span class="st">"annualized_max"</span>).isNotNull()</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    .withColumn(</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">"annual_midpoint"</span>,</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        (F.col(<span class="st">"annualized_min"</span>) <span class="op">+</span> F.col(<span class="st">"annualized_max"</span>)) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>usd_pay.agg(</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    F.count(<span class="st">"*"</span>).alias(<span class="st">"postings"</span>),</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    F.<span class="bu">round</span>(</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>        F.percentile_approx(<span class="st">"annual_midpoint"</span>, <span class="fl">0.5</span>), <span class="dv">2</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    ).alias(<span class="st">"median_annual_midpoint_usd"</span>),</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    F.<span class="bu">round</span>(</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>        F.avg(<span class="st">"annual_midpoint"</span>), <span class="dv">2</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    ).alias(<span class="st">"mean_annual_midpoint_usd"</span>)</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>).show(truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="e80bc310" class="cell" data-execution_count="15">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>jobs_pay.<span class="bu">filter</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    (F.col(<span class="st">"annualized_min"</span>).isNotNull())</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (F.col(<span class="st">"salary_currency"</span>) <span class="op">==</span> <span class="st">"Unconfirmed"</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>).select(</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"location_text"</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"salary_text"</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"salary_basis"</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>).orderBy(</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"location_text"</span>, <span class="st">"salary_text"</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>).show(<span class="dv">30</span>, truncate<span class="op">=</span><span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="e0afc2ea" class="cell" data-execution_count="16">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>usd_role_pay <span class="op">=</span> (</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    usd_pay</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    .withColumn(</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"role"</span>,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>        F.coalesce(</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>            F.when(</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                F.trim(F.col(<span class="st">"normalized_title"</span>)) <span class="op">!=</span> <span class="st">""</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                F.trim(F.col(<span class="st">"normalized_title"</span>))</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>            ),</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>            F.trim(F.col(<span class="st">"title"</span>))</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    .groupBy(<span class="st">"role"</span>)</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    .agg(</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>        F.count(<span class="st">"*"</span>).alias(<span class="st">"salary_postings"</span>),</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>        F.<span class="bu">round</span>(</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>            F.percentile_approx(<span class="st">"annual_midpoint"</span>, <span class="fl">0.5</span>), <span class="dv">2</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>        ).alias(<span class="st">"median_annual_midpoint_usd"</span>)</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">filter</span>(F.col(<span class="st">"salary_postings"</span>) <span class="op">&gt;=</span> <span class="dv">5</span>)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    .orderBy(F.desc(<span class="st">"salary_postings"</span>), <span class="st">"role"</span>)</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>usd_role_pay.show(<span class="dv">20</span>, truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="checking-the-structured-skills-data" class="level2">
+<h2 class="anchored" data-anchor-id="checking-the-structured-skills-data">Checking the structured skills data</h2>
+<div id="fb158c49" class="cell" data-execution_count="17">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>jobs_clean.<span class="bu">filter</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    F.col(<span class="st">"skills"</span>).isNotNull()</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (F.trim(F.col(<span class="st">"skills"</span>)) <span class="op">!=</span> <span class="st">""</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (F.trim(F.col(<span class="st">"skills"</span>)) <span class="op">!=</span> <span class="st">"[]"</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>).select(</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"title"</span>,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"skills"</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>).show(<span class="dv">5</span>, truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="b3d8ae4c" class="cell" data-execution_count="18">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>skills_parsed <span class="op">=</span> jobs_clean.withColumn(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"skills_array"</span>,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    F.from_json(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>        F.col(<span class="st">"skills"</span>),</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"array&lt;struct&lt;name:string,type:string,confidence:double&gt;&gt;"</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Check how many postings have usable skill information.</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>skills_parsed.agg(</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    F.count(<span class="st">"*"</span>).alias(<span class="st">"total_postings"</span>),</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    F.<span class="bu">sum</span>(</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>        F.when(F.size(<span class="st">"skills_array"</span>) <span class="op">&gt;</span> <span class="dv">0</span>, <span class="dv">1</span>).otherwise(<span class="dv">0</span>)</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    ).alias(<span class="st">"postings_with_skills"</span>)</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>).show(truncate<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract skill names and count distinct postings.</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>job_skills <span class="op">=</span> (</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    skills_parsed</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    .select(<span class="st">"job_id"</span>, F.explode(<span class="st">"skills_array"</span>).alias(<span class="st">"skill_record"</span>))</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    .select(</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">"job_id"</span>,</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>        F.lower(F.trim(F.col(<span class="st">"skill_record.name"</span>))).alias(<span class="st">"skill"</span>)</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">filter</span>(F.col(<span class="st">"skill"</span>).isNotNull() <span class="op">&amp;</span> (F.col(<span class="st">"skill"</span>) <span class="op">!=</span> <span class="st">""</span>))</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    .dropDuplicates([<span class="st">"job_id"</span>, <span class="st">"skill"</span>])</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>skill_demand <span class="op">=</span> (</span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>    job_skills</span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>    .groupBy(<span class="st">"skill"</span>)</span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>    .agg(F.countDistinct(<span class="st">"job_id"</span>).alias(<span class="st">"postings"</span>))</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>    .orderBy(F.desc(<span class="st">"postings"</span>), <span class="st">"skill"</span>)</span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>skill_demand.show(<span class="dv">20</span>, truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="49e0f9c8" class="cell" data-execution_count="19">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check how many skills the source stored per posting.</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>skills_parsed.groupBy(</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    F.size(<span class="st">"skills_array"</span>).alias(<span class="st">"skills_per_posting"</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>).count().orderBy(<span class="st">"skills_per_posting"</span>).show(<span class="dv">30</span>, truncate<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Look for common analytics tools anywhere in the recorded skills.</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>skill_demand.<span class="bu">filter</span>(</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    F.col(<span class="st">"skill"</span>).rlike(</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        <span class="vs">r"sql</span><span class="cf">|</span><span class="vs">python</span><span class="cf">|</span><span class="vs">tableau</span><span class="cf">|</span><span class="vs">power</span><span class="dv">\s</span><span class="op">*</span><span class="vs">bi</span><span class="cf">|</span><span class="vs">excel</span><span class="cf">|</span><span class="vs">"</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>        <span class="vs">r"pandas</span><span class="cf">|</span><span class="vs">spark</span><span class="cf">|</span><span class="vs">statistics</span><span class="cf">|</span><span class="vs">visualization"</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>).show(<span class="dv">50</span>, truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="e5b5e26f" class="cell" data-execution_count="20">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>job_skills.withColumn(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"first_character"</span>,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    F.substring(<span class="st">"skill"</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>).groupBy(</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"first_character"</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>).agg(</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    F.countDistinct(<span class="st">"skill"</span>).alias(<span class="st">"distinct_skills"</span>),</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    F.count(<span class="st">"*"</span>).alias(<span class="st">"posting_skill_pairs"</span>)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>).orderBy(<span class="st">"first_character"</span>).toPandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">first_character</th>
+<th data-quarto-table-cell-role="th">distinct_skills</th>
+<th data-quarto-table-cell-role="th">posting_skill_pairs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>.</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>3</td>
+<td>2</td>
+<td>6</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>a</td>
+<td>315</td>
+<td>5056</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>b</td>
+<td>161</td>
+<td>3377</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>c</td>
+<td>67</td>
+<td>421</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="652133f5" class="cell" data-execution_count="21">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>has_description <span class="op">=</span> (</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    F.col(<span class="st">"description"</span>).isNotNull()</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">&amp;</span> (F.length(F.trim(F.col(<span class="st">"description"</span>))) <span class="op">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>jobs_clean.agg(</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    F.count(<span class="st">"*"</span>).alias(<span class="st">"total_postings"</span>),</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    F.<span class="bu">sum</span>(</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        F.when(has_description, <span class="dv">1</span>).otherwise(<span class="dv">0</span>)</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    ).alias(<span class="st">"postings_with_description"</span>)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>).show(truncate<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>jobs_clean.<span class="bu">filter</span>(has_description).select(</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"title"</span>,</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    F.substring(<span class="st">"description"</span>, <span class="dv">1</span>, <span class="dv">500</span>).alias(<span class="st">"description_preview"</span>)</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>).show(<span class="dv">3</span>, truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="f5d839a0" class="cell" data-execution_count="22">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>tool_patterns <span class="op">=</span> [</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"SQL"</span>, <span class="vs">r"</span><span class="dv">\b</span><span class="vs">sql</span><span class="dv">\b</span><span class="vs">"</span>),</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Python"</span>, <span class="vs">r"</span><span class="dv">\b</span><span class="vs">python</span><span class="dv">\b</span><span class="vs">"</span>),</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  (<span class="st">"Excel"</span>, <span class="vs">r"</span><span class="dv">\b</span><span class="vs">excel</span><span class="dv">\b</span><span class="ex">(</span><span class="fu">?!</span><span class="dv">\s</span><span class="op">+</span>(?:<span class="vs">in</span><span class="cf">|</span><span class="vs">at</span><span class="cf">|</span><span class="vs">as</span><span class="cf">|</span><span class="vs">within</span>)<span class="dv">\b</span><span class="ex">)</span><span class="vs">"</span>),</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Tableau"</span>, <span class="vs">r"</span><span class="dv">\b</span><span class="vs">tableau</span><span class="dv">\b</span><span class="vs">"</span>),</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Power BI"</span>, <span class="vs">r"</span><span class="dv">\b</span><span class="vs">power</span><span class="pp">[</span><span class="dv">\s</span><span class="pp">-]</span><span class="op">*</span><span class="vs">bi</span><span class="dv">\b</span><span class="vs">"</span>),</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Apache Spark / PySpark"</span>, <span class="vs">r"</span><span class="dv">\b</span>(?:<span class="vs">apache</span><span class="dv">\s</span><span class="op">+</span><span class="vs">spark</span><span class="cf">|</span><span class="vs">pyspark</span>)<span class="dv">\b</span><span class="vs">"</span>),</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Pandas"</span>, <span class="vs">r"</span><span class="dv">\b</span><span class="vs">pandas</span><span class="dv">\b</span><span class="vs">"</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>description_jobs <span class="op">=</span> jobs_clean.<span class="bu">filter</span>(has_description).withColumn(</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"description_lower"</span>,</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    F.lower(F.col(<span class="st">"description"</span>))</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>description_count <span class="op">=</span> description_jobs.select(<span class="st">"job_id"</span>).distinct().count()</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>tool_mentions <span class="op">=</span> (</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    description_jobs</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>    .select(</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">"job_id"</span>,</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>        F.explode(F.array(<span class="op">*</span>[</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>            F.struct(</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>                F.lit(tool).alias(<span class="st">"tool"</span>),</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>                F.col(<span class="st">"description_lower"</span>).rlike(pattern).alias(<span class="st">"mentioned"</span>)</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> tool, pattern <span class="kw">in</span> tool_patterns</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>        ])).alias(<span class="st">"match"</span>)</span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>    .groupBy(F.col(<span class="st">"match.tool"</span>).alias(<span class="st">"tool"</span>))</span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>    .agg(</span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>        F.countDistinct(</span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>            F.when(F.col(<span class="st">"match.mentioned"</span>), F.col(<span class="st">"job_id"</span>))</span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>        ).alias(<span class="st">"postings_mentioning_tool"</span>)</span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>    .withColumn(</span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>        <span class="st">"percent_of_descriptions"</span>,</span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>        F.<span class="bu">round</span>(</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>            F.col(<span class="st">"postings_mentioning_tool"</span>) <span class="op">/</span> description_count <span class="op">*</span> <span class="dv">100</span>, <span class="dv">1</span></span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>    .orderBy(F.desc(<span class="st">"postings_mentioning_tool"</span>), <span class="st">"tool"</span>)</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>tool_mentions.show(truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div id="dabb8e9c" class="cell" data-execution_count="23">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>description_jobs.<span class="bu">filter</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    F.col(<span class="st">"description_lower"</span>).rlike(<span class="vs">r"</span><span class="dv">\b</span><span class="vs">excel</span><span class="dv">\b</span><span class="vs">"</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>).select(</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"title"</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    F.regexp_extract(</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>        F.col(<span class="st">"description_lower"</span>),</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>        <span class="vs">r"</span><span class="fu">(?s)</span><span class="kw">(</span><span class="dv">.</span><span class="op">{0,80}</span><span class="dv">\b</span><span class="vs">excel</span><span class="dv">\b.</span><span class="op">{0,80}</span><span class="kw">)</span><span class="vs">"</span>,</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>        <span class="dv">1</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    ).alias(<span class="st">"excel_context"</span>)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>).show(<span class="dv">10</span>, truncate<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="tools-mentioned-in-job-descriptions" class="level2">
+<h2 class="anchored" data-anchor-id="tools-mentioned-in-job-descriptions">Tools mentioned in job descriptions</h2>
+<div id="3e7d2885" class="cell" data-execution_count="24">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>tool_chart_data <span class="op">=</span> tool_mentions.toPandas().sort_values(</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"postings_mentioning_tool"</span>,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    ascending<span class="op">=</span><span class="va">False</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>fig_tools <span class="op">=</span> px.bar(</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    tool_chart_data,</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">"postings_mentioning_tool"</span>,</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">"tool"</span>,</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    orientation<span class="op">=</span><span class="st">"h"</span>,</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    text<span class="op">=</span><span class="st">"postings_mentioning_tool"</span>,</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>    hover_data<span class="op">=</span>{<span class="st">"percent_of_descriptions"</span>: <span class="st">":.1f"</span>},</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    labels<span class="op">=</span>{</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">"postings_mentioning_tool"</span>: <span class="st">"Postings mentioning tool"</span>,</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">"tool"</span>: <span class="st">"Tool"</span>,</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"percent_of_descriptions"</span>: <span class="st">"Descriptions (%)"</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"Selected Analytics Tools Mentioned in Job Descriptions"</span>,</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>    template<span class="op">=</span><span class="st">"plotly_white"</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>fig_tools.update_yaxes(</span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>    categoryorder<span class="op">=</span><span class="st">"array"</span>,</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>    categoryarray<span class="op">=</span>tool_chart_data[<span class="st">"tool"</span>].tolist(),</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>    autorange<span class="op">=</span><span class="st">"reversed"</span></span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>fig_tools.update_traces(</span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>    marker_color<span class="op">=</span><span class="st">"#2563EB"</span>,</span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>    textposition<span class="op">=</span><span class="st">"outside"</span>,</span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>    cliponaxis<span class="op">=</span><span class="va">False</span></span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>fig_tools.update_layout(</span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">450</span>,</span>
+<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a>    margin<span class="op">=</span><span class="bu">dict</span>(l<span class="op">=</span><span class="dv">30</span>, r<span class="op">=</span><span class="dv">70</span>, t<span class="op">=</span><span class="dv">80</span>, b<span class="op">=</span><span class="dv">50</span>),</span>
+<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a>    xaxis<span class="op">=</span><span class="bu">dict</span>(</span>
+<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a>        <span class="bu">range</span><span class="op">=</span>[<span class="dv">0</span>, tool_chart_data[<span class="st">"postings_mentioning_tool"</span>].<span class="bu">max</span>() <span class="op">*</span> <span class="fl">1.15</span>]</span>
+<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a>fig_tools.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div style="height:450px; width:100%;">            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-4.1.1.min.js" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" crossorigin="anonymous"></script>                <div id="b23cff18-0cfe-41ea-97c5-dbe1a1fe0caa" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("b23cff18-0cfe-41ea-97c5-dbe1a1fe0caa")) {                    Plotly.newPlot(                        "b23cff18-0cfe-41ea-97c5-dbe1a1fe0caa",                        [{"customdata":{"dtype":"f8","bdata":"ZmZmZmYmQ0BmZmZmZuZBQGZmZmZmZihAMzMzMzMzJkDNzMzMzMwjQJqZmZmZmRVAAAAAAAAADEA=","shape":"7, 1"},"hovertemplate":"Postings mentioning tool=%{text}\u003cbr\u003eTool=%{y}\u003cbr\u003eDescriptions (%)=%{customdata[0]:.1f}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2563EB","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"text":{"dtype":"f8","bdata":"AAAAAAAojEAAAAAAAFiKQAAAAAAA4HFAAAAAAABQcEAAAAAAAABtQAAAAAAAAGBAAAAAAACAVEA="},"textposition":"outside","x":{"dtype":"i2","bdata":"hQNLAx4BBQHoAIAAUgA="},"xaxis":"x","y":["SQL","Python","Excel","Power BI","Tableau","Apache Spark \u002f PySpark","Pandas"],"yaxis":"y","type":"bar","cliponaxis":false}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","margin":{"b":0,"l":0,"r":0,"t":30},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Postings mentioning tool"},"range":[0,1036.1499999999999]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Tool"},"categoryorder":"array","categoryarray":["SQL","Python","Excel","Power BI","Tableau","Apache Spark \u002f PySpark","Pandas"],"autorange":"reversed"},"legend":{"tracegroupgap":0},"title":{"text":"Selected Analytics Tools Mentioned in Job Descriptions"},"barmode":"relative","margin":{"l":30,"r":70,"t":80,"b":50},"height":450},                        {"responsive": true}                    ).then(function(){
+                            
+var gd = document.getElementById('b23cff18-0cfe-41ea-97c5-dbe1a1fe0caa');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script>        </div>
+</div>
+</div>
+<p>SQL and Python were the most frequently mentioned tools among the seven we checked, appearing in 38.3% and 35.8% of job descriptions. This gives us a starting point for comparing employer mentions with our team’s skills. We used descriptions because the structured skills field appeared incomplete. A mention does not always mean the tool is required.</p>
+<div id="896d9712" class="cell" data-execution_count="25">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>pip install plotly nbformat</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="work-arrangements" class="level2">
+<h2 class="anchored" data-anchor-id="work-arrangements">Work arrangements</h2>
+<div id="26bb9b97" class="cell" data-execution_count="26">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>work_chart_data <span class="op">=</span> (</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    jobs_clean</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    .groupBy(<span class="st">"remote_status"</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    .count()</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    .toPandas()</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    .sort_values(<span class="st">"count"</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>work_chart_data[<span class="st">"percent"</span>] <span class="op">=</span> (</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    work_chart_data[<span class="st">"count"</span>] <span class="op">/</span> work_chart_data[<span class="st">"count"</span>].<span class="bu">sum</span>() <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>).<span class="bu">round</span>(<span class="dv">1</span>)</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>fig_work <span class="op">=</span> px.bar(</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>    work_chart_data,</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">"remote_status"</span>,</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">"count"</span>,</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>    text<span class="op">=</span><span class="st">"count"</span>,</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"remote_status"</span>,</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>    color_discrete_map<span class="op">=</span>{</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Unknown"</span>: <span class="st">"#9CA3AF"</span>,</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Hybrid"</span>: <span class="st">"#2563EB"</span>,</span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Remote"</span>: <span class="st">"#059669"</span>,</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">"On-site"</span>: <span class="st">"#D97706"</span></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>    hover_data<span class="op">=</span>{<span class="st">"percent"</span>: <span class="st">":.1f"</span>},</span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>    labels<span class="op">=</span>{</span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>        <span class="st">"remote_status"</span>: <span class="st">"Work arrangement"</span>,</span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>        <span class="st">"count"</span>: <span class="st">"Postings"</span>,</span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">"percent"</span>: <span class="st">"Postings (%)"</span></span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"Recorded Work Arrangements"</span>,</span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>    template<span class="op">=</span><span class="st">"plotly_white"</span></span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>fig_work.update_traces(textposition<span class="op">=</span><span class="st">"outside"</span>, cliponaxis<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>fig_work.update_layout(</span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a>    showlegend<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">420</span>,</span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>    yaxis<span class="op">=</span><span class="bu">dict</span>(<span class="bu">range</span><span class="op">=</span>[<span class="dv">0</span>, work_chart_data[<span class="st">"count"</span>].<span class="bu">max</span>() <span class="op">*</span> <span class="fl">1.15</span>])</span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>fig_work.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div style="height:420px; width:100%;">            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-4.1.1.min.js" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" crossorigin="anonymous"></script>                <div id="3117e4c0-3a7a-48c6-bda5-aa059945b513" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("3117e4c0-3a7a-48c6-bda5-aa059945b513")) {                    Plotly.newPlot(                        "3117e4c0-3a7a-48c6-bda5-aa059945b513",                        [{"customdata":{"dtype":"f8","bdata":"AAAAAADARkA=","shape":"1, 1"},"hovertemplate":"Work arrangement=%{x}\u003cbr\u003ePostings=%{text}\u003cbr\u003ePostings (%)=%{customdata[0]:.1f}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Unknown","marker":{"color":"#9CA3AF","pattern":{"shape":""}},"name":"Unknown","orientation":"v","showlegend":true,"text":{"dtype":"f8","bdata":"AAAAAAC8kEA="},"textposition":"outside","x":["Unknown"],"xaxis":"x","y":{"dtype":"i2","bdata":"LwQ="},"yaxis":"y","type":"bar","cliponaxis":false},{"customdata":{"dtype":"f8","bdata":"AAAAAAAANkA=","shape":"1, 1"},"hovertemplate":"Work arrangement=%{x}\u003cbr\u003ePostings=%{text}\u003cbr\u003ePostings (%)=%{customdata[0]:.1f}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Hybrid","marker":{"color":"#2563EB","pattern":{"shape":""}},"name":"Hybrid","orientation":"v","showlegend":true,"text":{"dtype":"f8","bdata":"AAAAAAAwgEA="},"textposition":"outside","x":["Hybrid"],"xaxis":"x","y":{"dtype":"i2","bdata":"BgI="},"yaxis":"y","type":"bar","cliponaxis":false},{"customdata":{"dtype":"f8","bdata":"MzMzMzOzNUA=","shape":"1, 1"},"hovertemplate":"Work arrangement=%{x}\u003cbr\u003ePostings=%{text}\u003cbr\u003ePostings (%)=%{customdata[0]:.1f}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"Remote","marker":{"color":"#059669","pattern":{"shape":""}},"name":"Remote","orientation":"v","showlegend":true,"text":{"dtype":"f8","bdata":"AAAAAADgf0A="},"textposition":"outside","x":["Remote"],"xaxis":"x","y":{"dtype":"i2","bdata":"\u002fgE="},"yaxis":"y","type":"bar","cliponaxis":false},{"customdata":{"dtype":"f8","bdata":"mpmZmZmZJUA=","shape":"1, 1"},"hovertemplate":"Work arrangement=%{x}\u003cbr\u003ePostings=%{text}\u003cbr\u003ePostings (%)=%{customdata[0]:.1f}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"On-site","marker":{"color":"#D97706","pattern":{"shape":""}},"name":"On-site","orientation":"v","showlegend":true,"text":{"dtype":"f8","bdata":"AAAAAADAb0A="},"textposition":"outside","x":["On-site"],"xaxis":"x","y":{"dtype":"i2","bdata":"\u002fgA="},"yaxis":"y","type":"bar","cliponaxis":false}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","margin":{"b":0,"l":0,"r":0,"t":30},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Work arrangement"},"categoryorder":"array","categoryarray":["Unknown","Hybrid","Remote","On-site"]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Postings"},"range":[0,1231.6499999999999]},"legend":{"title":{"text":"Work arrangement"},"tracegroupgap":0},"title":{"text":"Recorded Work Arrangements"},"barmode":"relative","showlegend":false,"height":420},                        {"responsive": true}                    ).then(function(){
+                            
+var gd = document.getElementById('3117e4c0-3a7a-48c6-bda5-aa059945b513');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script>        </div>
+</div>
+</div>
+<p>Hybrid and remote postings were almost equal, with 518 hybrid and 510 remote roles, compared with 254 on-site roles. However, 1,071 postings, or 45.5%, had an unknown work arrangement. This limits how much we can conclude about work arrangements across the full sample.</p>
+</section>
+<section id="most-common-job-titles" class="level2">
+<h2 class="anchored" data-anchor-id="most-common-job-titles">Most common job titles</h2>
+<div id="3d7570fd" class="cell" data-execution_count="27">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>role_chart_data <span class="op">=</span> (</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    jobs_clean</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    .withColumn(</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"role"</span>,</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>        F.coalesce(</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>            F.when(</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>                F.trim(F.col(<span class="st">"normalized_title"</span>)) <span class="op">!=</span> <span class="st">""</span>,</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>                F.trim(F.col(<span class="st">"normalized_title"</span>))</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>            ),</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>            F.trim(F.col(<span class="st">"title"</span>))</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">filter</span>(F.col(<span class="st">"role"</span>).isNotNull() <span class="op">&amp;</span> (F.col(<span class="st">"role"</span>) <span class="op">!=</span> <span class="st">""</span>))</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>    .groupBy(<span class="st">"role"</span>)</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>    .agg(F.countDistinct(<span class="st">"job_id"</span>).alias(<span class="st">"postings"</span>))</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>    .orderBy(F.desc(<span class="st">"postings"</span>), <span class="st">"role"</span>)</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    .limit(<span class="dv">15</span>)</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    .toPandas()</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>fig_roles <span class="op">=</span> px.bar(</span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>    role_chart_data,</span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">"postings"</span>,</span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">"role"</span>,</span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>    orientation<span class="op">=</span><span class="st">"h"</span>,</span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>    text<span class="op">=</span><span class="st">"postings"</span>,</span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>    labels<span class="op">=</span>{<span class="st">"postings"</span>: <span class="st">"Postings"</span>, <span class="st">"role"</span>: <span class="st">"Recorded job title"</span>},</span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">"Top 15 Recorded Job Titles"</span>,</span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>    template<span class="op">=</span><span class="st">"plotly_white"</span></span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a>fig_roles.update_yaxes(</span>
+<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a>    categoryorder<span class="op">=</span><span class="st">"array"</span>,</span>
+<span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a>    categoryarray<span class="op">=</span>role_chart_data[<span class="st">"role"</span>].tolist(),</span>
+<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a>    autorange<span class="op">=</span><span class="st">"reversed"</span></span>
+<span id="cb27-36"><a href="#cb27-36" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a>fig_roles.update_traces(</span>
+<span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a>    marker_color<span class="op">=</span><span class="st">"#2563EB"</span>,</span>
+<span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a>    textposition<span class="op">=</span><span class="st">"outside"</span>,</span>
+<span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a>    cliponaxis<span class="op">=</span><span class="va">False</span></span>
+<span id="cb27-42"><a href="#cb27-42" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-43"><a href="#cb27-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-44"><a href="#cb27-44" aria-hidden="true" tabindex="-1"></a>fig_roles.update_layout(</span>
+<span id="cb27-45"><a href="#cb27-45" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">650</span>,</span>
+<span id="cb27-46"><a href="#cb27-46" aria-hidden="true" tabindex="-1"></a>    margin<span class="op">=</span><span class="bu">dict</span>(l<span class="op">=</span><span class="dv">30</span>, r<span class="op">=</span><span class="dv">60</span>, t<span class="op">=</span><span class="dv">80</span>, b<span class="op">=</span><span class="dv">50</span>),</span>
+<span id="cb27-47"><a href="#cb27-47" aria-hidden="true" tabindex="-1"></a>    xaxis<span class="op">=</span><span class="bu">dict</span>(<span class="bu">range</span><span class="op">=</span>[<span class="dv">0</span>, role_chart_data[<span class="st">"postings"</span>].<span class="bu">max</span>() <span class="op">*</span> <span class="fl">1.15</span>])</span>
+<span id="cb27-48"><a href="#cb27-48" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb27-49"><a href="#cb27-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-50"><a href="#cb27-50" aria-hidden="true" tabindex="-1"></a>fig_roles.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div style="height:650px; width:100%;">            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-4.1.1.min.js" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" crossorigin="anonymous"></script>                <div id="63721625-3601-47b6-b142-6279261d8462" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("63721625-3601-47b6-b142-6279261d8462")) {                    Plotly.newPlot(                        "63721625-3601-47b6-b142-6279261d8462",                        [{"hovertemplate":"Postings=%{text}\u003cbr\u003eRecorded job title=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2563EB","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"text":{"dtype":"f8","bdata":"AAAAAAAARkAAAAAAAIBDQAAAAAAAADtAAAAAAAAAOUAAAAAAAAA2QAAAAAAAADBAAAAAAAAALEAAAAAAAAAqQAAAAAAAAChAAAAAAAAAJkAAAAAAAAAmQAAAAAAAACJAAAAAAAAAIkAAAAAAAAAiQAAAAAAAACJA"},"textposition":"outside","x":{"dtype":"i1","bdata":"LCcbGRYQDg0MCwsJCQkJ"},"xaxis":"x","y":["Senior Data Engineer","Data Engineer","Business Analyst","Data Scientist","Senior Data Scientist","Cybersecurity Analyst","Data Breach Response Review Attorney","Data Analyst","Human Resources Business Partner","Business Systems Analyst","Lead Data Engineer","Business Development Manager","HR Business Partner","Senior Data Analyst","Senior Delivery Consultant - Data , Professional Services, AWSI HCLS"],"yaxis":"y","type":"bar","cliponaxis":false}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","margin":{"b":0,"l":0,"r":0,"t":30},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Postings"},"range":[0,50.599999999999994]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Recorded job title"},"categoryorder":"array","categoryarray":["Senior Data Engineer","Data Engineer","Business Analyst","Data Scientist","Senior Data Scientist","Cybersecurity Analyst","Data Breach Response Review Attorney","Data Analyst","Human Resources Business Partner","Business Systems Analyst","Lead Data Engineer","Business Development Manager","HR Business Partner","Senior Data Analyst","Senior Delivery Consultant - Data , Professional Services, AWSI HCLS"],"autorange":"reversed"},"legend":{"tracegroupgap":0},"title":{"text":"Top 15 Recorded Job Titles"},"barmode":"relative","margin":{"l":30,"r":60,"t":80,"b":50},"height":650},                        {"responsive": true}                    ).then(function(){
+                            
+var gd = document.getElementById('63721625-3601-47b6-b142-6279261d8462');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script>        </div>
+</div>
+</div>
+<p>This graph shows the most common recorded job titles in our current sample. We also found attorney and HR titles outside our intended analytics focus, which showed that the initial filter needs further review. The chart helps us understand what was collected, but we need a more focused sample before drawing conclusions about analytics opportunities.</p>
+</section>
+<section id="annualized-salary-distribution" class="level2">
+<h2 class="anchored" data-anchor-id="annualized-salary-distribution">Annualized salary distribution</h2>
+<div id="c5e3ea1d" class="cell" data-execution_count="28">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>salary_chart_data <span class="op">=</span> usd_pay.select(<span class="st">"annual_midpoint"</span>).toPandas()</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>salary_median <span class="op">=</span> salary_chart_data[<span class="st">"annual_midpoint"</span>].median()</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>fig_salary <span class="op">=</span> px.histogram(</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    salary_chart_data,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">"annual_midpoint"</span>,</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    nbins<span class="op">=</span><span class="dv">30</span>,</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    labels<span class="op">=</span>{<span class="st">"annual_midpoint"</span>: <span class="st">"Annualized salary midpoint (USD)"</span>},</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="ss">f"Annualized Salary Midpoints (</span><span class="sc">{</span><span class="bu">len</span>(salary_chart_data)<span class="sc">:,}</span><span class="ss"> Postings)"</span>,</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    template<span class="op">=</span><span class="st">"plotly_white"</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>fig_salary.update_traces(marker_color<span class="op">=</span><span class="st">"#2563EB"</span>)</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>fig_salary.add_vline(</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span>salary_median,</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>    line_dash<span class="op">=</span><span class="st">"dash"</span>,</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>    line_color<span class="op">=</span><span class="st">"#D97706"</span>,</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>    annotation_text<span class="op">=</span><span class="ss">f"Median: $</span><span class="sc">{</span>salary_median<span class="sc">:,.0f}</span><span class="ss">"</span>,</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>    annotation_position<span class="op">=</span><span class="st">"top right"</span></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>fig_salary.update_layout(</span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">450</span>,</span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>    xaxis_tickprefix<span class="op">=</span><span class="st">"$"</span>,</span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>    xaxis_tickformat<span class="op">=</span><span class="st">","</span>,</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>    yaxis_title<span class="op">=</span><span class="st">"Number of postings"</span>,</span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>    bargap<span class="op">=</span><span class="fl">0.05</span></span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a>fig_salary.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div style="height:450px; width:100%;">            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-4.1.1.min.js" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" crossorigin="anonymous"></script>                <div id="0940d91c-185d-4d96-bf27-580463985743" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("0940d91c-185d-4d96-bf27-580463985743")) {                    Plotly.newPlot(                        "0940d91c-185d-4d96-bf27-580463985743",                        [{"bingroup":"x","hovertemplate":"Annualized salary midpoint (USD)=%{x}\u003cbr\u003ecount=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2563EB","pattern":{"shape":""}},"name":"","nbinsx":30,"orientation":"v","showlegend":false,"x":{"dtype":"f8","bdata":"AAAAAMBY\u002fkAAAAAAoCwAQQAAAACgNf1AAAAAAFi\u002fBUEAAAAAgMAEQQAAAABA6P1AAAAAAABkCUEAAAAA8IEKQQAAAACA0gFBAAAAAAD5BUEAAAAAAIjzQAAAAADABQdBAAAAALCTBkEAAAAAsJMGQQAAAAAA7fdAAAAAACBTBEEAAAAAANsKQQAAAAAAvf9AAAAAAIAl+UAAAAAAgDEHQQAAAAAA7QdBAAAAAIAT\u002fEAAAAAAwHoAQQAAAADAqf1AAAAAAMB6AEEAAAAAsJICQQAAAACAovlAAAAAAADhCUEAAAAAwEr4QAAAAAAA2\u002fpAAAAAAAAXAUEAAAAAkJr2QAAAAABg9QNBAAAAAHh3+kD2KFyPzBD4QAAAAADAj\u002flAAAAAAMCjDkEAAAAAwOvyQAAAAABQgvRAAAAAAJBYB0EAAAAAgFsAQQAAAAAACwNBAAAAAACIA0EAAAAA2Hv4QAAAAACAkAxBAAAAAJhQ9UAAAAAAUGMAQQAAAACAIf1AAAAAAADW9UBcj8L1uiP8QAAAAAAAK\u002ftAAAAAAABqCEHNzMzMRO\u002f1QAAAAAAAavhAAAAAAABq+EAAAAAA0B4RQQAAAACADQ1BAAAAAABq+EAAAAAA8IEKQQAAAACgGhNBAAAAAIDABEEAAAAAoGEMQQAAAAAA+fVAAAAAAMA+CkEAAAAAwD4KQQAAAABAEgdBAAAAAMDT9kAAAAAAAAUEQQAAAADA8RFBAAAAAEBYDEEAAAAA4KoFQQAAAADA2QVBAAAAAIAxB0EAAAAAwCD\u002fQAAAAABA7vxAAAAAAKCdAkEAAAAAILIJQQAAAADAr\u002fxAAAAAAEA3BUEAAAAAjDgCQQAAAABAswFBAAAAACDWE0EAAAAAwK8MQQAAAACAhA5BAAAAAMB68EAAAAAAQCT0QClcj8JR7vxAAAAAAOiaDUEAAAAAQJX2QAAAAABAPBBBAAAAALhiB0EAAAAAMGcDQQAAAAAgRwZBAAAAAKBYAUEAAAAAQGsNQQAAAABA+gpBAAAAAOCqBUEAAAAAABcBQQAAAAAw5QdBAAAAAMBY\u002fkAAAAAAQJX2QAAAAAAArftAAAAAAACt+0AAAAAAAK37QAAAAACAbANBAAAAAIBsA0EAAAAAgGwDQQAAAACAhP5AAAAAACBrAEEAAAAAAF76QAAAAAAA1ftAAAAAAEAt\u002f0AAAAAAgDH3QAAAAAAAathAAAAAAHBo80AAAAAAtEoBQQAAAABAd\u002ftAAAAAAAAdAEEAAAAAABcBQQAAAAAwNwNBAAAAAEDc\u002f0AAAAAAgPv\u002fQAAAAABAjwdBNDMzMzPO9UAAAAAA0NQEQQAAAAAA7utAAAAAAACIA0EAAAAAsGEGQQAAAACAVQFBAAAAAPDvAEEAAAAAAP\u002f0QAAAAACQYwFBAAAAAGAhBUEAAAAAPDYAQQAAAADAIP9AAAAAACAE\u002fUAAAAAAQAQBQQAAAAA8NgBBNDMzM7N7\u002fEAAAAAAwNMGQQAAAAAAFwFBAAAAAEBq+UAAAAAAAFznQAAAAADQlQJBAAAAAABc50AAAAAAQJX2QAAAAAAAXOdAAAAAAABc50AAAAAAABESQQAAAAB4VfhAAAAAAABc50AAAAAAAFznQAAAAADA6xJBAAAAAABc50AAAAAAQBnqQAAAAADA6xJBAAAAAEAq80AAAAAAwK8MQQAAAACoDgJBAAAAAAAgDEEAAAAAQAz4QAAAAADAegBBAAAAAKAz\u002fUAAAAAAwI\u002f5QAAAAADwGP9AAAAAAFCiAkEzMzMzM7b8QAAAAADA6\u002fJAAAAAAKDCAEEAAAAAAL3\u002fQAAAAADQ+QJBAAAAAMB6AEEAAAAA4PcNQQAAAABAlfZAAAAAAMAm7kAAAAAAAPn1QAAAAAAwDA5BAAAAAAAy+UAAAAAAAEz9QAAAAABAMAJBAAAAAOCN\u002fkAAAAAAANz+QAAAAAAgrPpAAAAAANAN\u002f0AAAAAAcFcKQQAAAAAAZOlAAAAAAKAsAEEAAAAAABfxQB6F61HA2vtAAAAAAAAL80AAAAAA2BT5QAAAAABAMAJBAAAAAIBP8kAAAAAA4MgAQQAAAAAAavhAAAAAAEAwAkEAAAAAAHbmQAAAAAAAduZAAAAAAKDCAEEAAAAAkNsGQQAAAAAAduZAAAAAAEDD70AAAAAAAHbmQAAAAAAg7\u002fNAAAAAAABQ5EAAAAAAAHbmQAAAAAAAduZAAAAAACDy\u002f0AAAAAA4Mv1QAAAAACAWP1AAAAAAAB25kAAAAAAwNkFQQAAAAAAeO5AAAAAAEB3+0AAAAAAANv6QAAAAACAgwpBAAAAAPC\u002f+EAAAAAAIHIDQQAAAABwPAdBAAAAAKA090AAAAAAwOsCQQAAAAAA2\u002fpAAAAAAAAR8kAAAAAAoOoKQQAAAADgsARB16NwPUwHAUEAAAAAYHIEQQAAAAAAaABBAAAAAEAeFUEAAAAAkPMCQQAAAACQ8wJBAAAAAAD5BUEAAAAAwK8MQQAAAAAw6xZBAAAAAECV9kAAAAAAAF0GQQAAAAAQrxNBAAAAAMCvDEEAAAAAYFIBQQAAAABAHhVBAAAAAIBd+EAAAAAAUKntQAAAAAAghABBAAAAAABq+EAAAAAAgCMBQQAAAAAAgQBBAAAAAOC8AkEAAAAAAL3\u002fQAAAAADM6gZBAAAAAODCAUEAAAAAQPr6QDMzMzPzT\u002fpAAAAAAADt50AAAAAAAP8EQQAAAAAgL\u002fpAAAAAAHBI+EAAAAAAIMoFQQAAAACATwJBAAAAAAB8BUEAAAAAAHwFQQAAAAAA2\u002fpAAAAAAAAX8UAAAAAAwEr4QDMzMzPz2PJAAAAAADDa\u002fUAAAAAAMOsWQQAAAAAAiANBAAAAAABq+EAAAAAAsCMIQQAAAAAA+eVAAAAAAGByBEEAAAAAAOfoQAAAAADAx\u002fhAAAAAAADG4UAAAAAA0PkCQQAAAABAJARBAAAAAKB\u002fB0EAAAAAgMAEQQAAAAAAFwFBAAAAAEDy80AAAAAAAO77QAAAAABwgARBAAAAAIC09kAAAAAAAOAFQQAAAACAMfdAAAAAAAD27UAAAAAAkGMBQQAAAAAkYhBBAAAAAMDr8kAAAAAAQCT0QAAAAACAwARBAAAAAKCLBUEAAAAAAL3\u002fQAAAAACApARBhetRuFIr8UAAAAAAwGgDQQAAAAAAlPFAAAAAAADb+kAAAAAAIKD8QAAAAABAVfBAAAAAAPD4C0EAAAAAwPcAQQAAAABgZgZBAAAAAEB3+0AAAAAAQCQEQQAAAAAIavhAAAAAAGwFEUEAAAAAAL3\u002fQAAAAADA9\u002fBAAAAAAPCFEUEAAAAAYOMGQQAAAADAdvlAAAAAAGD9B0EAAAAAAB0AQQAAAAAAiANBAAAAAKCLBUEAAAAAAMYBQQAAAABAB\u002f1AAAAAAHjAEkEAAAAAADABQQAAAAAA+fVAAAAAAADgBUEAAAAAAL3vQAAAAADAggdBAAAAAED+AUEAAAAAgDH3QAAAAABwFgVBAAAAAHAiE0FnZmZm5kLzQAAAAACwEAdBAAAAAADU\u002fkAAAAAADDwEQQAAAAAAvf9AAAAAAIBP8kAAAAAAAIkCQQAAAADgw+dAAAAAACDvA0EAAAAAgE\u002fyQAAAAABAs\u002fFAAAAAAACFAUEAAAAAQMf2QAAAAAAATP1AAAAAACiABkEAAAAAAFT1QAAAAAAgZQFBAAAAAAD59UAAAAAAHBcDQQAAAABAs\u002fFAAAAAAIBP8kAAAAAAwH0MQQAAAADQWPhAAAAAAABM\u002fUAAAAAAqNwBQQAAAAAA+fVAAAAAAMDN90BmZmZmlo7xQAAAAADQJBBBAAAAAIBPAkEAAAAAAMP+QAAAAADAVgZBAAAAAIB3\u002fEAAAAAAAL3\u002fQAAAAAAAavhAAAAAAJBwA0EAAAAAgIT+QAAAAACQcANBAAAAAACU8UAAAAAAgH7\u002fQAAAAADAegBBzMzMzAwQ+EAAAAAAAIIEQQAAAAAA2\u002fpAAAAAAKBH+EAAAAAA0DIGQQAAAADAVgZBAAAAACCU\u002fkAAAAAAYGwFQQAAAACAyf9AAAAAAAAf+EAAAAAAQI\u002f2QAAAAAAA+fVAAAAAACAo90AAAAAAQOj9QAAAAABgDQBBAAAAAACX\u002fUAAAAAAwHoAQQAAAADA6\u002fJAAAAAAIDA9EAAAAAAwKf1QAAAAACAfAdBAAAAAGCKEEEAAAAAwGgDQQAAAAAAaghBAAAAAIDABEEAAAAAwMf4QAAAAADsaQhBAAAAAIAjAUHXo3A9sAT1QDMzMzOzM\u002fhAAAAAAABq+EAAAAAAgE8CQQAAAACAwPRAAAAAAABSDEEAAAAAkPMCQQAAAAAwKAFBAAAAAEB3+0AAAAAAQLQFQQAAAADAHQNBAAAAALAXCkEAAAAAgMAEQQAAAACgeQhBAAAAAKB5CEEAAAAAAPgBQQAAAADQHhFBAAAAAMDZBUEAAAAAYB3+QAAAAACgFARBAAAAAAAXAUEAAAAA4MgQQQAAAACobBNBAAAAAKAQ\u002fUAAAAAAAFznQAAAAABghfVAAAAAAADa5kAAAAAAAGDoQAAAAAAA5ulAAAAAAFAIC0EAAAAAIKn4QAAAAAAAyAlBAAAAAMDTBkEAAAAAgIfxQAAAAABQ2gFBAAAAAEDu\u002fECamZmZmUf7QAAAAADA6wJBAAAAAIATDEEAAAAACG8QQQAAAAAQRQRBAAAAACi0\u002fkAAAAAAgJQDQQAAAAAAggRB"},"xaxis":"x","yaxis":"y","type":"histogram"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","margin":{"b":0,"l":0,"r":0,"t":30},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Annualized salary midpoint (USD)"},"tickprefix":"$","tickformat":","},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Number of postings"}},"legend":{"tracegroupgap":0},"title":{"text":"Annualized Salary Midpoints (441 Postings)"},"barmode":"relative","shapes":[{"line":{"color":"#D97706","dash":"dash"},"type":"line","x0":134250.0,"x1":134250.0,"xref":"x","y0":0,"y1":1,"yref":"y domain"}],"annotations":[{"showarrow":false,"text":"Median: $134,250","x":134250.0,"xanchor":"left","xref":"x","y":1,"yanchor":"top","yref":"y domain"}],"height":450,"bargap":0.05},                        {"responsive": true}                    ).then(function(){
+                            
+var gd = document.getElementById('0940d91c-185d-4d96-bf27-580463985743');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script>        </div>
+</div>
+</div>
+<p>For the 441 postings included in this salary analysis, the median annualized salary midpoint was $134,250. The distribution has a tail toward higher salaries, showing that some advertised ranges were much higher than others. These are advertised range midpoints rather than actual earnings, and the sample combines different roles and experience levels. Hourly salaries were converted using 2,080 hours per year, and some currencies were assumed to be USD.</p>
+
+
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
