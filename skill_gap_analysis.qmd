@@ -7,3 +7,76 @@ jupyter: python3
 execute:
   freeze: auto 
 ---
+## Purpose
+
+This section compares the tools mentioned in our job-posting data with our team’s current skills and experience. We use this comparison to identify where we already have relevant skills, where we need more practice, and what we should prioritize learning next.
+
+## How we made the comparison
+
+We use the tool-mention results from our market baseline and the skill information provided by each team member. Because the structured skills field appeared incomplete, we counted selected tools directly in the job descriptions, counting each tool once per posting.
+
+We keep each person’s reported skill level and supporting experience visible. Information that was not provided is marked as “Not reported” rather than treated as no experience. Our learning priorities consider both how often a tool appears in the current sample and each member’s experience with it.
+
+These results remain provisional while the initial job filtering is reviewed. A tool appearing in a description does not necessarily mean it is required, and our comparison does not measure overall job readiness.
+
+## Current team skills
+
+The table below summarizes our current experience with selected analytics tools. These levels are self-reported and have not been tested. “Not reported” means we still need clarification.
+
+| Tool | Equeen Thendersz | Senthil Sukumar | Luxan Shanthakkumar |
+|---|---|---|---|
+| SQL | No experience | Comfortable using | Beginner |
+| Python | Beginner; using Python, PySpark, and Pandas | Comfortable using | Beginner; learning through coursework with guidance |
+| Excel | Advanced | Comfortable using | Beginner; comfortable with basic use |
+| Tableau | No experience | Comfortable using | Beginner |
+| Power BI | No experience | Some familiarity; less experience | Beginner; not comfortable using |
+
+## Experience supporting our profiles
+
+| Team member | Relevant experience and evidence |
+|---|---|
+| Equeen Thendersz | Supply chain coursework; data cleaning, regression, clustering, and forecasting projects using Python, PySpark, and R; advanced Excel experience reported in financial modeling and operations analysis; manufacturing quality control and Lean Six Sigma Green Belt. |
+| Senthil Sukumar | Twelve years in professional BI and analytics roles. Reports working capability in Python, SQL, Excel, and Tableau, familiarity with Power BI, and experience with Superset and Google Data Studio. Specific work examples would strengthen this profile. |
+| Luxan Shanthakkumar | Business analytics coursework involving SQL, Python, PySpark, and Plotly; basic familiarity with EC2, GitHub, VS Code, and Quarto. Previous experience includes project coordination and reporting during the BMO–Bank of the West integration, business operations and estimating at Delta Mechanical, and SAFe Product Owner/Product Manager certification. |
+
+Our team brings different strengths. Senthil has experience with SQL and Tableau, Equeen has strong Excel and process-improvement experience, and Luxan brings project and business experience while developing technical skills. These strengths can support shared learning, but each person still needs to develop and demonstrate their own abilities.
+
+## Comparing market mentions with our skills
+
+This benchmark uses selected tool mentions from the 2,353 job descriptions examined in our market baseline. The percentages describe our current sample, and a mention does not necessarily mean a required skill.
+
+| Tool | Postings mentioning tool | Percentage of descriptions | What this means for our team |
+|---|---:|---:|---|
+| SQL | 901 | 38.3% | Equeen needs to build a foundation, while Luxan needs more practice. Senthil reports being comfortable using SQL. |
+| Python | 843 | 35.8% | Equeen and Luxan are beginners, so developing independent use is a priority. Senthil’s has working experience with python |
+| Excel | 286 | 12.2% | Equeen reports advanced proficiency and Senthil is comfortable using it. Luxan can strengthen his analysis and reporting skills. |
+| Power BI | 261 | 11.1% | Equeen has no experience, Luxan is not comfortable using it, and Senthil has some familiarity. Dashboard development is an area to consider. |
+| Tableau | 232 | 9.9% | Senthil reports being comfortable using it, while Equeen has no experience. Luxan has beginner experience and would benefit from further dashboard practice. |
+
+SQL and Python were mentioned most frequently among the tools we checked. Combined with the beginner or no-experience levels reported by Equeen and Luxan, this makes them our clearest initial learning priorities. Power BI and Tableau provide another area for development, but members can begin with one dashboard tool rather than learning both at once.
+
+Tools not included here may still matter for particular roles.
+
+## Learning priorities and next steps
+
+We prioritize skills by considering their frequency in our sample alongside each person’s reported experience. These are proposed learning actions, rather than tested measures of employability.
+
+| Team member | Priority | Reason | Proposed action and evidence of progress |
+|---|---|---|---|
+| Equeen | Build SQL foundations | SQL appeared in 38.3% of descriptions, and she reports no experience. | Practice filtering, joins, and grouping. Complete a small SQL analysis and explain how the results were checked. |
+| Equeen | Strengthen independent Python use | Python appeared in 35.8% of descriptions, and she reports beginner proficiency. | Independently clean and summarize a dataset using Pandas, documenting missing values and validating the results. |
+| Equeen | Learn one dashboard tool | She reports no Tableau or Power BI experience. | Build a dashboard using one tool, drawing on her Excel and operations-analysis experience. |
+| Senthil | Document existing SQL and Tableau strengths | He reports being comfortable with both and has substantial BI experience. | Add a nonconfidential project example explaining the business question, his contribution, and the outcome. |
+| Senthil | Consider further Power BI practice | He reports less experience with Power BI than Tableau. | If relevant to his target postings, recreate a familiar dashboard in Power BI and compare the workflow. |
+| Luxan | Strengthen SQL foundations | SQL appeared most frequently among the selected tools, and he reports beginner proficiency. | Complete a small analysis using joins and grouping, then explain and verify the results independently. |
+| Luxan | Develop independent Python use | Python was frequently mentioned, and his current experience involves guided coursework. | Rebuild a small data-cleaning and visualization task, explaining each step and checking the output. |
+| Luxan | Build confidence in Power BI | He reports beginner proficiency and is not comfortable using it. | Create a simple dashboard with filters and clear measures, then check its totals against the source data. |
+| Luxan | Improve Excel analysis skills | He is comfortable with basic use but still reports beginner proficiency. | Build a workbook using formulas, pivot tables, and a chart to answer a business question. |
+
+## Applying the findings
+
+Our main initial priorities are SQL and Python for members who report limited experience. Dashboard practice can follow, with each member choosing a tool relevant to the roles they are considering.
+
+Senthil’s SQL and Tableau experience can support peer review, while Equeen’s Excel and process-improvement experience can help with checking calculations and interpreting operational results. Each member should produce their own work and be able to explain it.
+
+For job applications, we should compare our evidence with the requirements of individual postings. Existing business, operations, and project experience can support our profiles, but the tool-mention percentages alone cannot establish whether someone is ready for a particular role.
