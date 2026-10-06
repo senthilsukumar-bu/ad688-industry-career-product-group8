@@ -268,6 +268,11 @@ location = F.upper(F.coalesce(F.col("location_text"), F.lit("")))
 us_location = (
     location.rlike(r"\bUNITED STATES\b|\bUSA\b|\bU\.S\.A?\.")
     | location.rlike(r",\s*(" + us_states + r")\b")
+    | location.rlike(
+        r"\b(ARIZONA|TEXAS|CALIFORNIA|FLORIDA|MARYLAND|"
+        r"MICHIGAN|MISSOURI|NEW YORK)\b"
+    )
+    | location.rlike(r"\bLOS ANGELES METROPOLITAN AREA\b")
 )
 
 assume_usd = (
@@ -300,6 +305,31 @@ jobs_pay.filter(
 ).count().orderBy(F.desc("count")).show(truncate=False)
 ```
 
+
+```{python}
+usd_pay = (
+    jobs_pay
+    .filter(
+        (F.col("salary_currency") == "USD")
+        & F.col("annualized_min").isNotNull()
+        & F.col("annualized_max").isNotNull()
+    )
+    .withColumn(
+        "annual_midpoint",
+        (F.col("annualized_min") + F.col("annualized_max")) / 2
+    )
+)
+
+usd_pay.agg(
+    F.count("*").alias("postings"),
+    F.round(
+        F.percentile_approx("annual_midpoint", 0.5), 2
+    ).alias("median_annual_midpoint_usd"),
+    F.round(
+        F.avg("annual_midpoint"), 2
+    ).alias("mean_annual_midpoint_usd")
+).show(truncate=False)
+```
 ```{python}
 jobs_pay.filter(
     (F.col("annualized_min").isNotNull())
@@ -311,4 +341,175 @@ jobs_pay.filter(
 ).orderBy(
     "location_text", "salary_text"
 ).show(30, truncate=100)
+```
+
+```{python}
+usd_role_pay = (
+    usd_pay
+    .withColumn(
+        "role",
+        F.coalesce(
+            F.when(
+                F.trim(F.col("normalized_title")) != "",
+                F.trim(F.col("normalized_title"))
+            ),
+            F.trim(F.col("title"))
+        )
+    )
+    .groupBy("role")
+    .agg(
+        F.count("*").alias("salary_postings"),
+        F.round(
+            F.percentile_approx("annual_midpoint", 0.5), 2
+        ).alias("median_annual_midpoint_usd")
+    )
+    .filter(F.col("salary_postings") >= 5)
+    .orderBy(F.desc("salary_postings"), "role")
+)
+
+usd_role_pay.show(20, truncate=False)
+```
+
+```{python}
+jobs_clean.filter(
+    F.col("skills").isNotNull()
+    & (F.trim(F.col("skills")) != "")
+    & (F.trim(F.col("skills")) != "[]")
+).select(
+    "title",
+    "skills"
+).show(5, truncate=False)
+```
+
+```{python}
+skills_parsed = jobs_clean.withColumn(
+    "skills_array",
+    F.from_json(
+        F.col("skills"),
+        "array<struct<name:string,type:string,confidence:double>>"
+    )
+)
+
+# Check how many postings have usable skill information.
+skills_parsed.agg(
+    F.count("*").alias("total_postings"),
+    F.sum(
+        F.when(F.size("skills_array") > 0, 1).otherwise(0)
+    ).alias("postings_with_skills")
+).show(truncate=False)
+
+# Extract skill names and count distinct postings.
+job_skills = (
+    skills_parsed
+    .select("job_id", F.explode("skills_array").alias("skill_record"))
+    .select(
+        "job_id",
+        F.lower(F.trim(F.col("skill_record.name"))).alias("skill")
+    )
+    .filter(F.col("skill").isNotNull() & (F.col("skill") != ""))
+    .dropDuplicates(["job_id", "skill"])
+)
+
+skill_demand = (
+    job_skills
+    .groupBy("skill")
+    .agg(F.countDistinct("job_id").alias("postings"))
+    .orderBy(F.desc("postings"), "skill")
+)
+
+skill_demand.show(20, truncate=False)
+```
+
+```{python}
+# Check how many skills the source stored per posting.
+skills_parsed.groupBy(
+    F.size("skills_array").alias("skills_per_posting")
+).count().orderBy("skills_per_posting").show(30, truncate=False)
+
+# Look for common analytics tools anywhere in the recorded skills.
+skill_demand.filter(
+    F.col("skill").rlike(
+        r"sql|python|tableau|power\s*bi|excel|"
+        r"pandas|spark|statistics|visualization"
+    )
+).show(50, truncate=False)
+```
+
+```{python}
+job_skills.withColumn(
+    "first_character",
+    F.substring("skill", 1, 1)
+).groupBy(
+    "first_character"
+).agg(
+    F.countDistinct("skill").alias("distinct_skills"),
+    F.count("*").alias("posting_skill_pairs")
+).orderBy("first_character").show(40, truncate=False)
+```
+
+```{python}
+has_description = (
+    F.col("description").isNotNull()
+    & (F.length(F.trim(F.col("description"))) > 0)
+)
+
+jobs_clean.agg(
+    F.count("*").alias("total_postings"),
+    F.sum(
+        F.when(has_description, 1).otherwise(0)
+    ).alias("postings_with_description")
+).show(truncate=False)
+
+jobs_clean.filter(has_description).select(
+    "title",
+    F.substring("description", 1, 500).alias("description_preview")
+).show(3, truncate=False)
+```
+
+```{python}
+tool_patterns = [
+    ("SQL", r"\bsql\b"),
+    ("Python", r"\bpython\b"),
+    ("Excel", r"\bexcel\b"),
+    ("Tableau", r"\btableau\b"),
+    ("Power BI", r"\bpower[\s-]*bi\b"),
+    ("Apache Spark / PySpark", r"\b(?:apache\s+spark|pyspark)\b"),
+    ("Pandas", r"\bpandas\b")
+]
+
+description_jobs = jobs_clean.filter(has_description).withColumn(
+    "description_lower",
+    F.lower(F.col("description"))
+)
+
+description_count = description_jobs.select("job_id").distinct().count()
+
+tool_mentions = (
+    description_jobs
+    .select(
+        "job_id",
+        F.explode(F.array(*[
+            F.struct(
+                F.lit(tool).alias("tool"),
+                F.col("description_lower").rlike(pattern).alias("mentioned")
+            )
+            for tool, pattern in tool_patterns
+        ])).alias("match")
+    )
+    .groupBy(F.col("match.tool").alias("tool"))
+    .agg(
+        F.countDistinct(
+            F.when(F.col("match.mentioned"), F.col("job_id"))
+        ).alias("postings_mentioning_tool")
+    )
+    .withColumn(
+        "percent_of_descriptions",
+        F.round(
+            F.col("postings_mentioning_tool") / description_count * 100, 1
+        )
+    )
+    .orderBy(F.desc("postings_mentioning_tool"), "tool")
+)
+
+tool_mentions.show(truncate=False)
 ```
