@@ -182,11 +182,11 @@
     "text": "5. What to keep in mind\n\nCareer tracks are grouped by job title, so some postings may be misclassified.\nSalary data is thin. Only 83 of 480 core postings list a usable USD salary.\nA tool mentioned in a posting is not always required.\nSkill levels are self-reported and have not been tested.\nThe data covers one industry and ten weeks (late May to early August 2026). Results may differ in other industries or later periods."
   },
   {
-    "objectID": "final_recommendations.html#next-steps-for-module-5",
-    "href": "final_recommendations.html#next-steps-for-module-5",
+    "objectID": "final_recommendations.html#future-improvements",
+    "href": "final_recommendations.html#future-improvements",
     "title": "Final Recommendations",
-    "section": "Next steps for Module 5",
-    "text": "Next steps for Module 5\n\nRefine the career track rules so fewer unrelated postings enter the sample.\nAdd a final model, such as a salary regression or an entry-level vs. senior classifier, to test which factors are linked to stronger opportunities.\nAdd location analysis once location fields are cleaned.\nUpdate these recommendations with the final results."
+    "section": "Future improvements",
+    "text": "Future improvements\n\nRefine the career track rules so fewer unrelated postings enter the sample.\nAdd a final model, such as a salary regression or an entry-level vs. senior classifier, to test which factors are linked to stronger opportunities.\nAdd location analysis once location fields are cleaned.\nUpdate these recommendations with the final results."
   },
   {
     "objectID": "career_evaluation.html",
