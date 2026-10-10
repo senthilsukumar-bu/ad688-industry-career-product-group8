@@ -26,10 +26,45 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -73,6 +108,15 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script>
+window.PlotlyConfig = {MathJaxConfig: 'local'};
+if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}
+</script>
+<script type="module">import "https://cdn.plot.ly/plotly-4.1.1.min"</script>
+
 
 
 <link rel="stylesheet" href="styles.css">
@@ -138,8 +182,32 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#purpose" id="toc-purpose" class="nav-link active" data-scroll-target="#purpose">Purpose</a></li>
+  <li><a href="#loading-the-data" id="toc-loading-the-data" class="nav-link" data-scroll-target="#loading-the-data">Loading the data</a></li>
+  <li><a href="#grouping-postings-into-career-tracks" id="toc-grouping-postings-into-career-tracks" class="nav-link" data-scroll-target="#grouping-postings-into-career-tracks">Grouping postings into career tracks</a></li>
+  <li><a href="#preparing-the-measures" id="toc-preparing-the-measures" class="nav-link" data-scroll-target="#preparing-the-measures">Preparing the measures</a></li>
+  <li><a href="#benchmark-table" id="toc-benchmark-table" class="nav-link" data-scroll-target="#benchmark-table">Benchmark table</a></li>
+  <li><a href="#career-scorecard" id="toc-career-scorecard" class="nav-link" data-scroll-target="#career-scorecard">Career scorecard</a>
+  <ul class="collapse">
+  <li><a href="#attractive-versus-attainable" id="toc-attractive-versus-attainable" class="nav-link" data-scroll-target="#attractive-versus-attainable">Attractive versus attainable</a></li>
+  <li><a href="#does-the-ranking-depend-on-the-weights" id="toc-does-the-ranking-depend-on-the-weights" class="nav-link" data-scroll-target="#does-the-ranking-depend-on-the-weights">Does the ranking depend on the weights?</a></li>
+  </ul></li>
+  <li><a href="#skill-fit-by-team-member" id="toc-skill-fit-by-team-member" class="nav-link" data-scroll-target="#skill-fit-by-team-member">Skill fit by team member</a></li>
+  <li><a href="#testing-our-expectations-about-bi-tools" id="toc-testing-our-expectations-about-bi-tools" class="nav-link" data-scroll-target="#testing-our-expectations-about-bi-tools">Testing our expectations about BI tools</a></li>
+  <li><a href="#game-plan-for-a-bi-job-seeker" id="toc-game-plan-for-a-bi-job-seeker" class="nav-link" data-scroll-target="#game-plan-for-a-bi-job-seeker">Game plan for a BI job seeker</a>
+  <ul class="collapse">
+  <li><a href="#where-to-strike-first" id="toc-where-to-strike-first" class="nav-link" data-scroll-target="#where-to-strike-first">Where to strike first</a></li>
+  <li><a href="#the-high-leverage-skill-bridge" id="toc-the-high-leverage-skill-bridge" class="nav-link" data-scroll-target="#the-high-leverage-skill-bridge">The high-leverage skill bridge</a></li>
+  <li><a href="#long-term-positioning" id="toc-long-term-positioning" class="nav-link" data-scroll-target="#long-term-positioning">Long-term positioning</a></li>
+  </ul></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -163,8 +231,963 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="purpose" class="level2">
+<h2 class="anchored" data-anchor-id="purpose">Purpose</h2>
+<p>This page compares BI-pathway career tracks on how attractive they are (demand, pay, flexibility) and how attainable they are for our team (entry access, skill fit).</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>What surprised us
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>“BI Analyst” is rarely the job title.</strong> Only 52 of 2,353 postings use a BI title. Most BI work in this industry is posted as Data Analyst or Business / Systems Analyst.</li>
+<li><strong>We expected Power BI and Tableau to be either/or. They often aren’t.</strong> Of the 163 core postings that mention either tool, 70 (43%) mention both.</li>
+<li><strong>The highest median salary comes with the fewest openings.</strong> Analytics Engineer shows a $142,133 median, but it has only 18 postings and only 6 reported salaries.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="loading-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="loading-the-data">Loading the data</h2>
+<div id="7bcfe3cd" class="cell" data-execution_count="1">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>jobs <span class="op">=</span> pd.read_csv(<span class="st">"./outputs/api_job_facts_cleaned.csv"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(jobs.shape)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>jobs[<span class="st">"title"</span>].value_counts().head(<span class="dv">20</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>(2353, 37)</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="1">
+<pre><code>title
+Senior Data Engineer                                                    37
+Data Engineer                                                           30
+Business Analyst                                                        23
+Data Scientist                                                          18
+Senior Data Scientist                                                   17
+Data Breach Response Review Attorney - Remote                           14
+Cybersecurity Analyst                                                   11
+Human Resources Business Partner                                        11
+Data Analyst                                                            10
+HR Business Partner                                                      9
+Senior Delivery Consultant - Data , Professional Services, AWSI HCLS     9
+Business Systems Analyst                                                 9
+Business Development Manager                                             8
+Principal Machine Learning Engineer, General AI, ML &amp; Big Data           8
+Senior Data Analyst                                                      7
+Lead Data Engineer                                                       7
+Business Development Representative                                      6
+Principal Data Scientist                                                 6
+Lead Data Scientist                                                      6
+Senior Business Systems Analyst                                          6
+Name: count, dtype: int64</code></pre>
+</div>
+</div>
+</section>
+<section id="grouping-postings-into-career-tracks" class="level2">
+<h2 class="anchored" data-anchor-id="grouping-postings-into-career-tracks">Grouping postings into career tracks</h2>
+<p>Standardizing job titles across different employers involves sorting each posting into a specific career track using keyword rules. These rules are evaluated sequentially, and the career track is assigned based on the first matching keyword. Non-analytical titles, such as cybersecurity, human resources, legal, software engineering, and data entry, are filtered out initially.</p>
+<div id="d31e3e25" class="cell" data-execution_count="2">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>title <span class="op">=</span> jobs[<span class="st">"title"</span>].fillna(<span class="st">""</span>).<span class="bu">str</span>.lower()</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>FAMILY_RULES <span class="op">=</span> [</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Outside BI scope"</span>, <span class="vs">r"software </span><span class="kw">(</span><span class="vs">engineer</span><span class="cf">|</span><span class="vs">developer</span><span class="cf">|</span><span class="vs">development</span><span class="kw">)</span><span class="cf">|</span><span class="dv">\b</span><span class="vs">sde</span><span class="dv">\b</span><span class="cf">|</span><span class="vs">cyber</span><span class="cf">|</span><span class="vs">security</span><span class="cf">|</span><span class="vs">attorney</span><span class="cf">|</span><span class="dv">\b</span><span class="vs">hr</span><span class="dv">\b</span><span class="cf">|</span><span class="vs">human resources</span><span class="cf">|</span><span class="vs">people business</span><span class="cf">|</span><span class="vs">business development</span><span class="cf">|</span><span class="vs">data entry</span><span class="cf">|</span><span class="vs">artist"</span>),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Analytics Engineer"</span>, <span class="vs">r"analytics engineer"</span>),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"BI Analyst / Developer"</span>, <span class="vs">r"business intelligence</span><span class="cf">|</span><span class="dv">\b</span><span class="vs">bi</span><span class="dv">\b</span><span class="cf">|</span><span class="vs">power </span><span class="op">?</span><span class="vs">bi</span><span class="cf">|</span><span class="vs">tableau</span><span class="cf">|</span><span class="vs">looker</span><span class="cf">|</span><span class="vs">dashboard</span><span class="cf">|</span><span class="vs">reporting </span><span class="kw">(</span><span class="vs">analyst</span><span class="cf">|</span><span class="vs">developer</span><span class="cf">|</span><span class="vs">specialist</span><span class="cf">|</span><span class="vs">automation</span><span class="kw">)</span><span class="vs">"</span>),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Data Scientist / ML"</span>, <span class="vs">r"data scien</span><span class="cf">|</span><span class="vs">machine learning</span><span class="cf">|</span><span class="dv">\b</span><span class="vs">ml</span><span class="dv">\b</span><span class="cf">|</span><span class="vs">applied scientist"</span>),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Data Analyst"</span>, <span class="vs">r"data analy</span><span class="cf">|</span><span class="vs">analytics analyst</span><span class="cf">|</span><span class="vs">insights</span><span class="op">?</span><span class="vs"> analyst</span><span class="cf">|</span><span class="vs">data analysr</span><span class="cf">|</span><span class="vs">analytics </span><span class="kw">(</span><span class="vs">specialist</span><span class="cf">|</span><span class="vs">consultant</span><span class="cf">|</span><span class="vs">manager</span><span class="cf">|</span><span class="vs">lead</span><span class="kw">)</span><span class="cf">|</span><span class="vs">product analyst</span><span class="cf">|</span><span class="vs">marketing analyst"</span>),</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Business / Systems Analyst"</span>, <span class="vs">r"business </span><span class="kw">(</span><span class="vs">systems</span><span class="op">?</span><span class="vs"> </span><span class="kw">)</span><span class="op">?</span><span class="vs">analyst</span><span class="cf">|</span><span class="vs">systems analyst</span><span class="cf">|</span><span class="vs">business analytics"</span>),</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"Data Engineer / Architect"</span>, <span class="vs">r"data engineer</span><span class="cf">|</span><span class="vs">data architect</span><span class="cf">|</span><span class="dv">\b</span><span class="vs">etl</span><span class="dv">\b</span><span class="cf">|</span><span class="vs">data platform</span><span class="cf">|</span><span class="vs">data warehouse</span><span class="cf">|</span><span class="vs">database"</span>),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> classify(text):</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> family, pattern <span class="kw">in</span> FAMILY_RULES:</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> re.search(pattern, text):</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> family</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">"Outside BI scope"</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>jobs[<span class="st">"role_family"</span>] <span class="op">=</span> title.<span class="bu">map</span>(classify)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>CORE <span class="op">=</span> [<span class="st">"BI Analyst / Developer"</span>, <span class="st">"Data Analyst"</span>, <span class="st">"Business / Systems Analyst"</span>, <span class="st">"Analytics Engineer"</span>]</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>ADJACENT <span class="op">=</span> [<span class="st">"Data Engineer / Architect"</span>, <span class="st">"Data Scientist / ML"</span>]</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>jobs[<span class="st">"role_family"</span>].value_counts().rename_axis(<span class="st">"career track"</span>).to_frame(<span class="st">"Postings"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div>
 
 
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Postings</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">career track</th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Outside BI scope</th>
+<td>1312</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Data Engineer / Architect</th>
+<td>311</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Business / Systems Analyst</th>
+<td>252</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Data Scientist / ML</th>
+<td>250</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Data Analyst</th>
+<td>158</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">BI Analyst / Developer</th>
+<td>52</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Analytics Engineer</th>
+<td>18</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="preparing-the-measures" class="level2">
+<h2 class="anchored" data-anchor-id="preparing-the-measures">Preparing the measures</h2>
+<div id="a900b9a9" class="cell" data-execution_count="3">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Salary: same rules as the Market Baseline page ---</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>has_annual <span class="op">=</span> jobs[<span class="st">"annual_salary_min"</span>].notna() <span class="op">&amp;</span> jobs[<span class="st">"annual_salary_max"</span>].notna()</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>has_hourly <span class="op">=</span> jobs[<span class="st">"hourly_salary_min"</span>].notna() <span class="op">&amp;</span> jobs[<span class="st">"hourly_salary_max"</span>].notna()</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>jobs[<span class="st">"annualized_min"</span>] <span class="op">=</span> np.where(has_annual, jobs[<span class="st">"annual_salary_min"</span>],</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                                  np.where(has_hourly, jobs[<span class="st">"hourly_salary_min"</span>] <span class="op">*</span> <span class="dv">2080</span>, np.nan))</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>jobs[<span class="st">"annualized_max"</span>] <span class="op">=</span> np.where(has_annual, jobs[<span class="st">"annual_salary_max"</span>],</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                                  np.where(has_hourly, jobs[<span class="st">"hourly_salary_max"</span>] <span class="op">*</span> <span class="dv">2080</span>, np.nan))</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>currency <span class="op">=</span> (jobs[<span class="st">"salary_text"</span>].fillna(<span class="st">""</span>).<span class="bu">str</span>.upper()</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>            .<span class="bu">str</span>.extract(<span class="vs">r"</span><span class="dv">\b</span><span class="kw">(</span><span class="vs">USD</span><span class="cf">|</span><span class="vs">CAD</span><span class="cf">|</span><span class="vs">EUR</span><span class="cf">|</span><span class="vs">GBP</span><span class="cf">|</span><span class="vs">AUD</span><span class="cf">|</span><span class="vs">NZD</span><span class="cf">|</span><span class="vs">INR</span><span class="cf">|</span><span class="vs">SGD</span><span class="cf">|</span><span class="vs">JPY</span><span class="cf">|</span><span class="vs">CHF</span><span class="cf">|</span><span class="vs">CNY</span><span class="cf">|</span><span class="vs">AED</span><span class="kw">)</span><span class="dv">\b</span><span class="vs">"</span>)[<span class="dv">0</span>])</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>us_states <span class="op">=</span> (<span class="st">"AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|"</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>             <span class="st">"NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC"</span>)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>loc <span class="op">=</span> jobs[<span class="st">"location_text"</span>].fillna(<span class="st">""</span>).<span class="bu">str</span>.upper()</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>us_location <span class="op">=</span> (</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    loc.<span class="bu">str</span>.contains(<span class="vs">r"</span><span class="dv">\b</span><span class="vs">UNITED STATES</span><span class="dv">\b</span><span class="cf">|</span><span class="dv">\b</span><span class="vs">USA</span><span class="dv">\b</span><span class="cf">|</span><span class="dv">\b</span><span class="vs">U</span><span class="ch">\.</span><span class="vs">S</span><span class="ch">\.</span><span class="vs">A</span><span class="op">?</span><span class="ch">\.</span><span class="vs">"</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> loc.<span class="bu">str</span>.contains(<span class="vs">r",</span><span class="dv">\s</span><span class="op">*</span>(?:<span class="vs">"</span> <span class="op">+</span> us_states <span class="op">+</span> <span class="vs">r"</span><span class="er">)</span><span class="dv">\b</span><span class="vs">"</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> loc.<span class="bu">str</span>.contains(<span class="vs">r"</span><span class="dv">\b</span>(?:<span class="vs">ARIZONA</span><span class="cf">|</span><span class="vs">TEXAS</span><span class="cf">|</span><span class="vs">CALIFORNIA</span><span class="cf">|</span><span class="vs">FLORIDA</span><span class="cf">|</span><span class="vs">MARYLAND</span><span class="cf">|</span><span class="vs">MICHIGAN</span><span class="cf">|</span><span class="vs">MISSOURI</span><span class="cf">|</span><span class="vs">NEW YORK</span>)<span class="dv">\b</span><span class="vs">"</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> loc.<span class="bu">str</span>.contains(<span class="vs">r"</span><span class="dv">\b</span><span class="vs">LOS ANGELES METROPOLITAN AREA</span><span class="dv">\b</span><span class="vs">"</span>)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>jobs[<span class="st">"salary_currency"</span>] <span class="op">=</span> currency.where(currency.notna(), np.where(us_location, <span class="st">"USD"</span>, <span class="st">"Unconfirmed"</span>))</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>jobs[<span class="st">"annual_midpoint"</span>] <span class="op">=</span> np.where(</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    (jobs[<span class="st">"salary_currency"</span>] <span class="op">==</span> <span class="st">"USD"</span>) <span class="op">&amp;</span> jobs[<span class="st">"annualized_min"</span>].notna(),</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    (jobs[<span class="st">"annualized_min"</span>] <span class="op">+</span> jobs[<span class="st">"annualized_max"</span>]) <span class="op">/</span> <span class="dv">2</span>,</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    np.nan,</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Seniority: does the title signal a senior role? ---</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>SENIOR <span class="op">=</span> <span class="vs">r"</span><span class="dv">\b</span>(?:<span class="vs">senior</span><span class="cf">|</span><span class="vs">sr</span><span class="ch">\.</span><span class="op">?</span><span class="cf">|</span><span class="vs">lead</span><span class="cf">|</span><span class="vs">principal</span><span class="cf">|</span><span class="vs">staff</span><span class="cf">|</span><span class="vs">director</span><span class="cf">|</span><span class="vs">manager</span><span class="cf">|</span><span class="vs">head</span><span class="cf">|</span><span class="vs">vp</span><span class="cf">|</span><span class="vs">vice president</span><span class="cf">|</span><span class="vs">chief</span><span class="cf">|</span><span class="vs">architect</span><span class="cf">|</span><span class="vs">iii</span><span class="cf">|</span><span class="vs">iv</span><span class="cf">|</span><span class="vs">v</span>)<span class="dv">\b</span><span class="vs">"</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>jobs[<span class="st">"entry_accessible"</span>] <span class="op">=</span> <span class="op">~</span>title.<span class="bu">str</span>.contains(SENIOR)</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Tools mentioned in the description ---</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>TOOLS <span class="op">=</span> {</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"SQL"</span>: <span class="vs">r"</span><span class="dv">\b</span><span class="vs">sql</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Python"</span>: <span class="vs">r"</span><span class="dv">\b</span><span class="vs">python</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Excel"</span>: <span class="vs">r"</span><span class="dv">\b</span><span class="vs">excel</span><span class="dv">\b</span><span class="ex">(</span><span class="fu">?!</span><span class="dv">\s</span><span class="op">+</span>(?:<span class="vs">in</span><span class="cf">|</span><span class="vs">at</span><span class="cf">|</span><span class="vs">as</span><span class="cf">|</span><span class="vs">within</span>)<span class="dv">\b</span><span class="ex">)</span><span class="vs">"</span>,</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Tableau"</span>: <span class="vs">r"</span><span class="dv">\b</span><span class="vs">tableau</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Power BI"</span>: <span class="vs">r"</span><span class="dv">\b</span><span class="vs">power</span><span class="pp">[</span><span class="dv">\s</span><span class="pp">-]</span><span class="op">*</span><span class="vs">bi</span><span class="dv">\b</span><span class="vs">"</span>,</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>description <span class="op">=</span> jobs[<span class="st">"description"</span>].fillna(<span class="st">""</span>).<span class="bu">str</span>.lower()</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> tool, pattern <span class="kw">in</span> TOOLS.items():</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>    jobs[tool] <span class="op">=</span> description.<span class="bu">str</span>.contains(pattern)</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"USD salaries:"</span>, jobs[<span class="st">"annual_midpoint"</span>].notna().<span class="bu">sum</span>())</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Median salary:"</span>, jobs[<span class="st">"annual_midpoint"</span>].median())</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>({tool: <span class="bu">int</span>(jobs[tool].<span class="bu">sum</span>()) <span class="cf">for</span> tool <span class="kw">in</span> TOOLS})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>USD salaries: 441
+Median salary: 134250.0
+{'SQL': 901, 'Python': 843, 'Excel': 286, 'Tableau': 232, 'Power BI': 261}</code></pre>
+</div>
+</div>
+</section>
+<section id="benchmark-table" class="level2">
+<h2 class="anchored" data-anchor-id="benchmark-table">Benchmark table</h2>
+<div id="f254a965" class="cell" data-execution_count="4">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>known_arrangement <span class="op">=</span> jobs[<span class="st">"remote_status"</span>] <span class="op">!=</span> <span class="st">"Unknown"</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>families <span class="op">=</span> CORE <span class="op">+</span> ADJACENT</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>in_scope <span class="op">=</span> jobs[jobs[<span class="st">"role_family"</span>].isin(families)]</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>grouped <span class="op">=</span> in_scope.groupby(<span class="st">"role_family"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>bench <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"postings"</span>: grouped.size(),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"salary_n"</span>: grouped[<span class="st">"annual_midpoint"</span>].count(),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"median_salary"</span>: grouped[<span class="st">"annual_midpoint"</span>].median(),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"flexible_share"</span>: in_scope[known_arrangement].groupby(<span class="st">"role_family"</span>)[<span class="st">"remote_status"</span>]</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>                      .<span class="bu">apply</span>(<span class="kw">lambda</span> s: s.isin([<span class="st">"Remote"</span>, <span class="st">"Hybrid"</span>]).mean()),</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"entry_share"</span>: grouped[<span class="st">"entry_accessible"</span>].mean(),</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"fulltime_share"</span>: grouped[<span class="st">"employment_type"</span>].<span class="bu">apply</span>(<span class="kw">lambda</span> s: (s <span class="op">==</span> <span class="st">"Full-time"</span>).mean()),</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>}).reindex(families)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> tool <span class="kw">in</span> TOOLS:</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    bench[tool] <span class="op">=</span> grouped[tool].mean().reindex(families)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pct(x):</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span>x <span class="op">*</span> <span class="dv">100</span><span class="sc">:.0f}</span><span class="ss">%"</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>bench_display <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Group"</span>: [<span class="st">"Core"</span> <span class="cf">if</span> f <span class="kw">in</span> CORE <span class="cf">else</span> <span class="st">"Adjacent"</span> <span class="cf">for</span> f <span class="kw">in</span> bench.index],</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Postings"</span>: bench[<span class="st">"postings"</span>].astype(<span class="bu">int</span>),</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Median salary (USD)"</span>: bench[<span class="st">"median_salary"</span>].<span class="bu">map</span>(<span class="kw">lambda</span> v: <span class="ss">f"$</span><span class="sc">{</span>v<span class="sc">:,.0f}</span><span class="ss">"</span>),</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Salaries reported"</span>: bench[<span class="st">"salary_n"</span>].astype(<span class="bu">int</span>),</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Remote or hybrid"</span>: bench[<span class="st">"flexible_share"</span>].<span class="bu">map</span>(pct),</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Non-senior titles"</span>: bench[<span class="st">"entry_share"</span>].<span class="bu">map</span>(pct),</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Full-time"</span>: bench[<span class="st">"fulltime_share"</span>].<span class="bu">map</span>(pct),</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"SQL"</span>: bench[<span class="st">"SQL"</span>].<span class="bu">map</span>(pct),</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Python"</span>: bench[<span class="st">"Python"</span>].<span class="bu">map</span>(pct),</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Excel"</span>: bench[<span class="st">"Excel"</span>].<span class="bu">map</span>(pct),</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Tableau"</span>: bench[<span class="st">"Tableau"</span>].<span class="bu">map</span>(pct),</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Power BI"</span>: bench[<span class="st">"Power BI"</span>].<span class="bu">map</span>(pct),</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>}, index<span class="op">=</span>bench.index).rename_axis(<span class="st">"career track"</span>)</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>bench_display</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Group</th>
+<th data-quarto-table-cell-role="th">Postings</th>
+<th data-quarto-table-cell-role="th">Median salary (USD)</th>
+<th data-quarto-table-cell-role="th">Salaries reported</th>
+<th data-quarto-table-cell-role="th">Remote or hybrid</th>
+<th data-quarto-table-cell-role="th">Non-senior titles</th>
+<th data-quarto-table-cell-role="th">Full-time</th>
+<th data-quarto-table-cell-role="th">SQL</th>
+<th data-quarto-table-cell-role="th">Python</th>
+<th data-quarto-table-cell-role="th">Excel</th>
+<th data-quarto-table-cell-role="th">Tableau</th>
+<th data-quarto-table-cell-role="th">Power BI</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">career track</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">BI Analyst / Developer</th>
+<td>Core</td>
+<td>52</td>
+<td>$108,408</td>
+<td>9</td>
+<td>75%</td>
+<td>60%</td>
+<td>60%</td>
+<td>81%</td>
+<td>37%</td>
+<td>15%</td>
+<td>35%</td>
+<td>58%</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Data Analyst</th>
+<td>Core</td>
+<td>158</td>
+<td>$130,000</td>
+<td>31</td>
+<td>89%</td>
+<td>55%</td>
+<td>66%</td>
+<td>70%</td>
+<td>50%</td>
+<td>26%</td>
+<td>42%</td>
+<td>42%</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Business / Systems Analyst</th>
+<td>Core</td>
+<td>252</td>
+<td>$110,000</td>
+<td>37</td>
+<td>84%</td>
+<td>62%</td>
+<td>55%</td>
+<td>31%</td>
+<td>11%</td>
+<td>15%</td>
+<td>6%</td>
+<td>10%</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Analytics Engineer</th>
+<td>Core</td>
+<td>18</td>
+<td>$142,133</td>
+<td>6</td>
+<td>80%</td>
+<td>56%</td>
+<td>56%</td>
+<td>94%</td>
+<td>72%</td>
+<td>0%</td>
+<td>44%</td>
+<td>33%</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Data Engineer / Architect</th>
+<td>Adjacent</td>
+<td>311</td>
+<td>$159,120</td>
+<td>58</td>
+<td>90%</td>
+<td>42%</td>
+<td>63%</td>
+<td>73%</td>
+<td>70%</td>
+<td>4%</td>
+<td>6%</td>
+<td>8%</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Data Scientist / ML</th>
+<td>Adjacent</td>
+<td>250</td>
+<td>$167,025</td>
+<td>60</td>
+<td>86%</td>
+<td>46%</td>
+<td>66%</td>
+<td>58%</td>
+<td>85%</td>
+<td>3%</td>
+<td>14%</td>
+<td>10%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>The benchmark table shows clear trade-offs among the core career tracks:</p>
+<ul>
+<li><strong>Data Analyst</strong> combines solid pay (median $130,000 from 31 salaries) with the highest flexibility among core career tracks (89% remote or hybrid). It mentions SQL in 70% of postings and Tableau and Power BI in 42% each.</li>
+<li><strong>Business / Systems Analyst</strong> has the most postings (252) and the highest share of non-senior titles (62%), but lower pay ($110,000) and far fewer tool mentions (SQL 31%, Power BI 10%).</li>
+<li><strong>BI Analyst / Developer</strong> is the most tool-heavy career track (Power BI 58%, SQL 81%). Its median salary rests on only 9 salaries, so it is not reliable.</li>
+<li><strong>Analytics Engineer</strong> has the highest core median ($142,133), but from only 6 salaries and 18 postings, and asks for SQL in 94% of postings.</li>
+<li>The adjacent career tracks pay more but have the fewest non-senior titles (42–46%), so they are longer-term targets.</li>
+</ul>
+</section>
+<section id="career-scorecard" class="level2">
+<h2 class="anchored" data-anchor-id="career-scorecard">Career scorecard</h2>
+<p>Each career track is scored 0–100 on five measures. Demand and pay are scored relative to the highest core career track. Flexibility, entry access, and skill fit are already percentages.</p>
+<p>Team skill levels from the Skill Gap page are converted to numbers: no experience = 0, beginner = 1, some familiarity = 2, comfortable using = 3, advanced = 4. A level of 3 counts as job-ready.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Measure</th>
+<th>Weight</th>
+<th>Reasoning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Demand</td>
+<td>20%</td>
+<td>More openings improve the odds of being hired</td>
+</tr>
+<tr class="even">
+<td>Pay</td>
+<td>20%</td>
+<td>Important, but early-career students often trade some pay for access</td>
+</tr>
+<tr class="odd">
+<td>Flexibility</td>
+<td>15%</td>
+<td>Valuable, but less central than getting hired</td>
+</tr>
+<tr class="even">
+<td>Entry access</td>
+<td>20%</td>
+<td>Our target user is a student or early-career job seeker</td>
+</tr>
+<tr class="odd">
+<td>Skill fit</td>
+<td>25%</td>
+<td>The product shows where a student is closest to ready</td>
+</tr>
+</tbody>
+</table>
+<div id="023732e5" class="cell" data-execution_count="5">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>TEAM_LEVELS <span class="op">=</span> {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Equeen"</span>:  {<span class="st">"SQL"</span>: <span class="dv">0</span>, <span class="st">"Python"</span>: <span class="dv">1</span>, <span class="st">"Excel"</span>: <span class="dv">4</span>, <span class="st">"Tableau"</span>: <span class="dv">0</span>, <span class="st">"Power BI"</span>: <span class="dv">0</span>},</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Senthil"</span>: {<span class="st">"SQL"</span>: <span class="dv">3</span>, <span class="st">"Python"</span>: <span class="dv">3</span>, <span class="st">"Excel"</span>: <span class="dv">3</span>, <span class="st">"Tableau"</span>: <span class="dv">3</span>, <span class="st">"Power BI"</span>: <span class="dv">2</span>},</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Luxan"</span>:   {<span class="st">"SQL"</span>: <span class="dv">1</span>, <span class="st">"Python"</span>: <span class="dv">1</span>, <span class="st">"Excel"</span>: <span class="dv">1</span>, <span class="st">"Tableau"</span>: <span class="dv">1</span>, <span class="st">"Power BI"</span>: <span class="dv">1</span>},</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>tool_list <span class="op">=</span> <span class="bu">list</span>(TOOLS)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> skill_fit(levels, family):</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    demand_weights <span class="op">=</span> bench.loc[family, tool_list].astype(<span class="bu">float</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    readiness <span class="op">=</span> pd.Series({t: <span class="bu">min</span>(levels[t] <span class="op">/</span> <span class="dv">3</span>, <span class="dv">1</span>) <span class="cf">for</span> t <span class="kw">in</span> tool_list})</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">float</span>((demand_weights <span class="op">*</span> readiness).<span class="bu">sum</span>() <span class="op">/</span> demand_weights.<span class="bu">sum</span>())</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>person_fit <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    {person: [skill_fit(levels, f) <span class="cf">for</span> f <span class="kw">in</span> families] <span class="cf">for</span> person, levels <span class="kw">in</span> TEAM_LEVELS.items()},</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    index<span class="op">=</span>families,</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>bench[<span class="st">"team_fit"</span>] <span class="op">=</span> person_fit.mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>core <span class="op">=</span> bench.loc[CORE].copy()</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Pull small salary samples toward the overall median</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>overall_median <span class="op">=</span> jobs.loc[jobs[<span class="st">"role_family"</span>].isin(CORE), <span class="st">"annual_midpoint"</span>].median()</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>K <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>core[<span class="st">"pay_adjusted"</span>] <span class="op">=</span> (core[<span class="st">"salary_n"</span>] <span class="op">*</span> core[<span class="st">"median_salary"</span>] <span class="op">+</span> K <span class="op">*</span> overall_median) <span class="op">/</span> (core[<span class="st">"salary_n"</span>] <span class="op">+</span> K)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>scores <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Demand"</span>: core[<span class="st">"postings"</span>] <span class="op">/</span> core[<span class="st">"postings"</span>].<span class="bu">max</span>() <span class="op">*</span> <span class="dv">100</span>,</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Pay"</span>: core[<span class="st">"pay_adjusted"</span>] <span class="op">/</span> core[<span class="st">"pay_adjusted"</span>].<span class="bu">max</span>() <span class="op">*</span> <span class="dv">100</span>,</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Flexibility"</span>: core[<span class="st">"flexible_share"</span>] <span class="op">*</span> <span class="dv">100</span>,</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Entry access"</span>: core[<span class="st">"entry_share"</span>] <span class="op">*</span> <span class="dv">100</span>,</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Skill fit"</span>: core[<span class="st">"team_fit"</span>] <span class="op">*</span> <span class="dv">100</span>,</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>WEIGHTS <span class="op">=</span> {</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Base"</span>: {<span class="st">"Demand"</span>: <span class="fl">0.20</span>, <span class="st">"Pay"</span>: <span class="fl">0.20</span>, <span class="st">"Flexibility"</span>: <span class="fl">0.15</span>, <span class="st">"Entry access"</span>: <span class="fl">0.20</span>, <span class="st">"Skill fit"</span>: <span class="fl">0.25</span>},</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Equal weights"</span>: {<span class="st">"Demand"</span>: <span class="fl">0.20</span>, <span class="st">"Pay"</span>: <span class="fl">0.20</span>, <span class="st">"Flexibility"</span>: <span class="fl">0.20</span>, <span class="st">"Entry access"</span>: <span class="fl">0.20</span>, <span class="st">"Skill fit"</span>: <span class="fl">0.20</span>},</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Pay-first"</span>: {<span class="st">"Demand"</span>: <span class="fl">0.20</span>, <span class="st">"Pay"</span>: <span class="fl">0.40</span>, <span class="st">"Flexibility"</span>: <span class="fl">0.10</span>, <span class="st">"Entry access"</span>: <span class="fl">0.15</span>, <span class="st">"Skill fit"</span>: <span class="fl">0.15</span>},</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Learner-first"</span>: {<span class="st">"Demand"</span>: <span class="fl">0.15</span>, <span class="st">"Pay"</span>: <span class="fl">0.10</span>, <span class="st">"Flexibility"</span>: <span class="fl">0.10</span>, <span class="st">"Entry access"</span>: <span class="fl">0.30</span>, <span class="st">"Skill fit"</span>: <span class="fl">0.35</span>},</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>totals <span class="op">=</span> pd.DataFrame({name: (scores <span class="op">*</span> pd.Series(w)).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>) <span class="cf">for</span> name, w <span class="kw">in</span> WEIGHTS.items()})</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>base_w <span class="op">=</span> pd.Series(WEIGHTS[<span class="st">"Base"</span>])</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>attract_cols <span class="op">=</span> [<span class="st">"Demand"</span>, <span class="st">"Pay"</span>, <span class="st">"Flexibility"</span>]</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>attain_cols <span class="op">=</span> [<span class="st">"Entry access"</span>, <span class="st">"Skill fit"</span>]</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>scores[<span class="st">"Attractiveness"</span>] <span class="op">=</span> (scores[attract_cols] <span class="op">*</span> base_w[attract_cols]).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> base_w[attract_cols].<span class="bu">sum</span>()</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>scores[<span class="st">"Attainability"</span>] <span class="op">=</span> (scores[attain_cols] <span class="op">*</span> base_w[attain_cols]).<span class="bu">sum</span>(axis<span class="op">=</span><span class="dv">1</span>) <span class="op">/</span> base_w[attain_cols].<span class="bu">sum</span>()</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>scores[<span class="st">"Overall score"</span>] <span class="op">=</span> totals[<span class="st">"Base"</span>]</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>scores <span class="op">=</span> scores.sort_values(<span class="st">"Overall score"</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>scorecard <span class="op">=</span> scores.<span class="bu">round</span>(<span class="dv">1</span>)</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>scorecard.insert(<span class="dv">0</span>, <span class="st">"Rank"</span>, <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(scorecard) <span class="op">+</span> <span class="dv">1</span>))</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>scorecard.index.name <span class="op">=</span> <span class="st">"career track"</span></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>scorecard</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Rank</th>
+<th data-quarto-table-cell-role="th">Demand</th>
+<th data-quarto-table-cell-role="th">Pay</th>
+<th data-quarto-table-cell-role="th">Flexibility</th>
+<th data-quarto-table-cell-role="th">Entry access</th>
+<th data-quarto-table-cell-role="th">Skill fit</th>
+<th data-quarto-table-cell-role="th">Attractiveness</th>
+<th data-quarto-table-cell-role="th">Attainability</th>
+<th data-quarto-table-cell-role="th">Overall score</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">career track</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Business / Systems Analyst</th>
+<td>1</td>
+<td>100.0</td>
+<td>87.6</td>
+<td>84.3</td>
+<td>62.3</td>
+<td>51.6</td>
+<td>91.2</td>
+<td>56.3</td>
+<td>75.5</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Data Analyst</th>
+<td>2</td>
+<td>62.7</td>
+<td>99.7</td>
+<td>88.9</td>
+<td>55.1</td>
+<td>48.6</td>
+<td>83.3</td>
+<td>51.5</td>
+<td>69.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">BI Analyst / Developer</th>
+<td>3</td>
+<td>20.6</td>
+<td>89.3</td>
+<td>75.0</td>
+<td>59.6</td>
+<td>45.7</td>
+<td>60.4</td>
+<td>51.9</td>
+<td>56.6</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Analytics Engineer</th>
+<td>4</td>
+<td>7.1</td>
+<td>100.0</td>
+<td>80.0</td>
+<td>55.6</td>
+<td>46.2</td>
+<td>60.8</td>
+<td>50.4</td>
+<td>56.1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="e033b997" class="cell" data-execution_count="6">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.graph_objects <span class="im">as</span> go</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>heat <span class="op">=</span> scores[[<span class="st">"Demand"</span>, <span class="st">"Pay"</span>, <span class="st">"Flexibility"</span>, <span class="st">"Entry access"</span>, <span class="st">"Skill fit"</span>, <span class="st">"Overall score"</span>]].<span class="bu">round</span>(<span class="dv">0</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>fig_heat <span class="op">=</span> go.Figure(go.Heatmap(</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    z<span class="op">=</span>heat.values,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span>heat.columns,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span>heat.index,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    text<span class="op">=</span>heat.values.astype(<span class="bu">int</span>),</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    texttemplate<span class="op">=</span><span class="st">"%</span><span class="sc">{text}</span><span class="st">"</span>,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    colorscale<span class="op">=</span>[[<span class="dv">0</span>, <span class="st">"#EFF6FF"</span>], [<span class="fl">0.5</span>, <span class="st">"#93C5FD"</span>], [<span class="dv">1</span>, <span class="st">"#1D4ED8"</span>]],</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    zmin<span class="op">=</span><span class="dv">0</span>, zmax<span class="op">=</span><span class="dv">100</span>,</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    xgap<span class="op">=</span><span class="dv">2</span>, ygap<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    colorbar<span class="op">=</span><span class="bu">dict</span>(title<span class="op">=</span><span class="st">"Score"</span>),</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    hovertemplate<span class="op">=</span><span class="st">"%</span><span class="sc">{y}</span><span class="st">&lt;br&gt;%</span><span class="sc">{x}</span><span class="st">: %</span><span class="sc">{z:.0f}</span><span class="st">&lt;extra&gt;&lt;/extra&gt;"</span>,</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>))</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>fig_heat.update_layout(</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="bu">dict</span>(</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        text<span class="op">=</span><span class="st">"Business / Systems Analyst leads on demand; Data Analyst on pay"</span>,</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        font<span class="op">=</span><span class="bu">dict</span>(size<span class="op">=</span><span class="dv">16</span>),</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    template<span class="op">=</span><span class="st">"plotly_white"</span>,</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">400</span>,</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    margin<span class="op">=</span><span class="bu">dict</span>(l<span class="op">=</span><span class="dv">20</span>, r<span class="op">=</span><span class="dv">20</span>, t<span class="op">=</span><span class="dv">60</span>, b<span class="op">=</span><span class="dv">80</span>),</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    yaxis<span class="op">=</span><span class="bu">dict</span>(autorange<span class="op">=</span><span class="st">"reversed"</span>),</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>fig_heat.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div style="height:400px; width:100%;">            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-4.1.1.min.js" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" crossorigin="anonymous"></script>                <div id="bff9cf13-d9b0-4120-8a6b-36d005a1cb9f" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("bff9cf13-d9b0-4120-8a6b-36d005a1cb9f")) {                    Plotly.newPlot(                        "bff9cf13-d9b0-4120-8a6b-36d005a1cb9f",                        [{"colorbar":{"title":{"text":"Score"}},"colorscale":[[0,"#EFF6FF"],[0.5,"#93C5FD"],[1,"#1D4ED8"]],"hovertemplate":"%{y}\u003cbr\u003e%{x}: %{z:.0f}\u003cextra\u003e\u003c\u002fextra\u003e","text":{"dtype":"i1","bdata":"ZFhUPjRMP2RZNzFFFVlLPC45B2RQOC44","shape":"4, 6"},"texttemplate":"%{text}","x":["Demand","Pay","Flexibility","Entry access","Skill fit","Overall score"],"xgap":2,"y":["Business \u002f Systems Analyst","Data Analyst","BI Analyst \u002f Developer","Analytics Engineer"],"ygap":2,"z":{"dtype":"f8","bdata":"AAAAAAAAWUAAAAAAAABWQAAAAAAAAFVAAAAAAAAAT0AAAAAAAABKQAAAAAAAAFNAAAAAAACAT0AAAAAAAABZQAAAAAAAQFZAAAAAAACAS0AAAAAAAIBIQAAAAAAAQFFAAAAAAAAANUAAAAAAAEBWQAAAAAAAwFJAAAAAAAAATkAAAAAAAABHQAAAAAAAgExAAAAAAAAAHEAAAAAAAABZQAAAAAAAAFRAAAAAAAAATEAAAAAAAABHQAAAAAAAAExA","shape":"4, 6"},"zmax":100,"zmin":0,"type":"heatmap"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","margin":{"b":0,"l":0,"r":0,"t":30},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"title":{"font":{"size":16},"text":"Business \u002f Systems Analyst leads on demand; Data Analyst on pay"},"margin":{"l":20,"r":20,"t":60,"b":80},"yaxis":{"autorange":"reversed"},"height":400},                        {"responsive": true}                    ).then(function(){
+                            
+var gd = document.getElementById('bff9cf13-d9b0-4120-8a6b-36d005a1cb9f');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script>        </div>
+</div>
+</div>
+<p>Business / Systems Analyst ranks first mainly because of volume. It has the most postings (demand score of 100) and the highest share of non-senior titles. Data Analyst comes second, scoring higher than Business / Systems Analyst on pay and flexibility. Analytics Engineer has the highest pay score, but it is based on only 6 salaries, so it should be read with caution. BI Analyst / Developer and Analytics Engineer both pay well, but they have very few postings in this industry, which pulls their overall scores down.</p>
+<section id="attractive-versus-attainable" class="level3">
+<h3 class="anchored" data-anchor-id="attractive-versus-attainable">Attractive versus attainable</h3>
+<div id="464b3a2b" class="cell" data-execution_count="7">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>quad <span class="op">=</span> scores.reset_index()</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Place each label so they don't overlap</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>label_position <span class="op">=</span> {</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Business / Systems Analyst"</span>: <span class="st">"bottom center"</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Data Analyst"</span>: <span class="st">"top center"</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"BI Analyst / Developer"</span>: <span class="st">"bottom right"</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Analytics Engineer"</span>: <span class="st">"top right"</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>fig_quad <span class="op">=</span> px.scatter(</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    quad,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">"Attainability"</span>,</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">"Attractiveness"</span>,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    text<span class="op">=</span><span class="st">"role_family"</span>,</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    size<span class="op">=</span>core.loc[scores.index, <span class="st">"postings"</span>].values,</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    size_max<span class="op">=</span><span class="dv">45</span>,</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    labels<span class="op">=</span>{<span class="st">"Attainability"</span>: <span class="st">"Attainability (entry access + skill fit)"</span>,</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Attractiveness"</span>: <span class="st">"Attractiveness (demand + pay + flexibility)"</span>},</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    template<span class="op">=</span><span class="st">"plotly_white"</span>,</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>fig_quad.update_traces(</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    marker<span class="op">=</span><span class="bu">dict</span>(color<span class="op">=</span><span class="st">"#2563EB"</span>, opacity<span class="op">=</span><span class="fl">0.75</span>, line<span class="op">=</span><span class="bu">dict</span>(width<span class="op">=</span><span class="dv">2</span>, color<span class="op">=</span><span class="st">"white"</span>)),</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    textposition<span class="op">=</span>[label_position[f] <span class="cf">for</span> f <span class="kw">in</span> quad[<span class="st">"role_family"</span>]],</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>fig_quad.add_vline(x<span class="op">=</span>scores[<span class="st">"Attainability"</span>].median(), line_dash<span class="op">=</span><span class="st">"dot"</span>, line_color<span class="op">=</span><span class="st">"#9CA3AF"</span>)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>fig_quad.add_hline(y<span class="op">=</span>scores[<span class="st">"Attractiveness"</span>].median(), line_dash<span class="op">=</span><span class="st">"dot"</span>, line_color<span class="op">=</span><span class="st">"#9CA3AF"</span>)</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>fig_quad.update_layout(</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="bu">dict</span>(text<span class="op">=</span><span class="st">"B/SA leads on both attractiveness and attainability"</span>, font<span class="op">=</span><span class="bu">dict</span>(size<span class="op">=</span><span class="dv">16</span>)),</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">500</span>,</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>    margin<span class="op">=</span><span class="bu">dict</span>(l<span class="op">=</span><span class="dv">20</span>, r<span class="op">=</span><span class="dv">40</span>, t<span class="op">=</span><span class="dv">60</span>, b<span class="op">=</span><span class="dv">40</span>),</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>    xaxis<span class="op">=</span><span class="bu">dict</span>(<span class="bu">range</span><span class="op">=</span>[<span class="dv">48</span>, <span class="dv">59</span>]),</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>    yaxis<span class="op">=</span><span class="bu">dict</span>(<span class="bu">range</span><span class="op">=</span>[<span class="dv">56</span>, <span class="dv">98</span>]),</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>fig_quad.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div style="height:500px; width:100%;">            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-4.1.1.min.js" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" crossorigin="anonymous"></script>                <div id="28c257f0-f653-4e9c-9731-31a51f5701fa" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("28c257f0-f653-4e9c-9731-31a51f5701fa")) {                    Plotly.newPlot(                        "28c257f0-f653-4e9c-9731-31a51f5701fa",                        [{"hovertemplate":"Attainability (entry access + skill fit)=%{x}\u003cbr\u003eAttractiveness (demand + pay + flexibility)=%{y}\u003cbr\u003esize=%{marker.size}\u003cbr\u003erole_family=%{text}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2563EB","size":{"dtype":"i2","bdata":"\u002fACeADQAEgA="},"sizemode":"area","sizeref":0.12444444444444444,"symbol":"circle","line":{"color":"white","width":2},"opacity":0.75},"mode":"markers+text","name":"","orientation":"v","showlegend":false,"text":["Business \u002f Systems Analyst","Data Analyst","BI Analyst \u002f Developer","Analytics Engineer"],"x":{"dtype":"f8","bdata":"LimsrSMrTEBf\u002fx3rAb1JQGROIgK970lAUJ67abAuSUA="},"xaxis":"x","y":{"dtype":"f8","bdata":"drZi8IvNVkAKzDa+FdNUQGDDFUH2NU5A9o6pgb1jTkA="},"yaxis":"y","type":"scatter","textposition":["bottom center","top center","bottom right","top right"]}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","margin":{"b":0,"l":0,"r":0,"t":30},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"Attainability (entry access + skill fit)"},"range":[48,59]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"Attractiveness (demand + pay + flexibility)"},"range":[56,98]},"legend":{"tracegroupgap":0,"itemsizing":"constant"},"shapes":[{"line":{"color":"#9CA3AF","dash":"dot"},"type":"line","x0":51.674788311194575,"x1":51.674788311194575,"xref":"x","y0":0,"y1":1,"yref":"y domain"},{"line":{"color":"#9CA3AF","dash":"dot"},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":72.03871143403288,"y1":72.03871143403288,"yref":"y"}],"title":{"font":{"size":16},"text":"B\u002fSA leads on both attractiveness and attainability"},"margin":{"l":20,"r":40,"t":60,"b":40},"height":500},                        {"responsive": true}                    ).then(function(){
+                            
+var gd = document.getElementById('28c257f0-f653-4e9c-9731-31a51f5701fa');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script>        </div>
+</div>
+</div>
+<p>Business / Systems Analyst stands alone in the top-right corner as the most attractive and easiest choice to enter. Because all four roles have very similar entry scores (around 50 to 56), the main difference between them is how attractive they are.</p>
+</section>
+<section id="does-the-ranking-depend-on-the-weights" class="level3">
+<h3 class="anchored" data-anchor-id="does-the-ranking-depend-on-the-weights">Does the ranking depend on the weights?</h3>
+<div id="7c38cc0c" class="cell" data-execution_count="8">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>rank_table <span class="op">=</span> totals.rank(ascending<span class="op">=</span><span class="va">False</span>).astype(<span class="bu">int</span>).loc[scores.index]</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>rank_table.columns <span class="op">=</span> [<span class="ss">f"Rank: </span><span class="sc">{</span>c<span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> c <span class="kw">in</span> rank_table.columns]</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>rank_table.index.name <span class="op">=</span> <span class="st">"career track"</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>rank_table</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Rank: Base</th>
+<th data-quarto-table-cell-role="th">Rank: Equal weights</th>
+<th data-quarto-table-cell-role="th">Rank: Pay-first</th>
+<th data-quarto-table-cell-role="th">Rank: Learner-first</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">career track</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Business / Systems Analyst</th>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Data Analyst</th>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">BI Analyst / Developer</th>
+<td>3</td>
+<td>3</td>
+<td>4</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Analytics Engineer</th>
+<td>4</td>
+<td>4</td>
+<td>3</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>The top two roles remain unchanged across all four weighting methods. Only the BI Analyst / Developer and Analytics Engineer roles swap positions when pay is prioritized, due to the higher salary of the Analytics Engineer role. Therefore, our recommendation is stable and does not depend on the exact weights chosen.</p>
+</section>
+</section>
+<section id="skill-fit-by-team-member" class="level2">
+<h2 class="anchored" data-anchor-id="skill-fit-by-team-member">Skill fit by team member</h2>
+<div id="3a720b9f" class="cell" data-execution_count="9">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>fit_view <span class="op">=</span> (person_fit <span class="op">*</span> <span class="dv">100</span>).<span class="bu">round</span>(<span class="dv">0</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>fig_fit <span class="op">=</span> go.Figure(go.Heatmap(</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    z<span class="op">=</span>fit_view.values,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span>fit_view.columns,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span>fit_view.index,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    text<span class="op">=</span>fit_view.values.astype(<span class="bu">int</span>),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    texttemplate<span class="op">=</span><span class="st">"%</span><span class="sc">{text}</span><span class="st">%"</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    colorscale<span class="op">=</span>[[<span class="dv">0</span>, <span class="st">"#EFF6FF"</span>], [<span class="fl">0.5</span>, <span class="st">"#93C5FD"</span>], [<span class="dv">1</span>, <span class="st">"#1D4ED8"</span>]],</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    zmin<span class="op">=</span><span class="dv">0</span>, zmax<span class="op">=</span><span class="dv">100</span>,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    xgap<span class="op">=</span><span class="dv">2</span>, ygap<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    colorbar<span class="op">=</span><span class="bu">dict</span>(title<span class="op">=</span><span class="st">"Fit %"</span>),</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    hovertemplate<span class="op">=</span><span class="st">"%</span><span class="sc">{x}</span><span class="st"> → %</span><span class="sc">{y}</span><span class="st">&lt;br&gt;Skill fit: %</span><span class="sc">{z:.0f}</span><span class="st">%&lt;extra&gt;&lt;/extra&gt;"</span>,</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>))</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>fig_fit.update_layout(</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="bu">dict</span>(text<span class="op">=</span><span class="st">"How ready each of us is for each career track"</span>, font<span class="op">=</span><span class="bu">dict</span>(size<span class="op">=</span><span class="dv">16</span>)),</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    template<span class="op">=</span><span class="st">"plotly_white"</span>,</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">440</span>,</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    margin<span class="op">=</span><span class="bu">dict</span>(l<span class="op">=</span><span class="dv">20</span>, r<span class="op">=</span><span class="dv">20</span>, t<span class="op">=</span><span class="dv">60</span>, b<span class="op">=</span><span class="dv">40</span>),</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    yaxis<span class="op">=</span><span class="bu">dict</span>(autorange<span class="op">=</span><span class="st">"reversed"</span>),</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>fig_fit.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<div style="height:440px; width:100%;">            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-4.1.1.min.js" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" crossorigin="anonymous"></script>                <div id="93dfeb49-8c5b-420e-bcac-f94c8a2a0de3" class="plotly-graph-div" style="height:100%; width:100%;"></div>            <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("93dfeb49-8c5b-420e-bcac-f94c8a2a0de3")) {                    Plotly.newPlot(                        "93dfeb49-8c5b-420e-bcac-f94c8a2a0de3",                        [{"colorbar":{"title":{"text":"Fit %"}},"colorscale":[[0,"#EFF6FF"],[0.5,"#93C5FD"],[1,"#1D4ED8"]],"hovertemplate":"%{x} \u2192 %{y}\u003cbr\u003eSkill fit: %{z:.0f}%\u003cextra\u003e\u003c\u002fextra\u003e","text":{"dtype":"i1","bdata":"DFshE14hGl8hCl8hEWIhE2Ih","shape":"6, 3"},"texttemplate":"%{text}%","x":["Equeen","Senthil","Luxan"],"xgap":2,"y":["BI Analyst \u002f Developer","Data Analyst","Business \u002f Systems Analyst","Analytics Engineer","Data Engineer \u002f Architect","Data Scientist \u002f ML"],"ygap":2,"z":{"dtype":"f8","bdata":"AAAAAAAAKEAAAAAAAMBWQAAAAAAAgEBAAAAAAAAAM0AAAAAAAIBXQAAAAAAAgEBAAAAAAAAAOkAAAAAAAMBXQAAAAAAAgEBAAAAAAAAAJEAAAAAAAMBXQAAAAAAAgEBAAAAAAAAAMUAAAAAAAIBYQAAAAAAAgEBAAAAAAAAAM0AAAAAAAIBYQAAAAAAAgEBA","shape":"6, 3"},"zmax":100,"zmin":0,"type":"heatmap"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#2a3f5f"},"error_y":{"color":"#2a3f5f"},"marker":{"line":{"color":"white","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"baxis":{"endlinecolor":"#2a3f5f","gridcolor":"#C8D4E3","linecolor":"#C8D4E3","minorgridcolor":"#C8D4E3","startlinecolor":"#2a3f5f"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergl"}],"scattermap":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermap"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#EBF0F8"},"line":{"color":"white"}},"header":{"fill":{"color":"#C8D4E3"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#2a3f5f","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#2a3f5f"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"white","showlakes":true,"showland":true,"subunitcolor":"#C8D4E3"},"hoverlabel":{"align":"left"},"hovermode":"closest","margin":{"b":0,"l":0,"r":0,"t":30},"paper_bgcolor":"white","plot_bgcolor":"white","polar":{"angularaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""},"bgcolor":"white","radialaxis":{"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"yaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"},"zaxis":{"backgroundcolor":"white","gridcolor":"#DFE8F3","gridwidth":2,"linecolor":"#EBF0F8","showbackground":true,"ticks":"","zerolinecolor":"#EBF0F8"}},"shapedefaults":{"line":{"color":"#2a3f5f"}},"ternary":{"aaxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"baxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""},"bgcolor":"white","caxis":{"gridcolor":"#DFE8F3","linecolor":"#A2B1C6","ticks":""}},"title":{"x":0.05},"xaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#EBF0F8","linecolor":"#EBF0F8","ticks":"","title":{"standoff":15},"zerolinecolor":"#EBF0F8","zerolinewidth":2}}},"title":{"font":{"size":16},"text":"How ready each of us is for each career track"},"margin":{"l":20,"r":20,"t":60,"b":40},"yaxis":{"autorange":"reversed"},"height":440},                        {"responsive": true}                    ).then(function(){
+                            
+var gd = document.getElementById('93dfeb49-8c5b-420e-bcac-f94c8a2a0de3');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script>        </div>
+</div>
+</div>
+<p>Senthil is ready for every career track (above 90%), with Power BI as his only real gap. My best current fit is Business / Systems Analyst (26%), since those postings rely less on SQL and dashboard tools and more on Excel, my strongest tool. My fit is lowest for Analytics Engineer (10%), which asks for SQL in almost every posting. Luxan scores 33% across the board because he reported beginner level on every tool, so improving any single tool would raise his fit everywhere. For both of us, SQL is the skill that would make the biggest difference, since it shows up in most postings in every core career track except Business / Systems Analyst.</p>
+</section>
+<section id="testing-our-expectations-about-bi-tools" class="level2">
+<h2 class="anchored" data-anchor-id="testing-our-expectations-about-bi-tools">Testing our expectations about BI tools</h2>
+<p>Our introduction expected that employers rarely ask for both Power BI and Tableau, and that SQL plus a cloud platform plus a BI tool is the minimum skill set for BI roles.</p>
+<div id="c188155c" class="cell" data-execution_count="10">
+<details class="code-fold">
+<summary>Show my code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>core_jobs <span class="op">=</span> jobs[jobs[<span class="st">"role_family"</span>].isin(CORE)]</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>either <span class="op">=</span> core_jobs[<span class="st">"Tableau"</span>] <span class="op">|</span> core_jobs[<span class="st">"Power BI"</span>]</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>both <span class="op">=</span> core_jobs[<span class="st">"Tableau"</span>] <span class="op">&amp;</span> core_jobs[<span class="st">"Power BI"</span>]</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>core_desc <span class="op">=</span> description.loc[core_jobs.index]</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>cloud <span class="op">=</span> core_desc.<span class="bu">str</span>.contains(<span class="vs">r"</span><span class="dv">\b</span><span class="vs">snowflake</span><span class="dv">\b</span><span class="cf">|</span><span class="dv">\b</span><span class="vs">bigquery</span><span class="dv">\b</span><span class="cf">|</span><span class="dv">\b</span><span class="vs">aws</span><span class="dv">\b</span><span class="cf">|</span><span class="dv">\b</span><span class="vs">azure</span><span class="dv">\b</span><span class="cf">|</span><span class="dv">\b</span><span class="vs">gcp</span><span class="dv">\b</span><span class="cf">|</span><span class="vs">google cloud</span><span class="cf">|</span><span class="vs">databricks</span><span class="cf">|</span><span class="vs">redshift"</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>stakeholder <span class="op">=</span> core_desc.<span class="bu">str</span>.contains(<span class="vs">r"stakeholder"</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>tool_check <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Postings matching"</span>: [</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        <span class="bu">int</span>(either.<span class="bu">sum</span>()),</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">int</span>(both.<span class="bu">sum</span>()),</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">int</span>((core_jobs[<span class="st">"SQL"</span>] <span class="op">&amp;</span> either).<span class="bu">sum</span>()),</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>        <span class="bu">int</span>((core_jobs[<span class="st">"SQL"</span>] <span class="op">&amp;</span> either <span class="op">&amp;</span> cloud).<span class="bu">sum</span>()),</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>        <span class="bu">int</span>(stakeholder.<span class="bu">sum</span>()),</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>}, index<span class="op">=</span>[</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Mentions Tableau or Power BI"</span>,</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Mentions both Tableau and Power BI"</span>,</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"SQL + Tableau or Power BI"</span>,</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"SQL + Tableau or Power BI + a cloud platform"</span>,</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Mentions stakeholders"</span>,</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>tool_check[<span class="st">"Share of core postings"</span>] <span class="op">=</span> (tool_check[<span class="st">"Postings matching"</span>] <span class="op">/</span> <span class="bu">len</span>(core_jobs) <span class="op">*</span> <span class="dv">100</span>).<span class="bu">round</span>(<span class="dv">1</span>).astype(<span class="bu">str</span>) <span class="op">+</span> <span class="st">"%"</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>tool_check.index.name <span class="op">=</span> <span class="st">"Check"</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>tool_check</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Postings matching</th>
+<th data-quarto-table-cell-role="th">Share of core postings</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Check</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Mentions Tableau or Power BI</th>
+<td>163</td>
+<td>34.0%</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Mentions both Tableau and Power BI</th>
+<td>70</td>
+<td>14.6%</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">SQL + Tableau or Power BI</th>
+<td>145</td>
+<td>30.2%</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">SQL + Tableau or Power BI + a cloud platform</th>
+<td>79</td>
+<td>16.5%</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Mentions stakeholders</th>
+<td>337</td>
+<td>70.2%</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>This is where the data overturned our expectations. We assumed employers would pick a side between Power BI and Tableau, but 43% of the postings that mention one also mention the other. For a student, this means it is better to learn one tool well and be able to talk about the other than to bet everything on one. We also expected “SQL + cloud + BI tool” to be the entry ticket, but it appears in only 16.5% of core postings. It is a strong profile, but not a minimum requirement. One expectation held up: 70% of postings mention stakeholders, so the ability to work with business partners matters as much as tool skills.</p>
+</section>
+<section id="game-plan-for-a-bi-job-seeker" class="level2">
+<h2 class="anchored" data-anchor-id="game-plan-for-a-bi-job-seeker">Game plan for a BI job seeker</h2>
+<section id="where-to-strike-first" class="level3">
+<h3 class="anchored" data-anchor-id="where-to-strike-first">Where to strike first</h3>
+<p><strong>Data Analyst</strong> is the best BI-relevant target: a $130,000 median, 89% remote or hybrid, and real BI tool use in about 4 in 10 postings. <strong>Business / Systems Analyst</strong> is the widest door: the most openings (252) and the most non-senior titles (62%). Search by these titles, not just “BI Analyst”.</p>
+</section>
+<section id="the-high-leverage-skill-bridge" class="level3">
+<h3 class="anchored" data-anchor-id="the-high-leverage-skill-bridge">The high-leverage skill bridge</h3>
+<p><strong>SQL</strong> is the skill that raises your fit for every core career track. It appears in 70% of Data Analyst, 81% of BI Analyst / Developer, and 94% of Analytics Engineer postings. Pair it with <strong>one dashboard tool learned well</strong>, since employers who name one tool often name the other.</p>
+</section>
+<section id="long-term-positioning" class="level3">
+<h3 class="anchored" data-anchor-id="long-term-positioning">Long-term positioning</h3>
+<p><strong>Analytics Engineer</strong> pays well but has only 18 postings in this industry, and its salary figure rests on 6 data points. Treat it as a second step, once SQL and data modeling are solid, rather than a first application.</p>
+</section>
+</section>
+<section id="limitations" class="level2">
+<h2 class="anchored" data-anchor-id="limitations">Limitations</h2>
+<ul>
+<li><strong>Career track grouping is based on job titles</strong>, so some postings may be misclassified, and 1,312 postings were excluded as outside the BI scope.</li>
+<li><strong>Salary data is limited.</strong> Only 83 of the 480 core postings have a usable USD salary, and the BI Analyst / Developer and Analytics Engineer figures rest on 9 and 6 salaries.</li>
+<li><strong>Work arrangement is often missing</strong>, so flexibility is based only on postings that state it.</li>
+<li><strong>A tool mentioned in a description is not necessarily required</strong>, and we only checked five tools.</li>
+<li><strong>Skill levels are self-reported</strong> and have not been tested.</li>
+<li><strong>The data covers one industry (NAICS 5415) and one period (May to August 2026).</strong></li>
+<li><strong>The scorecard weights are our own judgment.</strong> We tested three other weightings, and the top two career tracks stayed the same in every case.</li>
+</ul>
+
+
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
