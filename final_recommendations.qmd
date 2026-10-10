@@ -1,9 +1,72 @@
 ---
 title: "Final Recommendations"
+subtitle: "A game plan for BI and analytics job seekers in NAICS 5415"
 bibliography: references.bib
 csl: csl/apa.csl
 format: html
-jupyter: python3
 execute:
-  freeze: auto 
+  freeze: auto
 ---
+
+::: {.callout-note}
+**Draft.** These recommendations are based on our market baseline, skill gap analysis, and career evaluation. We will update them after the final analysis in Module 5.
+:::
+
+## Who this is for
+
+This page is for students and early-career job seekers who want to work in business intelligence (BI) and analytics in Computer Systems Design and Related Services (NAICS 5415). It draws on 2,353 job postings from May to August 2026, of which 480 fall into the four core BI career tracks scored on the [Career Evaluation](career_evaluation.qmd) page. Demand for these skills is projected to keep growing [@bls2024; @wef2023], but the data shows that how you search and what you learn first make a real difference.
+
+## 1. Where to apply
+
+**Don't search only for "BI Analyst".** Just 52 postings in our sample use a BI title. Most BI work in this industry is posted under other names.
+
+| Priority | Career track | Why | Best for |
+|---|---|---|---|
+| 1 | **Data Analyst** | $130,000 median, 89% remote or hybrid, and Tableau or Power BI in about 4 in 10 postings | Students building SQL and one dashboard tool |
+| 2 | **Business / Systems Analyst** | Most openings (252) and the most non-senior titles (62%), with lighter tool requirements | Students strongest in business, process, and stakeholder work |
+| 3 | **BI Analyst / Developer** | The most direct BI role and the heaviest Power BI user (58%), but few openings here | Students who already have solid SQL and Power BI |
+| Later | **Analytics Engineer** | Highest median in our sample, but only 18 postings and 6 reported salaries | A second step after SQL and data modeling are strong |
+
+Business / Systems Analyst ranks first on our scorecard because of its volume and accessibility. We still put Data Analyst first for a BI-focused job seeker, because it uses BI tools far more often. Students who prefer business-facing work should swap the top two.
+
+## 2. What to learn, and in what order
+
+| When | Focus | Why |
+|---|---|---|
+| **Now** | **SQL** | It appears in 70% of Data Analyst, 81% of BI Analyst / Developer, and 94% of Analytics Engineer postings. It raises your fit for every core career track. |
+| **Next** | **One dashboard tool, learned well** | 43% of postings that mention Tableau or Power BI mention both, so depth in one tool plus familiarity with the other is enough. Choose Power BI if you are targeting BI-titled roles (58% vs. 35% for Tableau). |
+| **Then** | **Python** | It appears in half of Data Analyst postings and opens the path toward analytics engineering. |
+| **Always** | **Stakeholder communication** | 70% of core postings mention stakeholders. Be ready to explain how you gathered requirements or turned results into a decision. |
+| **Later** | **A cloud data platform** | SQL + a BI tool + a cloud platform appears in 16.5% of core postings. It is a strong profile for technical roles but not required to get started. |
+
+## 3. How to position yourself
+
+- **Show it, don't list it.** Build one or two small projects that answer a real business question with SQL and a dashboard. Explain the question, what you did, and what you found.
+- **Use the title employers use.** Apply to Data Analyst roles as "a data analyst with BI and dashboard skills." For Business / Systems Analyst roles, lead with requirements gathering, process improvement, and stakeholder work.
+- **Turn past experience into an advantage.** Operations, finance, and project experience counts in roles where 70% of postings mention stakeholders. Pair it with one technical example.
+- **Confirm remote options early.** Most core postings that state an arrangement are remote or hybrid, but about half don't say, so ask during the process.
+
+## 4. Our team's action plan
+
+| Team member | Best fit today | Next step | Target after that step |
+|---|---|---|---|
+| Equeen Thendersz | Business / Systems Analyst (26% skill fit), where advanced Excel and process-improvement experience count most | Build SQL foundations, then learn Power BI with an operations dataset | Data Analyst |
+| Senthil Sukumar | Strong across every career track (above 90% skill fit) | Strengthen Power BI and document a nonconfidential BI project | BI Analyst / Developer or Analytics Engineer |
+| Luxan Shanthakkumar | Business / Systems Analyst, where his project coordination and product owner experience fit best | Bring SQL to "comfortable using," then build one Power BI dashboard | Data Analyst or Business / Systems Analyst |
+
+## 5. What to keep in mind
+
+- **Career tracks are grouped by job title**, so some postings may be misclassified.
+- **Salary data is thin.** Only 83 of 480 core postings list a usable USD salary.
+- **A tool mentioned in a posting is not always required.**
+- **Skill levels are self-reported** and have not been tested.
+- **The data covers one industry and ten weeks (late May to early August 2026).** Results may differ in other industries or later periods.
+
+## Next steps for Module 5
+
+- Refine the career track rules so fewer unrelated postings enter the sample.
+- Add a final model, such as a salary regression or an entry-level vs. senior classifier, to test which factors are linked to stronger opportunities.
+- Add location analysis once location fields are cleaned.
+- Update these recommendations with the final results.
+
+## References {.unnumbered}

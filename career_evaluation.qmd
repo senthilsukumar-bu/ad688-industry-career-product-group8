@@ -2,8 +2,413 @@
 title: "Career Evaluation"
 bibliography: references.bib
 csl: csl/apa.csl
-format: html
-jupyter: python3
+format:
+  html:
+    code-fold: true
+    code-summary: "Show my code"
 execute:
-  freeze: auto 
+  freeze: auto
+  warning: false
+jupyter: python3
 ---
+
+## Purpose
+
+This page compares BI-pathway career tracks on how attractive they are (demand, pay, flexibility) and how attainable they are for our team (entry access, skill fit).
+
+::: {.callout-tip}
+## What surprised us
+
+- **"BI Analyst" is rarely the job title.** Only 52 of 2,353 postings use a BI title. Most BI work in this industry is posted as Data Analyst or Business / Systems Analyst.
+- **We expected Power BI and Tableau to be either/or. They often aren't.** Of the 163 core postings that mention either tool, 70 (43%) mention both.
+- **The highest median salary comes with the fewest openings.** Analytics Engineer shows a $142,133 median, but it has only 18 postings and only 6 reported salaries.
+:::
+
+## Loading the data
+
+```{python}
+import re
+import numpy as np
+import pandas as pd
+
+jobs = pd.read_csv("./outputs/api_job_facts_cleaned.csv")
+print(jobs.shape)
+jobs["title"].value_counts().head(20)
+```
+
+## Grouping postings into career tracks
+
+Standardizing job titles across different employers involves sorting each posting into a specific career track using keyword rules. These rules are evaluated sequentially, and the career track is assigned based on the first matching keyword. Non-analytical titles, such as cybersecurity, human resources, legal, software engineering, and data entry, are filtered out initially.
+
+```{python}
+title = jobs["title"].fillna("").str.lower()
+
+FAMILY_RULES = [
+    ("Outside BI scope", r"software (engineer|developer|development)|\bsde\b|cyber|security|attorney|\bhr\b|human resources|people business|business development|data entry|artist"),
+    ("Analytics Engineer", r"analytics engineer"),
+    ("BI Analyst / Developer", r"business intelligence|\bbi\b|power ?bi|tableau|looker|dashboard|reporting (analyst|developer|specialist|automation)"),
+    ("Data Scientist / ML", r"data scien|machine learning|\bml\b|applied scientist"),
+    ("Data Analyst", r"data analy|analytics analyst|insights? analyst|data analysr|analytics (specialist|consultant|manager|lead)|product analyst|marketing analyst"),
+    ("Business / Systems Analyst", r"business (systems? )?analyst|systems analyst|business analytics"),
+    ("Data Engineer / Architect", r"data engineer|data architect|\betl\b|data platform|data warehouse|database"),
+]
+
+def classify(text):
+    for family, pattern in FAMILY_RULES:
+        if re.search(pattern, text):
+            return family
+    return "Outside BI scope"
+
+jobs["role_family"] = title.map(classify)
+
+CORE = ["BI Analyst / Developer", "Data Analyst", "Business / Systems Analyst", "Analytics Engineer"]
+ADJACENT = ["Data Engineer / Architect", "Data Scientist / ML"]
+
+jobs["role_family"].value_counts().rename_axis("career track").to_frame("Postings")
+```
+
+## Preparing the measures
+
+```{python}
+# --- Salary: same rules as the Market Baseline page ---
+has_annual = jobs["annual_salary_min"].notna() & jobs["annual_salary_max"].notna()
+has_hourly = jobs["hourly_salary_min"].notna() & jobs["hourly_salary_max"].notna()
+
+jobs["annualized_min"] = np.where(has_annual, jobs["annual_salary_min"],
+                                  np.where(has_hourly, jobs["hourly_salary_min"] * 2080, np.nan))
+jobs["annualized_max"] = np.where(has_annual, jobs["annual_salary_max"],
+                                  np.where(has_hourly, jobs["hourly_salary_max"] * 2080, np.nan))
+
+currency = (jobs["salary_text"].fillna("").str.upper()
+            .str.extract(r"\b(USD|CAD|EUR|GBP|AUD|NZD|INR|SGD|JPY|CHF|CNY|AED)\b")[0])
+
+us_states = ("AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|"
+             "NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC")
+loc = jobs["location_text"].fillna("").str.upper()
+us_location = (
+    loc.str.contains(r"\bUNITED STATES\b|\bUSA\b|\bU\.S\.A?\.")
+    | loc.str.contains(r",\s*(?:" + us_states + r")\b")
+    | loc.str.contains(r"\b(?:ARIZONA|TEXAS|CALIFORNIA|FLORIDA|MARYLAND|MICHIGAN|MISSOURI|NEW YORK)\b")
+    | loc.str.contains(r"\bLOS ANGELES METROPOLITAN AREA\b")
+)
+jobs["salary_currency"] = currency.where(currency.notna(), np.where(us_location, "USD", "Unconfirmed"))
+
+jobs["annual_midpoint"] = np.where(
+    (jobs["salary_currency"] == "USD") & jobs["annualized_min"].notna(),
+    (jobs["annualized_min"] + jobs["annualized_max"]) / 2,
+    np.nan,
+)
+
+# --- Seniority: does the title signal a senior role? ---
+SENIOR = r"\b(?:senior|sr\.?|lead|principal|staff|director|manager|head|vp|vice president|chief|architect|iii|iv|v)\b"
+jobs["entry_accessible"] = ~title.str.contains(SENIOR)
+
+# --- Tools mentioned in the description ---
+TOOLS = {
+    "SQL": r"\bsql\b",
+    "Python": r"\bpython\b",
+    "Excel": r"\bexcel\b(?!\s+(?:in|at|as|within)\b)",
+    "Tableau": r"\btableau\b",
+    "Power BI": r"\bpower[\s-]*bi\b",
+}
+description = jobs["description"].fillna("").str.lower()
+for tool, pattern in TOOLS.items():
+    jobs[tool] = description.str.contains(pattern)
+
+print("USD salaries:", jobs["annual_midpoint"].notna().sum())
+print("Median salary:", jobs["annual_midpoint"].median())
+print({tool: int(jobs[tool].sum()) for tool in TOOLS})
+```
+
+## Benchmark table
+
+```{python}
+known_arrangement = jobs["remote_status"] != "Unknown"
+families = CORE + ADJACENT
+in_scope = jobs[jobs["role_family"].isin(families)]
+grouped = in_scope.groupby("role_family")
+
+bench = pd.DataFrame({
+    "postings": grouped.size(),
+    "salary_n": grouped["annual_midpoint"].count(),
+    "median_salary": grouped["annual_midpoint"].median(),
+    "flexible_share": in_scope[known_arrangement].groupby("role_family")["remote_status"]
+                      .apply(lambda s: s.isin(["Remote", "Hybrid"]).mean()),
+    "entry_share": grouped["entry_accessible"].mean(),
+    "fulltime_share": grouped["employment_type"].apply(lambda s: (s == "Full-time").mean()),
+}).reindex(families)
+
+for tool in TOOLS:
+    bench[tool] = grouped[tool].mean().reindex(families)
+
+def pct(x):
+    return f"{x * 100:.0f}%"
+
+bench_display = pd.DataFrame({
+    "Group": ["Core" if f in CORE else "Adjacent" for f in bench.index],
+    "Postings": bench["postings"].astype(int),
+    "Median salary (USD)": bench["median_salary"].map(lambda v: f"${v:,.0f}"),
+    "Salaries reported": bench["salary_n"].astype(int),
+    "Remote or hybrid": bench["flexible_share"].map(pct),
+    "Non-senior titles": bench["entry_share"].map(pct),
+    "Full-time": bench["fulltime_share"].map(pct),
+    "SQL": bench["SQL"].map(pct),
+    "Python": bench["Python"].map(pct),
+    "Excel": bench["Excel"].map(pct),
+    "Tableau": bench["Tableau"].map(pct),
+    "Power BI": bench["Power BI"].map(pct),
+}, index=bench.index).rename_axis("career track")
+
+bench_display
+```
+
+The benchmark table shows clear trade-offs among the core career tracks:
+
+- **Data Analyst** combines solid pay (median $130,000 from 31 salaries) with the highest flexibility among core career tracks (89% remote or hybrid). It mentions SQL in 70% of postings and Tableau and Power BI in 42% each.
+- **Business / Systems Analyst** has the most postings (252) and the highest share of non-senior titles (62%), but lower pay ($110,000) and far fewer tool mentions (SQL 31%, Power BI 10%).
+- **BI Analyst / Developer** is the most tool-heavy career track (Power BI 58%, SQL 81%). Its median salary rests on only 9 salaries, so it is not reliable.
+- **Analytics Engineer** has the highest core median ($142,133), but from only 6 salaries and 18 postings, and asks for SQL in 94% of postings.
+- The adjacent career tracks pay more but have the fewest non-senior titles (42–46%), so they are longer-term targets.
+
+## Career scorecard
+
+Each career track is scored 0–100 on five measures. Demand and pay are scored relative to the highest core career track. Flexibility, entry access, and skill fit are already percentages.
+
+Team skill levels from the Skill Gap page are converted to numbers: no experience = 0, beginner = 1, some familiarity = 2, comfortable using = 3, advanced = 4. A level of 3 counts as job-ready.
+
+| Measure | Weight | Reasoning |
+|---|---|---|
+| Demand | 20% | More openings improve the odds of being hired |
+| Pay | 20% | Important, but early-career students often trade some pay for access |
+| Flexibility | 15% | Valuable, but less central than getting hired |
+| Entry access | 20% | Our target user is a student or early-career job seeker |
+| Skill fit | 25% | The product shows where a student is closest to ready |
+ 
+```{python}
+TEAM_LEVELS = {
+    "Equeen":  {"SQL": 0, "Python": 1, "Excel": 4, "Tableau": 0, "Power BI": 0},
+    "Senthil": {"SQL": 3, "Python": 3, "Excel": 3, "Tableau": 3, "Power BI": 2},
+    "Luxan":   {"SQL": 1, "Python": 1, "Excel": 1, "Tableau": 1, "Power BI": 1},
+}
+tool_list = list(TOOLS)
+
+def skill_fit(levels, family):
+    demand_weights = bench.loc[family, tool_list].astype(float)
+    readiness = pd.Series({t: min(levels[t] / 3, 1) for t in tool_list})
+    return float((demand_weights * readiness).sum() / demand_weights.sum())
+
+person_fit = pd.DataFrame(
+    {person: [skill_fit(levels, f) for f in families] for person, levels in TEAM_LEVELS.items()},
+    index=families,
+)
+bench["team_fit"] = person_fit.mean(axis=1)
+
+core = bench.loc[CORE].copy()
+
+# Pull small salary samples toward the overall median
+overall_median = jobs.loc[jobs["role_family"].isin(CORE), "annual_midpoint"].median()
+K = 10
+core["pay_adjusted"] = (core["salary_n"] * core["median_salary"] + K * overall_median) / (core["salary_n"] + K)
+
+scores = pd.DataFrame({
+    "Demand": core["postings"] / core["postings"].max() * 100,
+    "Pay": core["pay_adjusted"] / core["pay_adjusted"].max() * 100,
+    "Flexibility": core["flexible_share"] * 100,
+    "Entry access": core["entry_share"] * 100,
+    "Skill fit": core["team_fit"] * 100,
+})
+
+WEIGHTS = {
+    "Base": {"Demand": 0.20, "Pay": 0.20, "Flexibility": 0.15, "Entry access": 0.20, "Skill fit": 0.25},
+    "Equal weights": {"Demand": 0.20, "Pay": 0.20, "Flexibility": 0.20, "Entry access": 0.20, "Skill fit": 0.20},
+    "Pay-first": {"Demand": 0.20, "Pay": 0.40, "Flexibility": 0.10, "Entry access": 0.15, "Skill fit": 0.15},
+    "Learner-first": {"Demand": 0.15, "Pay": 0.10, "Flexibility": 0.10, "Entry access": 0.30, "Skill fit": 0.35},
+}
+totals = pd.DataFrame({name: (scores * pd.Series(w)).sum(axis=1) for name, w in WEIGHTS.items()})
+
+base_w = pd.Series(WEIGHTS["Base"])
+attract_cols = ["Demand", "Pay", "Flexibility"]
+attain_cols = ["Entry access", "Skill fit"]
+scores["Attractiveness"] = (scores[attract_cols] * base_w[attract_cols]).sum(axis=1) / base_w[attract_cols].sum()
+scores["Attainability"] = (scores[attain_cols] * base_w[attain_cols]).sum(axis=1) / base_w[attain_cols].sum()
+scores["Overall score"] = totals["Base"]
+scores = scores.sort_values("Overall score", ascending=False)
+
+scorecard = scores.round(1)
+scorecard.insert(0, "Rank", range(1, len(scorecard) + 1))
+scorecard.index.name = "career track"
+scorecard
+```
+
+```{python}
+import plotly.express as px
+import plotly.graph_objects as go
+
+heat = scores[["Demand", "Pay", "Flexibility", "Entry access", "Skill fit", "Overall score"]].round(0)
+
+fig_heat = go.Figure(go.Heatmap(
+    z=heat.values,
+    x=heat.columns,
+    y=heat.index,
+    text=heat.values.astype(int),
+    texttemplate="%{text}",
+    colorscale=[[0, "#EFF6FF"], [0.5, "#93C5FD"], [1, "#1D4ED8"]],
+    zmin=0, zmax=100,
+    xgap=2, ygap=2,
+    colorbar=dict(title="Score"),
+    hovertemplate="%{y}<br>%{x}: %{z:.0f}<extra></extra>",
+))
+
+fig_heat.update_layout(
+    title=dict(
+        text="Business / Systems Analyst leads on demand; Data Analyst on pay",
+        font=dict(size=16),
+    ),
+    template="plotly_white",
+    height=400,
+    margin=dict(l=20, r=20, t=60, b=80),
+    yaxis=dict(autorange="reversed"),
+)
+
+fig_heat.show()
+```
+
+Business / Systems Analyst ranks first mainly because of volume. It has the most postings (demand score of 100) and the highest share of non-senior titles. Data Analyst comes second, scoring higher than Business / Systems Analyst on pay and flexibility. Analytics Engineer has the highest pay score, but it is based on only 6 salaries, so it should be read with caution. BI Analyst / Developer and Analytics Engineer both pay well, but they have very few postings in this industry, which pulls their overall scores down.
+
+### Attractive versus attainable
+
+```{python}
+quad = scores.reset_index()
+
+# Place each label so they don't overlap
+label_position = {
+    "Business / Systems Analyst": "bottom center",
+    "Data Analyst": "top center",
+    "BI Analyst / Developer": "bottom right",
+    "Analytics Engineer": "top right",
+}
+
+fig_quad = px.scatter(
+    quad,
+    x="Attainability",
+    y="Attractiveness",
+    text="role_family",
+    size=core.loc[scores.index, "postings"].values,
+    size_max=45,
+    labels={"Attainability": "Attainability (entry access + skill fit)",
+            "Attractiveness": "Attractiveness (demand + pay + flexibility)"},
+    template="plotly_white",
+)
+fig_quad.update_traces(
+    marker=dict(color="#2563EB", opacity=0.75, line=dict(width=2, color="white")),
+    textposition=[label_position[f] for f in quad["role_family"]],
+)
+fig_quad.add_vline(x=scores["Attainability"].median(), line_dash="dot", line_color="#9CA3AF")
+fig_quad.add_hline(y=scores["Attractiveness"].median(), line_dash="dot", line_color="#9CA3AF")
+
+fig_quad.update_layout(
+    title=dict(text="B/SA leads on both attractiveness and attainability", font=dict(size=16)),
+    height=500,
+    margin=dict(l=20, r=40, t=60, b=40),
+    xaxis=dict(range=[48, 59]),
+    yaxis=dict(range=[56, 98]),
+)
+fig_quad.show()
+```
+
+Business / Systems Analyst stands alone in the top-right corner as the most attractive and easiest choice to enter. Because all four roles have very similar entry scores (around 50 to 56), the main difference between them is how attractive they are.
+
+### Does the ranking depend on the weights?
+
+```{python}
+rank_table = totals.rank(ascending=False).astype(int).loc[scores.index]
+rank_table.columns = [f"Rank: {c}" for c in rank_table.columns]
+rank_table.index.name = "career track"
+rank_table
+```
+
+The top two roles remain unchanged across all four weighting methods. Only the BI Analyst / Developer and Analytics Engineer roles swap positions when pay is prioritized, due to the higher salary of the Analytics Engineer role. Therefore, our recommendation is stable and does not depend on the exact weights chosen.
+
+## Skill fit by team member
+
+```{python}
+fit_view = (person_fit * 100).round(0)
+
+fig_fit = go.Figure(go.Heatmap(
+    z=fit_view.values,
+    x=fit_view.columns,
+    y=fit_view.index,
+    text=fit_view.values.astype(int),
+    texttemplate="%{text}%",
+    colorscale=[[0, "#EFF6FF"], [0.5, "#93C5FD"], [1, "#1D4ED8"]],
+    zmin=0, zmax=100,
+    xgap=2, ygap=2,
+    colorbar=dict(title="Fit %"),
+    hovertemplate="%{x} → %{y}<br>Skill fit: %{z:.0f}%<extra></extra>",
+))
+fig_fit.update_layout(
+    title=dict(text="How ready each of us is for each career track", font=dict(size=16)),
+    template="plotly_white",
+    height=440,
+    margin=dict(l=20, r=20, t=60, b=40),
+    yaxis=dict(autorange="reversed"),
+)
+fig_fit.show()
+```
+
+Senthil is ready for every career track (above 90%), with Power BI as his only real gap. My best current fit is Business / Systems Analyst (26%), since those postings rely less on SQL and dashboard tools and more on Excel, my strongest tool. My fit is lowest for Analytics Engineer (10%), which asks for SQL in almost every posting. Luxan scores 33% across the board because he reported beginner level on every tool, so improving any single tool would raise his fit everywhere. For both of us, SQL is the skill that would make the biggest difference, since it shows up in most postings in every core career track except Business / Systems Analyst.
+
+## Testing our expectations about BI tools
+
+Our introduction expected that employers rarely ask for both Power BI and Tableau, and that SQL plus a cloud platform plus a BI tool is the minimum skill set for BI roles.
+
+```{python}
+core_jobs = jobs[jobs["role_family"].isin(CORE)]
+either = core_jobs["Tableau"] | core_jobs["Power BI"]
+both = core_jobs["Tableau"] & core_jobs["Power BI"]
+core_desc = description.loc[core_jobs.index]
+cloud = core_desc.str.contains(r"\bsnowflake\b|\bbigquery\b|\baws\b|\bazure\b|\bgcp\b|google cloud|databricks|redshift")
+stakeholder = core_desc.str.contains(r"stakeholder")
+
+tool_check = pd.DataFrame({
+    "Postings matching": [
+        int(either.sum()),
+        int(both.sum()),
+        int((core_jobs["SQL"] & either).sum()),
+        int((core_jobs["SQL"] & either & cloud).sum()),
+        int(stakeholder.sum()),
+    ],
+}, index=[
+    "Mentions Tableau or Power BI",
+    "Mentions both Tableau and Power BI",
+    "SQL + Tableau or Power BI",
+    "SQL + Tableau or Power BI + a cloud platform",
+    "Mentions stakeholders",
+])
+tool_check["Share of core postings"] = (tool_check["Postings matching"] / len(core_jobs) * 100).round(1).astype(str) + "%"
+tool_check.index.name = "Check"
+tool_check
+```
+
+This is where the data overturned our expectations. We assumed employers would pick a side between Power BI and Tableau, but 43% of the postings that mention one also mention the other. For a student, this means it is better to learn one tool well and be able to talk about the other than to bet everything on one. We also expected "SQL + cloud + BI tool" to be the entry ticket, but it appears in only 16.5% of core postings. It is a strong profile, but not a minimum requirement. One expectation held up: 70% of postings mention stakeholders, so the ability to work with business partners matters as much as tool skills.
+
+## Game plan for a BI job seeker
+
+### Where to strike first
+**Data Analyst** is the best BI-relevant target: a $130,000 median, 89% remote or hybrid, and real BI tool use in about 4 in 10 postings. **Business / Systems Analyst** is the widest door: the most openings (252) and the most non-senior titles (62%). Search by these titles, not just "BI Analyst".
+
+### The high-leverage skill bridge
+**SQL** is the skill that raises your fit for every core career track. It appears in 70% of Data Analyst, 81% of BI Analyst / Developer, and 94% of Analytics Engineer postings. Pair it with **one dashboard tool learned well**, since employers who name one tool often name the other.
+
+### Long-term positioning
+**Analytics Engineer** pays well but has only 18 postings in this industry, and its salary figure rests on 6 data points. Treat it as a second step, once SQL and data modeling are solid, rather than a first application.
+
+## Limitations
+
+- **Career track grouping is based on job titles**, so some postings may be misclassified, and 1,312 postings were excluded as outside the BI scope.
+- **Salary data is limited.** Only 83 of the 480 core postings have a usable USD salary, and the BI Analyst / Developer and Analytics Engineer figures rest on 9 and 6 salaries.
+- **Work arrangement is often missing**, so flexibility is based only on postings that state it.
+- **A tool mentioned in a description is not necessarily required**, and we only checked five tools.
+- **Skill levels are self-reported** and have not been tested.
+- **The data covers one industry (NAICS 5415) and one period (May to August 2026).**
+- **The scorecard weights are our own judgment.** We tested three other weightings, and the top two career tracks stayed the same in every case.
