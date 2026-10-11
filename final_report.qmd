@@ -1,0 +1,787 @@
+---
+title: "MET AD 688 — Big Data and Cloud Analytics for Business"
+subtitle: "Final Project Report — Group 8: Career Pathways for Business Intelligence & Analytics (NAICS 5415)"
+author: "Senthil Sukumar, Dhayasivalaakshan Shanthakkumar, Equeen Thendersz"
+date: today
+bibliography: references.bib
+csl: csl/apa.csl
+format:
+  docx:
+    toc: true
+    toc-depth: 2
+    fig-dpi: 200
+execute:
+  echo: false
+  warning: false
+  message: false
+jupyter: python3
+---
+
+```{python}
+#| label: setup
+import re
+import numpy as np
+import pandas as pd
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+
+plt.rcParams.update({
+    "font.family": "DejaVu Sans", "font.size": 10,
+    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.edgecolor": "#9CA3AF", "axes.labelcolor": "#374151",
+    "xtick.color": "#374151", "ytick.color": "#374151",
+})
+BLUE = "#2563EB"
+BLUES = LinearSegmentedColormap.from_list("site_blues", ["#EFF6FF", "#93C5FD", "#1D4ED8"])
+
+def md_table(df, index=True):
+    """Print a DataFrame as a Markdown table so it becomes a real Word table."""
+    d = df.reset_index() if index else df
+    cols = [str(c) for c in d.columns]
+    widths = [max(len(c) + 3, d[c].astype(str).str.len().max()) for c in d.columns]
+    lines = ["| " + " | ".join(cols) + " |",
+             "|" + "|".join("-" * max(10, w) for w in widths) + "|"]
+    for _, row in d.iterrows():
+        lines.append("| " + " | ".join(str(v) for v in row.values) + " |")
+    print("\n".join(lines) + "\n")
+
+pct = lambda x: f"{x * 100:.0f}%"
+money = lambda v: f"${v:,.0f}"
+
+jobs = pd.read_csv("./outputs/api_job_facts_cleaned.csv")
+title = jobs["title"].fillna("").str.lower()
+description = jobs["description"].fillna("").str.lower()
+```
+
+**Contributions**
+
+| Section | Contributor |
+|---|---|
+| 1. NAICS Code Rationale | Senthil Sukumar |
+| 2. Introduction | Senthil Sukumar |
+| 3. Data Preparation | Senthil Sukumar |
+| 4. Market Baseline | Dhayasivalaakshan Shanthakkumar |
+| 5. Skill Gap Analysis | Dhayasivalaakshan Shanthakkumar |
+| 6. Career Evaluation | Equeen Thendersz |
+| 7. Final Recommendations | Equeen Thendersz |
+
+# NAICS Code Rationale — Business Intelligence & Analytics
+
+| Question | Response |
+|---|---|
+| **Career Pathway** | Business Intelligence & Analytics |
+| **NAICS Code** | NAICS: **541512** |
+| **Industry Label** | **54 (Sector):** Professional, Scientific, and Technical Services; **5415 (Industry Group):** Computer Systems Design and Related Services; **541512 (National Industry):** Computer Systems Design Services |
+| **Relevancy** | NAICS code 541512 covers firms that implement technology systems. This is a broad categorization but can cover areas such as developing custom data pipelines, BI tools, and machine learning solutions (listed as *Information management computer systems integration design services* under the NAICS index [1]). This NAICS category is thus the most relevant for students targeting roles in analytics, data science, machine learning, **business intelligence, analytics** or data engineering, or closely related data careers. |
+
+[1]: *North American Industry Classification System (NAICS) U.S. Census Bureau.* (n.d.). https://www.census.gov/naics/?input=5415&year=2022&details=541512
+
+# Introduction
+
+*Career Pathways for Business Intelligence and Analytics Professionals (NAICS 541512)*
+
+## Introduction
+
+Business intelligence (BI) and analytics professionals occupy a distinct and growing segment of the technology labor market. These professionals sit at the intersection of technical data skills and business stakeholder communication. Unlike data scientists who build predictive models or machine learning engineers who deploy algorithms, BI analysts are responsible for translating operational data into dashboards, KPIs, and reports that drive decision quality and impact commercial outcomes for businesses. This role type is in high demand, **highly varied across industries**, and poorly served by existing career guidance tools.
+
+Students and early-career professionals targeting BI and analytics roles face ambiguity of hiring expectations when it comes to which combination of tools, domain fluency, and communication skills will make them competitive. For example, someone fluent in SQL and Tableau competes for jobs that are different from someone else who is fluent in Power BI and DAX, but both would be hired as a "BI analyst".
+
+Current career advising tools do not always resolve this distinction. Furthermore, a key requirement of success in this career is strong stakeholder management skills, which evolve based on long-term career pathways. For example, a mid-career BI analyst growing into a senior technical IC will need command of a different set of skills as one growing into a more business-oriented manager.
+
+This project addresses these gaps by building a data-driven career evaluation prototype scoped to NAICS 541512 (Computer Systems Design Services), a sector where BI and analytics roles are concentrated and quickly evolving, especially in the face of AI. The product is designed to help a BI-focused job seeker better understand their strengths and opportunities for upskilling.
+
+## Research and Product Rationale
+
+The case for building this tool is anchored in three ideas:
+
+1. Documented strong labor market growth in BI-specific occupations.
+2. Documented transition in the BI tool landscape that has created new skill requirements, especially as AI handles more of the technical aspects of these roles, emphasizing skills that AI can't (currently) tackle, such as framing business problems, bringing a deep understanding of a firm's business model to BI solutioning, or Stakeholder management and accountability.
+3. Connecting the gap between how students and professionals self-assess their BI readiness, versus what skills employers are actually looking for.
+
+## Literature Review
+
+The U.S. Bureau of Labor Statistics projects 35 percent employment growth for data scientists, which is the broader occupational category that encompasses **Business Intelligence Analysts (SOC 15-2051)**, from 2025 to 2035, with a median annual wage of $120,230, making it one of the fastest-growing and highest-compensating occupational groups in the U.S. economy [@bls2024]. This growth is driven by rising enterprise demand for real-time reporting, self-service analytics platforms, and KPI governance frameworks that require dedicated BI practitioners, not just ad-hoc report builders.
+
+The World Economic Forum paces **Business Intelligence Analysts** third on its list of fastest-growing roles globally through 2027, behind only AI/ML Specialists and Sustainability Specialists, with Data Analysts and Scientists projected to add 1.4 million jobs, which a 30–35 percent increase [@wef2023].
+
+Additionally, the BI tooling landscape has undergone a significant shift. The migration from on-premise reporting tools (Crystal Reports, SSRS) to cloud-native platforms (Tableau Cloud, Microsoft Power BI, Looker, Sigma) has redefined the core skill profile employers expect. Forrester Research notes that "BI technology has become largely commoditized," with enterprises now prioritizing platforms native to cloud hyperscalers over legacy on-premise deployments [@forrester2023].
+
+## What we expect to explore and discover
+
+We expect this project to surface three primary findings specific to the BI and analytics career pathway within NAICS 541512.
+
+**First**, BI "Analyst" demand is concentrated around three roles, each with a fairly distinct skill set and salary range:
+
+1. BI developer (tool-focused, platform implementation)
+2. Analytics engineer (data modeling, dbt, Snowflake, visualization)
+3. Analytics communicator (stakeholder-facing partnerships, KPI strategy, reporting governance)
+
+A student who can identify which archetype matches their strengths will compete in a smaller, better-defined market than one who applies generically to all "BI analyst" roles.
+
+**Second**, the broad tooling split between Power BI and Tableau represents a meaningful career specialization branch: employers who use one rarely use both, and compensation and industry concentration differ between firms employing either one. Power BI fluency tends to correlate with stronger demand in financial services and healthcare, while Tableau demand remains stronger in technology firms, but newer start ups tend to use more lightweight tools such as Basedash. Other tools may be required by firms in other industries. This has direct implications for how students should prioritize tool investment and learning.
+
+**Third**, SQL proficiency is still key. SQL combined with at least one cloud data platform (Snowflake or BigQuery) and one BI visualization tool constitutes the minimum viable skill set for entry-level BI roles in NAICS 541512. From these foundational skill sets, a typical student should focus on upskilling based on target roles (e.g., communications, product analytics etc.). We would want to explore the top, varied combinations of **SQL + Cloud Platform + BI tool + Role-specific needs** that would make students competitive in the BI job market.
+
+# Data Preparation
+
+## Load Data from MET API and Initialize PySpark DataFrame
+
+Job postings were pulled from the BU MET Employability Services API for NAICS 5415, paging through the full result set. After keeping postings dated on or after January 1, 2026, the raw pull contained 15,928 postings. Postings were then filtered to analytics-related titles using the keyword patterns below; a posting is kept if its title matches any pattern.
+
+| Title keyword pattern | Matching postings |
+|---|---:|
+| analyst | 880 |
+| data | 1,148 |
+| analytics | 142 |
+| business intelligence | 39 |
+| reporting | 17 |
+| business | 655 |
+| bi | 11 |
+| insight(s) | 21 |
+| visualization | 8 |
+| dashboard | 0 |
+| forecast | 0 |
+| metrics | 3 |
+| quant | 7 |
+
+The filtered sample contains **2,353 postings**, which were loaded into PySpark, mapped to 37 standard fields, and cleaned with PySpark SQL.
+
+## Summary of data cleaning actions
+
+| # | Step | Records / fields affected | Action |
+|---|---|---|---|
+| 1 | Noisy records | Rows with NULL `job_id` or `title` | Row dropped |
+| 2 | Categorical normalisation | `remote_status`, `employment_type` | Mapped to canonical label, if no match label as `Unknown` |
+| 3 | Salary outliers | `annual_salary_min/max`, `hourly_salary_min/max` | Out-of-range or min > max will default to `NULL` |
+
+## Data Dictionary — `api_job_facts_cleaned.csv`
+
+**Source dataset:** `outputs/api_job_facts_cleaned.csv`\
+**Total variables:** 37\
+**Data pipeline logic:** BU MET Employability Services API > pandas (client-side filter) > PySpark SQL (clean & standardise)\
+**Date filter applied:** `posted_at >= 2026-01-01 UTC`
+
+| # | Variable | Original API Field | Type | Nullable | Description |
+|--|--------------|--------------|------|------|------------------|
+| 1 | `job_id` | `job_id` | String | No | Unique identifier for each job posting |
+| 2 | `posted_at` | `posted_at` | DateTime | No | Date and time the job posting was published (UTC) |
+| 3 | `title` | `title` | String | No | Original job title as listed in the posting |
+| 4 | `normalized_title` | `normalized_title` | String | Yes | Platform-standardized version of the job title |
+| 5 | `company_name` | `company_name` | String | Yes | Name of the hiring company or employer |
+| 6 | `location_text` | `location_text` | String | Yes | Raw location text as provided in the job posting |
+| 7 | `city` | `city` | String | Yes | City where the job is located |
+| 8 | `city_code` | `city_code` | String | Yes | Platform-assigned coded identifier for the city |
+| 9 | `state` | `state` | String | Yes | Full state name where the job is located |
+| 10 | `state_code` | `state_code` | String | Yes | Two-letter US state abbreviation |
+| 11 | `remote_status` | `remote_status (raw)` | String | No | Cleaned work-arrangement category (Remote / Hybrid / On-site / Unknown) |
+| 12 | `employment_type` | `employment_type (raw)` | String | No | Cleaned employment type (Full-time / Part-time / Contract / Internship / Unknown) |
+| 13 | `salary_text` | `salary_text` | String | Yes | Raw salary string exactly as displayed in the job posting |
+| 14 | `annual_salary_min` | `annual_salary_min (raw)` | Double | Yes | Minimum annual salary (cleaned); NULL if outside $20K–$500K or min > max |
+| 15 | `annual_salary_max` | `annual_salary_max (raw)` | Double | Yes | Maximum annual salary (cleaned); NULL if outside $20K–$500K or min > max |
+| 16 | `hourly_salary_min` | `hourly_salary_min (raw)` | Double | Yes | Minimum hourly rate (cleaned); NULL if outside $10–$250/hr or min > max |
+| 17 | `hourly_salary_max` | `hourly_salary_max (raw)` | Double | Yes | Maximum hourly rate (cleaned); NULL if outside $10–$250/hr or min > max |
+| 18 | `soc_code` | `soc_code` | String | Yes | Standard Occupational Classification (SOC) code assigned to the role |
+| 19 | `soc_name` | `soc_name` | String | Yes | SOC occupation title corresponding to soc_code |
+| 20 | `occupation_family` | `occupation_family` | String | Yes | Broad occupational family or group the role belongs to |
+| 21 | `naics_code` | `naics_code` | String | Yes | NAICS code for the employer's industry |
+| 22 | `naics_name` | `naics_name` | String | Yes | NAICS industry name corresponding to naics_code |
+| 23 | `onet_code` | `onet_code` | String | Yes | O*NET occupation code for the role |
+| 24 | `onet_name` | `onet_name` | String | Yes | O*NET occupation title corresponding to onet_code |
+| 25 | `cip_code` | `cip_code` | String | Yes | CIP code linking the role to academic programs |
+| 26 | `cip_name` | `cip_name` | String | Yes | CIP program name corresponding to cip_code |
+| 27 | `skills` | `skills` | String | Yes | Skills required or mentioned in the posting (serialized list) |
+| 28 | `program_matches` | `program_matches` | String | Yes | Academic programs the platform matched to this role (serialized list) |
+| 29 | `description` | `description` | String | Yes | Full text of the job posting description |
+| 30 | `bls_employment` | `bls.employment` | Double | Yes | BLS national employment estimate for the corresponding SOC occupation |
+| 31 | `bls_annual_mean_wage` | `bls.annual_mean_wage` | Double | Yes | BLS mean annual wage for the corresponding SOC occupation |
+| 32 | `bls_annual_median_wage` | `bls.annual_median_wage` | Double | Yes | BLS median annual wage for the corresponding SOC occupation |
+| 33 | `bls_source_year` | `bls.source_year` | Integer | Yes | Reference year of the BLS wage and employment data |
+| 34 | `student_signals_work_type` | `student_signals.work_type` | String | Yes | Platform work-type signal aimed at student job-seekers |
+| 35 | `student_signals_requirements_summary` | `student_signals.requirements_summary` | String | Yes | AI-generated summary of role requirements framed for students |
+| 36 | `student_signals_responsibilities_summary` | `student_signals.responsibilities_summary` | String | Yes | AI-generated summary of job responsibilities framed for students |
+| 37 | `student_signals_technical_tools_summary` | `student_signals.technical_tools_summary` | String | Yes | AI-generated summary of technical tools and skills required, framed for students |
+
+# Market Baseline
+
+## Introduction
+
+For this market baseline, we are using job-posting data from Computer Systems Design and Related Services industry (NAICS 5415). We look at job titles, locations, work arrangements, salaries, and analytics tools mentioned in the job descriptions. This will help us understand the opportunities shown in our data and give us a starting point for comparing them with our team's skills.
+
+We began by checking how much data we have and what information is available. We then looked at missing values, converted usable salary ranges into annual amounts, and created charts to make the patterns easier to understand. We found some limitations along the way, including missing location information, unknown work arrangements, and roles outside our intended analytics focus.
+
+## Dataset overview
+
+```{python}
+#| output: asis
+posted = pd.to_datetime(jobs["posted_at"])
+overview = pd.DataFrame({"Value": {
+    "Total postings": f"{len(jobs):,}",
+    "Unique job IDs": f"{jobs['job_id'].nunique():,}",
+    "Distinct employers": f"{jobs['company_name'].nunique():,}",
+    "Earliest posting": posted.min().strftime("%Y-%m-%d"),
+    "Latest posting": posted.max().strftime("%Y-%m-%d"),
+}}).rename_axis("Measure")
+md_table(overview)
+```
+
+## Location coverage
+
+```{python}
+#| output: asis
+loc_counts = (jobs["location_text"].fillna("Unknown").replace("", "Unknown")
+              .value_counts().head(20).rename_axis("Location").to_frame("Postings"))
+print("**Top 20 recorded locations**\n")
+md_table(loc_counts)
+```
+
+## Salary coverage and currency checks
+
+```{python}
+#| output: asis
+has_annual = jobs["annual_salary_min"].notna() & jobs["annual_salary_max"].notna()
+has_hourly = jobs["hourly_salary_min"].notna() & jobs["hourly_salary_max"].notna()
+no_salary = (jobs[["annual_salary_min", "annual_salary_max",
+                   "hourly_salary_min", "hourly_salary_max"]].isna().all(axis=1))
+coverage = pd.DataFrame({"Value": {
+    "Total postings": f"{len(jobs):,}",
+    "With annual range": int(has_annual.sum()),
+    "With hourly range": int(has_hourly.sum()),
+    "Without numeric salary": f"{int(no_salary.sum()):,}",
+}}).rename_axis("Measure")
+md_table(coverage)
+
+jobs["annualized_min"] = np.where(has_annual, jobs["annual_salary_min"],
+                                  np.where(has_hourly, jobs["hourly_salary_min"] * 2080, np.nan))
+jobs["annualized_max"] = np.where(has_annual, jobs["annual_salary_max"],
+                                  np.where(has_hourly, jobs["hourly_salary_max"] * 2080, np.nan))
+code = (jobs["salary_text"].fillna("").str.upper()
+        .str.extract(r"\b(USD|CAD|EUR|GBP|AUD|NZD|INR|SGD|JPY|CHF|CNY|AED)\b")[0])
+us_states = ("AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|"
+             "NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY|DC")
+loc = jobs["location_text"].fillna("").str.upper()
+us_location = (
+    loc.str.contains(r"\bUNITED STATES\b|\bUSA\b|\bU\.S\.A?\.")
+    | loc.str.contains(r",\s*(?:" + us_states + r")\b")
+    | loc.str.contains(r"\b(?:ARIZONA|TEXAS|CALIFORNIA|FLORIDA|MARYLAND|MICHIGAN|MISSOURI|NEW YORK)\b")
+    | loc.str.contains(r"\bLOS ANGELES METROPOLITAN AREA\b")
+)
+jobs["currency_basis"] = np.where(code.notna(), "Explicit currency in salary text",
+                                  np.where(us_location, "Assumed from US location", "Unconfirmed"))
+jobs["salary_currency"] = code.where(code.notna(), np.where(us_location, "USD", "Unconfirmed"))
+cur = (jobs[jobs["annualized_min"].notna()]
+       .groupby(["salary_currency", "currency_basis"]).size()
+       .sort_values(ascending=False).rename("Postings").reset_index()
+       .rename(columns={"salary_currency": "Currency", "currency_basis": "Basis"}))
+print("**Salary currency for postings with a usable range**\n")
+md_table(cur, index=False)
+
+jobs["annual_midpoint"] = np.where(
+    (jobs["salary_currency"] == "USD") & jobs["annualized_min"].notna(),
+    (jobs["annualized_min"] + jobs["annualized_max"]) / 2, np.nan)
+```
+
+## Tools mentioned in job descriptions
+
+```{python}
+#| label: fig-tools
+#| fig-cap: "Selected analytics tools mentioned in job descriptions."
+BASE_TOOLS = {
+    "SQL": r"\bsql\b", "Python": r"\bpython\b",
+    "Excel": r"\bexcel\b(?!\s+(?:in|at|as|within)\b)",
+    "Tableau": r"\btableau\b", "Power BI": r"\bpower[\s-]*bi\b",
+    "Apache Spark / PySpark": r"\b(?:apache\s+spark|pyspark)\b", "Pandas": r"\bpandas\b",
+}
+has_desc = description.str.strip() != ""
+tool_counts = pd.Series({t: int(description[has_desc].str.contains(p).sum()) for t, p in BASE_TOOLS.items()}).sort_values()
+fig, ax = plt.subplots(figsize=(6.5, 3.2))
+ax.barh(tool_counts.index, tool_counts.values, color=BLUE, height=0.6)
+for i, v in enumerate(tool_counts.values):
+    ax.text(v + 8, i, f"{v}", va="center")
+ax.set_xlabel("Postings mentioning tool")
+ax.set_xlim(0, tool_counts.max() * 1.15)
+plt.tight_layout()
+plt.show()
+```
+
+SQL and Python were the most frequently mentioned tools among the seven we checked, appearing in 38.3% and 35.8% of job descriptions. This gives us a starting point for comparing employer mentions with our team's skills. We used descriptions because the structured skills field appeared incomplete. A mention does not always mean the tool is required.
+
+## Work arrangements
+
+```{python}
+#| label: fig-work
+#| fig-cap: "Recorded work arrangements in the current sample."
+work = jobs["remote_status"].value_counts()
+colors = {"Unknown": "#9CA3AF", "Hybrid": "#2563EB", "Remote": "#059669", "On-site": "#D97706"}
+fig, ax = plt.subplots(figsize=(6.5, 3.2))
+bars = ax.bar(work.index, work.values, color=[colors.get(k, BLUE) for k in work.index], width=0.6)
+for b, v in zip(bars, work.values):
+    ax.text(b.get_x() + b.get_width() / 2, v + 15, f"{v:,}", ha="center")
+ax.set_ylabel("Postings")
+ax.set_xlabel("Work arrangement")
+ax.set_ylim(0, work.max() * 1.15)
+plt.tight_layout()
+plt.show()
+```
+
+Hybrid and remote postings were almost equal, with 518 hybrid and 510 remote roles, compared with 254 on-site roles. However, 1,071 postings, or 45.5%, had an unknown work arrangement. This limits how much we can conclude about work arrangements across the full sample.
+
+## Most common job titles
+
+```{python}
+#| label: fig-titles
+#| fig-cap: "Top 15 recorded job titles in the current sample."
+norm = jobs["normalized_title"].fillna("").str.strip()
+role = norm.where(norm != "", jobs["title"].fillna("").str.strip())
+top_titles = (pd.DataFrame({"role": role, "job_id": jobs["job_id"]})
+              .query("role != ''").groupby("role")["job_id"].nunique()
+              .sort_values(ascending=False).head(15).sort_values())
+fig, ax = plt.subplots(figsize=(6.5, 5))
+ax.barh([t if len(t) <= 55 else t[:52] + "..." for t in top_titles.index],
+        top_titles.values, color=BLUE, height=0.6)
+for i, v in enumerate(top_titles.values):
+    ax.text(v + 0.4, i, f"{v}", va="center")
+ax.set_xlabel("Postings")
+plt.tight_layout()
+plt.show()
+```
+
+This graph shows the most common recorded job titles in our current sample. We also found attorney and HR titles outside our intended analytics focus, which showed that the initial filter needs further review. The chart helps us understand what was collected, but we need a more focused sample before drawing conclusions about analytics opportunities.
+
+## Annualized salary distribution
+
+```{python}
+#| label: fig-salary
+#| fig-cap: "Annualized salary midpoints (USD)."
+mid = jobs["annual_midpoint"].dropna()
+fig, ax = plt.subplots(figsize=(6.5, 3.2))
+ax.hist(mid, bins=30, color=BLUE, edgecolor="white")
+ax.axvline(mid.median(), color="#D97706", linestyle="--", linewidth=1.5)
+ax.text(mid.median() * 1.03, ax.get_ylim()[1] * 0.9, f"Median: {money(mid.median())}", color="#B45309")
+ax.set_xlabel("Annualized salary midpoint (USD)")
+ax.set_ylabel("Number of postings")
+ax.xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"${v:,.0f}"))
+plt.tight_layout()
+plt.show()
+```
+
+For the 441 postings included in this salary analysis, the median annualized salary midpoint was $134,250. The distribution has a tail toward higher salaries, showing that some advertised ranges were much higher than others. These are advertised range midpoints rather than actual earnings, and the sample combines different roles and experience levels. Hourly salaries were converted using 2,080 hours per year, and some currencies were assumed to be USD.
+
+# Skill Gap Analysis
+
+## Purpose
+
+This section compares the tools mentioned in our job-posting data with our team's current skills and experience. We use this comparison to identify where we already have relevant skills, where we need more practice, and what we should prioritize learning next.
+
+## How we made the comparison
+
+We use the tool-mention results from our market baseline and the skill information provided by each team member. Because the structured skills field appeared incomplete, we counted selected tools directly in the job descriptions, counting each tool once per posting.
+
+We keep each person's reported skill level and supporting experience visible. Information that was not provided is marked as "Not reported" rather than treated as no experience. Our learning priorities consider both how often a tool appears in the current sample and each member's experience with it.
+
+These results remain provisional while the initial job filtering is reviewed. A tool appearing in a description does not necessarily mean it is required, and our comparison does not measure overall job readiness.
+
+## Current team skills
+
+The table below summarizes our current experience with selected analytics tools. These levels are self-reported and have not been tested. "Not reported" means we still need clarification.
+
+| Tool | Equeen Thendersz | Senthil Sukumar | Luxan Shanthakkumar |
+|---|---|---|---|
+| SQL | No experience | Comfortable using | Beginner |
+| Python | Beginner; using Python, PySpark, and Pandas | Comfortable using | Beginner; learning through coursework with guidance |
+| Excel | Advanced | Comfortable using | Beginner; comfortable with basic use |
+| Tableau | No experience | Comfortable using | Beginner |
+| Power BI | No experience | Some familiarity; less experience | Beginner; not comfortable using |
+
+## Experience supporting our profiles
+
+| Team member | Relevant experience and evidence |
+|---|---|
+| Equeen Thendersz | Supply chain coursework; data cleaning, regression, clustering, and forecasting projects using Python, PySpark, and R; advanced Excel experience reported in financial modeling and operations analysis; manufacturing quality control and Lean Six Sigma Green Belt. |
+| Senthil Sukumar | Twelve years in professional BI and analytics roles. Reports working capability in Python, SQL, Excel, and Tableau, familiarity with Power BI, and experience with Superset and Google Data Studio. Specific work examples would strengthen this profile. |
+| Luxan Shanthakkumar | Business analytics coursework involving SQL, Python, PySpark, and Plotly; basic familiarity with EC2, GitHub, VS Code, and Quarto. Previous experience includes project coordination and reporting during the BMO–Bank of the West integration, business operations and estimating at Delta Mechanical, and SAFe Product Owner/Product Manager certification. |
+
+Our team brings different strengths. Senthil has experience with SQL and Tableau, Equeen has strong Excel and process-improvement experience, and Luxan brings project and business experience while developing technical skills. These strengths can support shared learning, but each person still needs to develop and demonstrate their own abilities.
+
+## Comparing market mentions with our skills
+
+This benchmark uses selected tool mentions from the 2,353 job descriptions examined in our market baseline. The percentages describe our current sample, and a mention does not necessarily mean a required skill.
+
+| Tool | Postings mentioning tool | Percentage of descriptions | What this means for our team |
+|--------|----------|----------|----------------------------------------|
+| SQL | 901 | 38.3% | Equeen needs to build a foundation, while Luxan needs more practice. Senthil reports being comfortable using SQL. |
+| Python | 843 | 35.8% | Equeen and Luxan are beginners, so developing independent use is a priority. Senthil’s has working experience with python |
+| Excel | 286 | 12.2% | Equeen reports advanced proficiency and Senthil is comfortable using it. Luxan can strengthen his analysis and reporting skills. |
+| Power BI | 261 | 11.1% | Equeen has no experience, Luxan is not comfortable using it, and Senthil has some familiarity. Dashboard development is an area to consider. |
+| Tableau | 232 | 9.9% | Senthil reports being comfortable using it, while Equeen has no experience. Luxan has beginner experience and would benefit from further dashboard practice. |
+
+SQL and Python were mentioned most frequently among the tools we checked. Combined with the beginner or no-experience levels reported by Equeen and Luxan, this makes them our clearest initial learning priorities. Power BI and Tableau provide another area for development, but members can begin with one dashboard tool rather than learning both at once.
+
+Tools not included here may still matter for particular roles.
+
+## Learning priorities and next steps
+
+We prioritize skills by considering their frequency in our sample alongside each person's reported experience. These are proposed learning actions, rather than tested measures of employability.
+
+| Team member | Priority | Reason | Proposed action and evidence of progress |
+|-------|-----------|----------------|------------------|
+| Equeen | Build SQL foundations | SQL appeared in 38.3% of descriptions, and she reports no experience. | Practice filtering, joins, and grouping. Complete a small SQL analysis and explain how the results were checked. |
+| Equeen | Strengthen independent Python use | Python appeared in 35.8% of descriptions, and she reports beginner proficiency. | Independently clean and summarize a dataset using Pandas, documenting missing values and validating the results. |
+| Equeen | Learn one dashboard tool | She reports no Tableau or Power BI experience. | Build a dashboard using one tool, drawing on her Excel and operations-analysis experience. |
+| Senthil | Document existing SQL and Tableau strengths | He reports being comfortable with both and has substantial BI experience. | Add a nonconfidential project example explaining the business question, his contribution, and the outcome. |
+| Senthil | Consider further Power BI practice | He reports less experience with Power BI than Tableau. | If relevant to his target postings, recreate a familiar dashboard in Power BI and compare the workflow. |
+| Luxan | Strengthen SQL foundations | SQL appeared most frequently among the selected tools, and he reports beginner proficiency. | Complete a small analysis using joins and grouping, then explain and verify the results independently. |
+| Luxan | Develop independent Python use | Python was frequently mentioned, and his current experience involves guided coursework. | Rebuild a small data-cleaning and visualization task, explaining each step and checking the output. |
+| Luxan | Build confidence in Power BI | He reports beginner proficiency and is not comfortable using it. | Create a simple dashboard with filters and clear measures, then check its totals against the source data. |
+| Luxan | Improve Excel analysis skills | He is comfortable with basic use but still reports beginner proficiency. | Build a workbook using formulas, pivot tables, and a chart to answer a business question. |
+
+## Applying the findings
+
+Our main initial priorities are SQL and Python for members who report limited experience. Dashboard practice can follow, with each member choosing a tool relevant to the roles they are considering.
+
+Senthil's SQL and Tableau experience can support peer review, while Equeen's Excel and process-improvement experience can help with checking calculations and interpreting operational results. Each member should produce their own work and be able to explain it.
+
+For job applications, we should compare our evidence with the requirements of individual postings. Existing business, operations, and project experience can support our profiles, but the tool-mention percentages alone cannot establish whether someone is ready for a particular role.
+
+# Career Evaluation
+
+## Purpose
+
+This page compares BI-pathway career tracks on how attractive they are (demand, pay, flexibility) and how attainable they are for our team (entry access, skill fit).
+
+::: {.callout-tip}
+## What surprised us
+
+- **"BI Analyst" is rarely the job title.** Only 52 of 2,353 postings use a BI title. Most BI work in this industry is posted as Data Analyst or Business / Systems Analyst.
+- **We expected Power BI and Tableau to be either/or. They often aren't.** Of the 163 core postings that mention either tool, 70 (43%) mention both.
+- **The highest median salary comes with the fewest openings.** Analytics Engineer shows a $142,133 median, but it has only 18 postings and only 6 reported salaries.
+:::
+
+## Grouping postings into career tracks
+
+Standardizing job titles across different employers involves sorting each posting into a specific career track using keyword rules. These rules are evaluated sequentially, and the career track is assigned based on the first matching keyword. Non-analytical titles, such as cybersecurity, human resources, legal, software engineering, and data entry, are filtered out initially.
+
+```{python}
+#| output: asis
+FAMILY_RULES = [
+    ("Outside BI scope", r"software (engineer|developer|development)|\bsde\b|cyber|security|attorney|\bhr\b|human resources|people business|business development|data entry|artist"),
+    ("Analytics Engineer", r"analytics engineer"),
+    ("BI Analyst / Developer", r"business intelligence|\bbi\b|power ?bi|tableau|looker|dashboard|reporting (analyst|developer|specialist|automation)"),
+    ("Data Scientist / ML", r"data scien|machine learning|\bml\b|applied scientist"),
+    ("Data Analyst", r"data analy|analytics analyst|insights? analyst|data analysr|analytics (specialist|consultant|manager|lead)|product analyst|marketing analyst"),
+    ("Business / Systems Analyst", r"business (systems? )?analyst|systems analyst|business analytics"),
+    ("Data Engineer / Architect", r"data engineer|data architect|\betl\b|data platform|data warehouse|database"),
+]
+def classify(text):
+    for family, pattern in FAMILY_RULES:
+        if re.search(pattern, text):
+            return family
+    return "Outside BI scope"
+jobs["role_family"] = title.map(classify)
+CORE = ["BI Analyst / Developer", "Data Analyst", "Business / Systems Analyst", "Analytics Engineer"]
+ADJACENT = ["Data Engineer / Architect", "Data Scientist / ML"]
+md_table(jobs["role_family"].value_counts().rename_axis("Career track").to_frame("Postings"))
+```
+
+## Benchmark table
+
+```{python}
+#| output: asis
+SENIOR = r"\b(?:senior|sr\.?|lead|principal|staff|director|manager|head|vp|vice president|chief|architect|iii|iv|v)\b"
+jobs["entry_accessible"] = ~title.str.contains(SENIOR)
+TOOLS = {"SQL": r"\bsql\b", "Python": r"\bpython\b",
+         "Excel": r"\bexcel\b(?!\s+(?:in|at|as|within)\b)",
+         "Tableau": r"\btableau\b", "Power BI": r"\bpower[\s-]*bi\b"}
+for t, p in TOOLS.items():
+    jobs[t] = description.str.contains(p)
+
+families = CORE + ADJACENT
+known_arr = jobs["remote_status"] != "Unknown"
+in_scope = jobs[jobs["role_family"].isin(families)]
+g = in_scope.groupby("role_family")
+bench = pd.DataFrame({
+    "postings": g.size(),
+    "salary_n": g["annual_midpoint"].count(),
+    "median_salary": g["annual_midpoint"].median(),
+    "flexible_share": in_scope[known_arr].groupby("role_family")["remote_status"]
+                      .apply(lambda s: s.isin(["Remote", "Hybrid"]).mean()),
+    "entry_share": g["entry_accessible"].mean(),
+    "fulltime_share": g["employment_type"].apply(lambda s: (s == "Full-time").mean()),
+}).reindex(families)
+for t in TOOLS:
+    bench[t] = g[t].mean().reindex(families)
+
+opp = pd.DataFrame({
+    "Postings": bench["postings"].astype(int),
+    "Median salary (USD)": bench["median_salary"].map(money),
+    "Salaries reported": bench["salary_n"].astype(int),
+    "Remote or hybrid": bench["flexible_share"].map(pct),
+    "Non-senior titles": bench["entry_share"].map(pct),
+    "Full-time": bench["fulltime_share"].map(pct),
+}, index=bench.index).rename_axis("Career track")
+print("**Opportunity measures** (first four rows are the core career tracks; the last two are adjacent benchmarks)\n")
+md_table(opp)
+tools_tbl = bench[list(TOOLS)].apply(lambda c: c.map(pct)).rename_axis("Career track")
+print("**Share of postings mentioning each tool**\n")
+md_table(tools_tbl)
+```
+
+The benchmark table shows clear trade-offs among the core career tracks:
+
+- **Data Analyst** combines solid pay (median $130,000 from 31 salaries) with the highest flexibility among core career tracks (89% remote or hybrid). It mentions SQL in 70% of postings and Tableau and Power BI in 42% each.
+- **Business / Systems Analyst** has the most postings (252) and the highest share of non-senior titles (62%), but lower pay ($110,000) and far fewer tool mentions (SQL 31%, Power BI 10%).
+- **BI Analyst / Developer** is the most tool-heavy career track (Power BI 58%, SQL 81%). Its median salary rests on only 9 salaries, so it is not reliable.
+- **Analytics Engineer** has the highest core median ($142,133), but from only 6 salaries and 18 postings, and asks for SQL in 94% of postings.
+- The adjacent career tracks pay more but have the fewest non-senior titles (42–46%), so they are longer-term targets.
+
+## Career scorecard
+
+Each career track is scored 0–100 on five measures. Demand and pay are scored relative to the highest core career track. Flexibility, entry access, and skill fit are already percentages.
+
+Team skill levels from the Skill Gap page are converted to numbers: no experience = 0, beginner = 1, some familiarity = 2, comfortable using = 3, advanced = 4. A level of 3 counts as job-ready.
+
+| Measure | Weight | Reasoning |
+|---|---|---|
+| Demand | 20% | More openings improve the odds of being hired |
+| Pay | 20% | Important, but early-career students often trade some pay for access |
+| Flexibility | 15% | Valuable, but less central than getting hired |
+| Entry access | 20% | Our target user is a student or early-career job seeker |
+| Skill fit | 25% | The product shows where a student is closest to ready |
+
+```{python}
+#| output: asis
+TEAM_LEVELS = {
+    "Equeen":  {"SQL": 0, "Python": 1, "Excel": 4, "Tableau": 0, "Power BI": 0},
+    "Senthil": {"SQL": 3, "Python": 3, "Excel": 3, "Tableau": 3, "Power BI": 2},
+    "Luxan":   {"SQL": 1, "Python": 1, "Excel": 1, "Tableau": 1, "Power BI": 1},
+}
+tool_list = list(TOOLS)
+def skill_fit(levels, family):
+    w = bench.loc[family, tool_list].astype(float)
+    r = pd.Series({t: min(levels[t] / 3, 1) for t in tool_list})
+    return float((w * r).sum() / w.sum())
+person_fit = pd.DataFrame({p: [skill_fit(l, f) for f in families] for p, l in TEAM_LEVELS.items()},
+                          index=families)
+bench["team_fit"] = person_fit.mean(axis=1)
+
+core = bench.loc[CORE].copy()
+overall_median = jobs.loc[jobs["role_family"].isin(CORE), "annual_midpoint"].median()
+K = 10
+core["pay_adjusted"] = (core["salary_n"] * core["median_salary"] + K * overall_median) / (core["salary_n"] + K)
+scores = pd.DataFrame({
+    "Demand": core["postings"] / core["postings"].max() * 100,
+    "Pay": core["pay_adjusted"] / core["pay_adjusted"].max() * 100,
+    "Flexibility": core["flexible_share"] * 100,
+    "Entry access": core["entry_share"] * 100,
+    "Skill fit": core["team_fit"] * 100,
+})
+WEIGHTS = {
+    "Base": {"Demand": .20, "Pay": .20, "Flexibility": .15, "Entry access": .20, "Skill fit": .25},
+    "Equal weights": {"Demand": .20, "Pay": .20, "Flexibility": .20, "Entry access": .20, "Skill fit": .20},
+    "Pay-first": {"Demand": .20, "Pay": .40, "Flexibility": .10, "Entry access": .15, "Skill fit": .15},
+    "Learner-first": {"Demand": .15, "Pay": .10, "Flexibility": .10, "Entry access": .30, "Skill fit": .35},
+}
+totals = pd.DataFrame({n: (scores * pd.Series(w)).sum(axis=1) for n, w in WEIGHTS.items()})
+base_w = pd.Series(WEIGHTS["Base"])
+attract, attain = ["Demand", "Pay", "Flexibility"], ["Entry access", "Skill fit"]
+scores["Attractiveness"] = (scores[attract] * base_w[attract]).sum(axis=1) / base_w[attract].sum()
+scores["Attainability"] = (scores[attain] * base_w[attain]).sum(axis=1) / base_w[attain].sum()
+scores["Overall score"] = totals["Base"]
+scores = scores.sort_values("Overall score", ascending=False)
+
+sc = scores.drop(columns=["Attractiveness", "Attainability"]).round(1)
+sc.insert(0, "Rank", range(1, len(sc) + 1))
+md_table(sc.rename_axis("Career track"))
+```
+
+```{python}
+#| label: fig-scorecard
+#| fig-cap: "Career scorecard: core BI-pathway career tracks (0–100)."
+heat = scores[["Demand", "Pay", "Flexibility", "Entry access", "Skill fit", "Overall score"]].round(0)
+fig, ax = plt.subplots(figsize=(6.5, 3.2))
+im = ax.imshow(heat.values, cmap=BLUES, vmin=0, vmax=100, aspect="auto")
+ax.set_xticks(range(heat.shape[1]), heat.columns, rotation=30, ha="right")
+ax.set_yticks(range(heat.shape[0]), heat.index)
+for i in range(heat.shape[0]):
+    for j in range(heat.shape[1]):
+        v = int(heat.values[i, j])
+        ax.text(j, i, v, ha="center", va="center", color="white" if v >= 70 else "#1F2937")
+ax.spines[:].set_visible(False)
+fig.colorbar(im, ax=ax, label="Score", fraction=0.04)
+plt.tight_layout()
+plt.show()
+```
+
+Business / Systems Analyst ranks first mainly because of volume. It has the most postings (demand score of 100) and the highest share of non-senior titles. Data Analyst comes second, scoring higher than Business / Systems Analyst on pay and flexibility. Analytics Engineer has the highest pay score, but it is based on only 6 salaries, so it should be read with caution. BI Analyst / Developer and Analytics Engineer both pay well, but they have very few postings in this industry, which pulls their overall scores down.
+
+### Attractive versus attainable
+
+```{python}
+#| label: fig-quad
+#| fig-cap: "Attractiveness versus attainability (bubble size = postings)."
+fig, ax = plt.subplots(figsize=(6.5, 4.2))
+sizes = core.loc[scores.index, "postings"].values
+ax.scatter(scores["Attainability"], scores["Attractiveness"], s=sizes * 6,
+           color=BLUE, alpha=0.75, edgecolor="white", linewidth=2)
+ax.axvline(scores["Attainability"].median(), color="#9CA3AF", linestyle=":")
+ax.axhline(scores["Attractiveness"].median(), color="#9CA3AF", linestyle=":")
+offsets = {"Business / Systems Analyst": (0, -28), "Data Analyst": (0, 18),
+           "BI Analyst / Developer": (55, -18), "Analytics Engineer": (-10, 16)}
+for name in scores.index:
+    dx, dy = offsets[name]
+    ax.annotate(name, (scores.loc[name, "Attainability"], scores.loc[name, "Attractiveness"]),
+                xytext=(dx, dy), textcoords="offset points", ha="center", fontsize=9)
+ax.set_xlim(48, 59)
+ax.set_ylim(55, 98)
+ax.set_xlabel("Attainability (entry access + skill fit)")
+ax.set_ylabel("Attractiveness (demand + pay + flexibility)")
+plt.tight_layout()
+plt.show()
+```
+
+Business / Systems Analyst stands alone in the top-right corner as the most attractive and easiest choice to enter. Because all four roles have very similar entry scores (around 50 to 56), the main difference between them is how attractive they are.
+
+### Does the ranking depend on the weights?
+
+```{python}
+#| output: asis
+ranks = totals.rank(ascending=False).astype(int).loc[scores.index]
+ranks.columns = [f"Rank: {c}" for c in ranks.columns]
+md_table(ranks.rename_axis("Career track"))
+```
+
+The top two roles remain unchanged across all four weighting methods. Only the BI Analyst / Developer and Analytics Engineer roles swap positions when pay is prioritized, due to the higher salary of the Analytics Engineer role. Therefore, our recommendation is stable and does not depend on the exact weights chosen.
+
+## Skill fit by team member
+
+```{python}
+#| label: fig-fit
+#| fig-cap: "How ready each of us is for each career track (tool readiness weighted by tool mentions)."
+fit = (person_fit * 100).round(0)
+fig, ax = plt.subplots(figsize=(6.5, 3.6))
+im = ax.imshow(fit.values, cmap=BLUES, vmin=0, vmax=100, aspect="auto")
+ax.set_xticks(range(fit.shape[1]), fit.columns)
+ax.set_yticks(range(fit.shape[0]), fit.index)
+for i in range(fit.shape[0]):
+    for j in range(fit.shape[1]):
+        v = int(fit.values[i, j])
+        ax.text(j, i, f"{v}%", ha="center", va="center", color="white" if v >= 70 else "#1F2937")
+ax.spines[:].set_visible(False)
+fig.colorbar(im, ax=ax, label="Fit %", fraction=0.04)
+plt.tight_layout()
+plt.show()
+```
+
+Senthil is ready for every career track (above 90%), with Power BI as his only real gap. My best current fit is Business / Systems Analyst (26%), since those postings rely less on SQL and dashboard tools and more on Excel, my strongest tool. My fit is lowest for Analytics Engineer (10%), which asks for SQL in almost every posting. Luxan scores 33% across the board because he reported beginner level on every tool, so improving any single tool would raise his fit everywhere. For both of us, SQL is the skill that would make the biggest difference, since it shows up in most postings in every core career track except Business / Systems Analyst.
+
+## Testing our expectations about BI tools
+
+Our introduction expected that employers rarely ask for both Power BI and Tableau, and that SQL plus a cloud platform plus a BI tool is the minimum skill set for BI roles.
+
+```{python}
+#| output: asis
+core_jobs = jobs[jobs["role_family"].isin(CORE)]
+either = core_jobs["Tableau"] | core_jobs["Power BI"]
+both = core_jobs["Tableau"] & core_jobs["Power BI"]
+core_desc = description.loc[core_jobs.index]
+cloud = core_desc.str.contains(r"\bsnowflake\b|\bbigquery\b|\baws\b|\bazure\b|\bgcp\b|google cloud|databricks|redshift")
+stakeholder = core_desc.str.contains(r"stakeholder")
+check = pd.DataFrame({"Postings matching": [
+    int(either.sum()), int(both.sum()), int((core_jobs["SQL"] & either).sum()),
+    int((core_jobs["SQL"] & either & cloud).sum()), int(stakeholder.sum())]},
+    index=["Mentions Tableau or Power BI", "Mentions both Tableau and Power BI",
+           "SQL + Tableau or Power BI", "SQL + Tableau or Power BI + a cloud platform",
+           "Mentions stakeholders"])
+check["Share of core postings"] = (check["Postings matching"] / len(core_jobs) * 100).round(1).astype(str) + "%"
+md_table(check.rename_axis("Check"))
+```
+
+This is where the data overturned our expectations. We assumed employers would pick a side between Power BI and Tableau, but 43% of the postings that mention one also mention the other. For a student, this means it is better to learn one tool well and be able to talk about the other than to bet everything on one. We also expected "SQL + cloud + BI tool" to be the entry ticket, but it appears in only 16.5% of core postings. It is a strong profile, but not a minimum requirement. One expectation held up: 70% of postings mention stakeholders, so the ability to work with business partners matters as much as tool skills.
+
+## Game plan for a BI job seeker
+
+### Where to strike first
+
+**Data Analyst** is the best BI-relevant target: a $130,000 median, 89% remote or hybrid, and real BI tool use in about 4 in 10 postings. **Business / Systems Analyst** is the widest door: the most openings (252) and the most non-senior titles (62%). Search by these titles, not just "BI Analyst".
+
+### The high-leverage skill bridge
+
+**SQL** is the skill that raises your fit for every core career track. It appears in 70% of Data Analyst, 81% of BI Analyst / Developer, and 94% of Analytics Engineer postings. Pair it with **one dashboard tool learned well**, since employers who name one tool often name the other.
+
+### Long-term positioning
+
+**Analytics Engineer** pays well but has only 18 postings in this industry, and its salary figure rests on 6 data points. Treat it as a second step, once SQL and data modeling are solid, rather than a first application.
+
+## Limitations
+
+- **Career track grouping is based on job titles**, so some postings may be misclassified, and 1,312 postings were excluded as outside the BI scope.
+- **Salary data is limited.** Only 83 of the 480 core postings have a usable USD salary, and the BI Analyst / Developer and Analytics Engineer figures rest on 9 and 6 salaries.
+- **Work arrangement is often missing**, so flexibility is based only on postings that state it.
+- **A tool mentioned in a description is not necessarily required**, and we only checked five tools.
+- **Skill levels are self-reported** and have not been tested.
+- **The data covers one industry (NAICS 5415) and one period (May to August 2026).**
+- **The scorecard weights are our own judgment.** We tested three other weightings, and the top two career tracks stayed the same in every case.
+
+# Final Recommendations
+
+*A game plan for BI and analytics job seekers in NAICS 5415*
+
+## Who this is for
+
+This page is for students and early-career job seekers who want to work in business intelligence (BI) and analytics in Computer Systems Design and Related Services (NAICS 5415). It draws on 2,353 job postings from May to August 2026, of which 480 fall into the four core BI career tracks scored in the Career Evaluation section. Demand for these skills is projected to keep growing [@bls2024; @wef2023], but the data shows that how you search and what you learn first make a real difference.
+
+## 1. Where to apply
+
+**Don't search only for "BI Analyst".** Just 52 postings in our sample use a BI title. Most BI work in this industry is posted under other names.
+
+| Priority | Career track | Why | Best for |
+|---|---|---|---|
+| 1 | **Data Analyst** | $130,000 median, 89% remote or hybrid, and Tableau or Power BI in about 4 in 10 postings | Students building SQL and one dashboard tool |
+| 2 | **Business / Systems Analyst** | Most openings (252) and the most non-senior titles (62%), with lighter tool requirements | Students strongest in business, process, and stakeholder work |
+| 3 | **BI Analyst / Developer** | The most direct BI role and the heaviest Power BI user (58%), but few openings here | Students who already have solid SQL and Power BI |
+| Later | **Analytics Engineer** | Highest median in our sample, but only 18 postings and 6 reported salaries | A second step after SQL and data modeling are strong |
+
+Business / Systems Analyst ranks first on our scorecard because of its volume and accessibility. We still put Data Analyst first for a BI-focused job seeker, because it uses BI tools far more often. Students who prefer business-facing work should swap the top two.
+
+## 2. What to learn, and in what order
+
+| When | Focus | Why |
+|---|---|---|
+| **Now** | **SQL** | It appears in 70% of Data Analyst, 81% of BI Analyst / Developer, and 94% of Analytics Engineer postings. It raises your fit for every core career track. |
+| **Next** | **One dashboard tool, learned well** | 43% of postings that mention Tableau or Power BI mention both, so depth in one tool plus familiarity with the other is enough. Choose Power BI if you are targeting BI-titled roles (58% vs. 35% for Tableau). |
+| **Then** | **Python** | It appears in half of Data Analyst postings and opens the path toward analytics engineering. |
+| **Always** | **Stakeholder communication** | 70% of core postings mention stakeholders. Be ready to explain how you gathered requirements or turned results into a decision. |
+| **Later** | **A cloud data platform** | SQL + a BI tool + a cloud platform appears in 16.5% of core postings. It is a strong profile for technical roles but not required to get started. |
+
+## 3. How to position yourself
+
+- **Show it, don't list it.** Build one or two small projects that answer a real business question with SQL and a dashboard. Explain the question, what you did, and what you found.
+- **Use the title employers use.** Apply to Data Analyst roles as "a data analyst with BI and dashboard skills." For Business / Systems Analyst roles, lead with requirements gathering, process improvement, and stakeholder work.
+- **Turn past experience into an advantage.** Operations, finance, and project experience counts in roles where 70% of postings mention stakeholders. Pair it with one technical example.
+- **Confirm remote options early.** Most core postings that state an arrangement are remote or hybrid, but about half don't say, so ask during the process.
+
+## 4. Our team's action plan
+
+| Team member | Best fit today | Next step | Target after that step |
+|---|---|---|---|
+| Equeen Thendersz | Business / Systems Analyst (26% skill fit), where advanced Excel and process-improvement experience count most | Build SQL foundations, then learn Power BI with an operations dataset | Data Analyst |
+| Senthil Sukumar | Strong across every career track (above 90% skill fit) | Strengthen Power BI and document a nonconfidential BI project | BI Analyst / Developer or Analytics Engineer |
+| Luxan Shanthakkumar | Business / Systems Analyst, where his project coordination and product owner experience fit best | Bring SQL to "comfortable using," then build one Power BI dashboard | Data Analyst or Business / Systems Analyst |
+
+## 5. What to keep in mind
+
+- **Career tracks are grouped by job title**, so some postings may be misclassified.
+- **Salary data is thin.** Only 83 of 480 core postings list a usable USD salary.
+- **A tool mentioned in a posting is not always required.**
+- **Skill levels are self-reported** and have not been tested.
+- **The data covers one industry and ten weeks (late May to early August 2026).** Results may differ in other industries or later periods.
+
+## Future improvements
+
+- Refine the career track rules so fewer unrelated postings enter the sample.
+- Add location analysis once location fields are cleaned.
+
+# References {.unnumbered}
+
+::: {#refs}
+:::

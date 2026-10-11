@@ -64,9 +64,7 @@ Business / Systems Analyst ranks first on our scorecard because of its volume an
 
 ## Future improvements
 
-- Refine the career track rules so fewer unrelated postings enter the sample.
-- Add a final model, such as a salary regression or an entry-level vs. senior classifier, to test which factors are linked to stronger opportunities.
-- Add location analysis once location fields are cleaned.
-- Update these recommendations with the final results.
+- **Refine the career track rules so fewer unrelated postings enter the sample.**
+- **Add location analysis once location fields are cleaned.**
 
 ## References {.unnumbered}
